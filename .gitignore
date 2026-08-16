@@ -1,0 +1,15 @@
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Local Claude Code settings (launch.json is intentionally committed)
+.claude/settings.local.json
+
+# Only relevant if dependencies are ever added — the app has none
+node_modules/

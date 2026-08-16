@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chromatic — A Colour Companion</title>
+<meta name="description" content="Learn colour theory, read your own skin tone with the camera, and build palettes that actually work. Works offline.">
+
+<!-- ── PWA ── -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FAF9F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141518" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Chromatic">
+<meta name="application-name" content="Chromatic">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --wrap:1180px;
+  --bg:#FAF9F7; --surface:#FFFFFF; --surface2:#F4F2EF;
+  --ink:#191A1C; --ink2:#3E4145; --muted:#75797F;
+  --line:#E5E2DD; --line2:#D3CFC8;
+  --accent:#B4442F; --accent-soft:rgba(180,68,47,.09);
+  --ok:#2F7D4F; --warn:#9A6B12; --bad:#B03A2E;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05);
+  --r:10px;
+}
+[data-theme=dark]{
+  --bg:#141518; --surface:#1C1E22; --surface2:#232529;
+  --ink:#EDEBE7; --ink2:#C7C5C1; --muted:#93979E;
+  --line:#2C2F34; --line2:#3A3E44;
+  --accent:#E06A4E; --accent-soft:rgba(224,106,78,.13);
+  --ok:#5FBF85; --warn:#D6A93F; --bad:#E5705F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}
+
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Hanken Grotesk',system-ui,sans-serif;
+  font-size:.94rem;line-height:1.65;
+  background:var(--bg);color:var(--ink);
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+  overscroll-behavior-y:none;
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 32px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+
+h1,h2,h3,h4,.disp{font-family:'Fraunces',Georgia,serif;font-weight:400;letter-spacing:-.01em}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 32px;max-width:var(--wrap);margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand h1{font-size:1.75rem;font-weight:600;line-height:1}
+.brand h1 em{font-style:italic;color:var(--accent)}
+.brand span{font-size:.78rem;color:var(--muted);letter-spacing:.01em}
+.theme-btn{background:var(--surface2);border:1px solid var(--line);color:var(--ink2);border-radius:99px;padding:7px 14px;font:500 .76rem 'Hanken Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.18s;white-space:nowrap}
+.theme-btn:hover{border-color:var(--line2);color:var(--ink)}
+
+/* ── NAV ── */
+nav{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:var(--topbar-h,65px);z-index:39}
+.nav-inner{display:flex;max-width:var(--wrap);margin:0 auto;padding:0 32px;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+nav button{font:500 .84rem 'Hanken Grotesk',sans-serif;padding:13px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;transition:.18s;white-space:nowrap;margin-bottom:-1px}
+nav button:hover{color:var(--ink)}
+nav button.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── SECTION ── */
+.section{display:none;padding:40px 0 40px}
+.section.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-head{margin-bottom:26px}
+.sec-head h2{font-size:2.1rem;font-weight:400;margin-bottom:6px;line-height:1.15}
+.sec-head .kicker{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+.sec-head .desc{font-size:1rem;color:var(--ink2);max-width:660px;line-height:1.7}
+
+/* capability strip */
+.caps{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 30px;padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.cap{display:flex;align-items:flex-start;gap:9px;flex:1;min-width:210px}
+.cap-n{width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:600 .68rem 'Hanken Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.cap p{font-size:.82rem;color:var(--ink2);line-height:1.55}
+.cap p b{color:var(--ink);font-weight:600}
+
+h3.block{font-size:1.4rem;margin:38px 0 10px}
+p.lede{font-size:.95rem;line-height:1.75;color:var(--ink2);max-width:680px;margin-bottom:16px}
+p.lede strong{color:var(--ink);font-weight:600}
+.hint{font-size:.8rem;color:var(--muted);line-height:1.65;max-width:660px;margin-top:12px}
+.hint em{font-style:italic}
+
+.callout{background:var(--accent-soft);border-left:3px solid var(--accent);padding:13px 17px;border-radius:0 8px 8px 0;margin:16px 0;font-size:.88rem;line-height:1.7;color:var(--ink2);max-width:700px}
+.callout b{color:var(--ink)}
+
+/* ── CONTROLS ── */
+.btn{font:500 .84rem 'Hanken Grotesk',sans-serif;padding:9px 16px;border-radius:7px;cursor:pointer;transition:.18s;border:1px solid var(--line2);background:var(--surface);color:var(--ink)}
+.btn:hover{border-color:var(--ink2);background:var(--surface2)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(.92)}
+.btn.sm{padding:6px 11px;font-size:.76rem;border-radius:6px}
+.btn:disabled{opacity:.4;cursor:default}
+.ctl{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:7px 12px;border-radius:8px;background:var(--surface)}
+.ctl label{font-size:.76rem;color:var(--muted);font-weight:500}
+input[type=color]{width:34px;height:34px;border:none;background:none;cursor:pointer;padding:0;border-radius:6px}
+input[type=text],input[type=search],select{font:400 .87rem 'Hanken Grotesk',sans-serif;padding:9px 13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+input[type=range]{accent-color:var(--accent);cursor:pointer;height:4px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:500 .78rem 'Hanken Grotesk',sans-serif;padding:9px 15px;background:none;border:none;cursor:pointer;color:var(--muted);transition:.18s}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.chipbtn{font:500 .76rem 'Hanken Grotesk',sans-serif;padding:6px 13px;border:1px solid var(--line);border-radius:99px;background:var(--surface);cursor:pointer;color:var(--muted);transition:.18s}
+.chipbtn:hover{color:var(--ink);border-color:var(--line2)}
+.chipbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ── LESSONS ── */
+.lessons{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.2s}
+.lesson:hover{border-color:var(--line2)}
+.lesson.open{box-shadow:var(--shadow)}
+.lhead{display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;user-select:none}
+.lnum{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--line2);min-width:32px;line-height:1;transition:.2s}
+.lesson.open .lnum{color:var(--accent)}
+.ltitle{flex:1}
+.ltitle h4{font-size:1.12rem;font-weight:600;margin-bottom:1px}
+.ltitle p{font-size:.8rem;color:var(--muted)}
+.larrow{color:var(--muted);transition:transform .22s;font-size:.8rem}
+.lesson.open .larrow{transform:rotate(90deg);color:var(--accent)}
+.lbody{display:none;padding:0 24px 24px 68px}
+.lesson.open .lbody{display:block}
+.lbody p{font-size:.92rem;line-height:1.78;color:var(--ink2);margin-bottom:13px;max-width:640px}
+.lbody strong{color:var(--ink);font-weight:600}
+.lbody em{font-style:italic}
+.progress{display:flex;gap:6px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+.pdot{width:9px;height:9px;border-radius:50%;background:var(--line2);transition:.25s}
+.pdot.done{background:var(--accent);transform:scale(1.2)}
+.qscore{font-size:.78rem;color:var(--muted);margin-left:10px;font-weight:500}
+
+.cdemo{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}
+.cs{display:flex;flex-direction:column;align-items:center;gap:7px}
+.cb{border-radius:8px;border:1px solid var(--line)}
+.cl{font-size:.76rem;color:var(--muted);text-align:center;line-height:1.5;max-width:130px}
+.cl em{color:var(--accent);font-style:normal;font-weight:500}
+.mixrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:10px 0}
+.mixsw{width:52px;height:52px;border-radius:50%;border:1px solid var(--line)}
+.mixop{font-size:1.2rem;color:var(--muted)}
+.tempbar{display:flex;height:44px;border-radius:8px;overflow:hidden;margin:14px 0 6px;border:1px solid var(--line);max-width:620px}
+.tempbar div{flex:1}
+.quiz{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:18px 0;max-width:640px}
+.quiz .q{font-size:.92rem;font-weight:500;margin-bottom:13px;line-height:1.6;color:var(--ink)}
+.qopts{display:flex;flex-wrap:wrap;gap:8px}
+.qbtn{font:400 .85rem 'Hanken Grotesk',sans-serif;padding:8px 15px;border:1px solid var(--line2);border-radius:7px;background:var(--surface);cursor:pointer;color:var(--ink);transition:.18s}
+.qbtn:hover:not(:disabled){border-color:var(--ink2)}
+.qbtn.ok{background:rgba(47,125,79,.13);border-color:var(--ok);color:var(--ok);font-weight:600}
+.qbtn.no{background:rgba(176,58,46,.11);border-color:var(--bad);color:var(--bad)}
+.qfb{font-size:.85rem;margin-top:12px;line-height:1.7;color:var(--muted);display:none}
+.qfb.show{display:block}
+
+/* ── COLOUR PICKER GRID ── */
+.picker{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:26px}
+.picker-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.picker-top input[type=search]{flex:1;min-width:190px}
+.fams{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.swatchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px;max-height:320px;overflow-y:auto;padding-right:4px}
+.sg{cursor:pointer;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--surface2);transition:.16s}
+.sg:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line2)}
+.sg .sw{height:46px}
+.sg .lb{padding:6px 8px 7px}
+.sg .lb b{display:block;font-size:.76rem;font-weight:500;color:var(--ink);line-height:1.3}
+.sg .lb span{font-size:.66rem;color:var(--muted)}
+.pickcount{font-size:.78rem;color:var(--muted)}
+
+/* ── ID CARD ── */
+.idcard{display:flex;gap:20px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:8px}
+.idcard .big{width:82px;height:82px;border-radius:10px;border:1px solid var(--line);flex-shrink:0}
+.idcard .info{flex:1;min-width:210px}
+.idcard .info h3{font-size:1.5rem;font-weight:600;margin-bottom:4px}
+.idmeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pill{font-size:.72rem;padding:3px 10px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);color:var(--muted)}
+
+/* ── RECOMMENDATIONS ── */
+.recgroup{margin-bottom:30px}
+.recgroup h4{font-size:1.25rem;margin-bottom:3px}
+.recgroup .sub{font-size:.83rem;color:var(--muted);margin-bottom:14px}
+.reclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:11px}
+.rec{display:flex;gap:13px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;transition:.18s;cursor:pointer}
+.rec:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--line2)}
+.rec .chip{width:46px;height:46px;border-radius:8px;border:1px solid var(--line);flex-shrink:0}
+.rec .nm{font-size:.92rem;font-weight:600;color:var(--ink);line-height:1.3}
+.rec .hx{font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.rec .why{font-size:.83rem;color:var(--ink2);line-height:1.55}
+.rec .use{font-size:.72rem;color:var(--accent);margin-top:6px;font-weight:600;letter-spacing:.02em}
+
+/* ── LIBRARY ── */
+.libgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:16px}
+.libcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.2s;display:flex;flex-direction:column}
+.libcard:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--line2)}
+.libstrip{display:flex;height:84px}
+.libstrip div{flex:1}
+.libbody{padding:15px 17px 17px;flex:1;display:flex;flex-direction:column}
+.libtag{display:inline-block;align-self:flex-start;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;font-weight:600;background:var(--surface2);border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:99px;margin-bottom:9px}
+.libbody h4{font-size:1.15rem;font-weight:600;margin-bottom:8px}
+.libnames{font-size:.74rem;color:var(--muted);line-height:1.7;margin-bottom:9px}
+.libnote{font-size:.85rem;color:var(--ink2);line-height:1.65;flex:1}
+.libacts{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+
+/* ── WHEEL ── */
+.wheelwrap{display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start}
+#wheel{cursor:crosshair;border-radius:50%;flex-shrink:0;box-shadow:var(--shadow)}
+.wheelinfo{flex:1;min-width:270px;max-width:400px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 18px;font-size:.87rem;margin:16px 0 18px}
+.kv .k{color:var(--muted);font-size:.78rem;font-weight:500}
+.kv .v{color:var(--ink)}
+
+.harmrow{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.hsw{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.hsw .blk{width:84px;height:118px;border-radius:9px;border:1px solid var(--line);transition:.18s}
+.hsw:hover .blk{transform:translateY(-4px);box-shadow:var(--shadow)}
+.hsw span{font-size:.78rem;color:var(--ink2);text-align:center;line-height:1.45;max-width:96px}
+.hsw span i{font-style:normal;color:var(--accent);font-size:.7rem;font-weight:600}
+
+/* ── LAB ── */
+.labnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.labnav button{font:500 .82rem 'Hanken Grotesk',sans-serif;padding:8px 15px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;transition:.18s}
+.labnav button:hover{color:var(--ink);border-color:var(--line2)}
+.labnav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}
+
+#pstrip{display:flex;height:96px;border-radius:var(--r);overflow:hidden;margin-bottom:18px;border:1px solid var(--line)}
+#pstrip div{flex:1}
+.pswatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:11px;margin-bottom:20px}
+.psw{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:9px;overflow:hidden;transition:.16s}
+.psw:hover{box-shadow:var(--shadow)}
+.psw .blk{height:56px;cursor:pointer}
+.psw .lb{padding:7px 9px 9px}
+.psw .lb b{display:block;font-size:.79rem;font-weight:500;line-height:1.3}
+.psw .lb span{font-size:.68rem;color:var(--muted)}
+.rm{position:absolute;top:6px;right:6px;width:19px;height:19px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s}
+.psw:hover .rm{opacity:1}
+
+.proprows{display:flex;flex-direction:column;gap:13px;max-width:600px;margin-bottom:18px}
+.proprow{display:flex;align-items:center;gap:13px}
+.proprow .sw{width:32px;height:32px;border-radius:7px;border:1px solid var(--line);flex-shrink:0}
+.proprow .lbl{font-size:.83rem;color:var(--ink2);min-width:94px}
+.proprow input{flex:1}
+.proprow .pct{font-size:.83rem;min-width:44px;text-align:right;color:var(--ink)}
+#propbar{display:flex;height:76px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);margin-bottom:18px}
+#propbar div{transition:flex .28s}
+
+.prevwrap{display:flex;gap:22px;flex-wrap:wrap}
+.prevbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:center}
+.prevbox h5{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600;font-family:'Hanken Grotesk',sans-serif}
+
+.dropzone{border:2px dashed var(--line2);border-radius:var(--r);padding:44px 24px;text-align:center;cursor:pointer;transition:.2s;max-width:560px;background:var(--surface)}
+.dropzone:hover{border-color:var(--accent);background:var(--surface2)}
+.dropzone p{font-size:.92rem;color:var(--muted);line-height:1.7}
+.dropzone b{color:var(--ink)}
+#photoprev{max-width:300px;border-radius:var(--r);border:1px solid var(--line);margin-bottom:18px;display:none}
+
+.matrix{border-collapse:separate;border-spacing:3px;font-size:.78rem}
+.matrix th{font-weight:500;color:var(--muted);font-size:.72rem;padding:4px}
+.matrix td{text-align:center;padding:7px 5px;border-radius:6px;min-width:52px;font-family:'IBM Plex Mono',monospace}
+.mx-good{background:rgba(47,125,79,.16);color:var(--ok)}
+.mx-mid{background:rgba(154,107,18,.15);color:var(--warn)}
+.mx-bad{background:rgba(176,58,46,.11);color:var(--bad)}
+.mx-sw{width:26px;height:26px;border-radius:5px;border:1px solid var(--line);display:inline-block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;font-size:.8rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:13px;height:13px;border-radius:3px;display:inline-block}
+
+/* ── PERSONAL ── */
+.pcq{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:17px 20px;margin-bottom:11px;max-width:720px}
+.pcq .q{font-size:.94rem;font-weight:500;margin-bottom:12px;line-height:1.6}
+.pcopts{display:flex;flex-wrap:wrap;gap:8px}
+.pcbtn{font:400 .85rem 'Hanken Grotesk',sans-serif;padding:8px 15px;border:1px solid var(--line2);border-radius:7px;background:var(--surface);cursor:pointer;color:var(--ink);transition:.18s}
+.pcbtn:hover{border-color:var(--ink2)}
+.pcbtn.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+#pcresult{display:none;margin-top:34px;border-top:1px solid var(--line);padding-top:30px}
+
+/* ── GLOSSARY ── */
+.glgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.gl{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;transition:.18s}
+.gl:hover{border-color:var(--line2)}
+.gl h4{font-size:1.05rem;font-weight:600;color:var(--accent);margin-bottom:5px}
+.gl p{font-size:.86rem;line-height:1.65;color:var(--ink2)}
+
+/* ── PALETTE TRAY ── */
+.tray{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.06);transition:transform .25s}
+.tray.hidden{transform:translateY(calc(100% - 38px))}
+.tray-inner{max-width:var(--wrap);margin:0 auto;padding:0 32px}
+.tray-bar{display:flex;align-items:center;gap:14px;height:38px;cursor:pointer}
+.tray-bar .t{font-size:.8rem;font-weight:600;color:var(--ink)}
+.tray-bar .c{font-size:.78rem;color:var(--muted)}
+.tray-bar .arrow{margin-left:auto;color:var(--muted);font-size:.72rem;transition:transform .25s}
+.tray.hidden .arrow{transform:rotate(180deg)}
+.tray-body{display:flex;align-items:center;gap:10px;padding:4px 0 14px;flex-wrap:wrap}
+.tray-sw{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);cursor:pointer;transition:.16s;position:relative}
+.tray-sw:hover{transform:translateY(-3px)}
+.tray-empty{font-size:.83rem;color:var(--muted)}
+
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-size:.83rem;font-weight:500;transition:.28s;z-index:99;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+footer{border-top:1px solid var(--line);margin-top:50px;padding:22px 0 34px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--muted)}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px}
+
+@media(max-width:720px){
+  html{font-size:15px}
+  .wrap,.topbar-inner,.nav-inner,.tray-inner{padding-left:18px;padding-right:18px}
+  .lbody{padding:0 18px 20px 20px}
+  .sec-head h2{font-size:1.7rem}
+  .wheelwrap{gap:24px}
+  #wheel{width:100%;max-width:320px;height:auto}
+  .brand h1{font-size:1.45rem}
+}
+
+/* ═══════════════════════════════════════════════
+   PWA SHELL — safe areas, install & update prompts
+   ═══════════════════════════════════════════════ */
+.topbar{padding-top:env(safe-area-inset-top)}
+.tray-inner{padding-bottom:env(safe-area-inset-bottom)}
+.tray.hidden{transform:translateY(calc(100% - 38px - env(safe-area-inset-bottom)))}
+.toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+/* the topbar wraps on narrow screens and grows under an iOS notch, so nav's sticky
+   offset is measured at runtime rather than hard-coded */
+@media(max-width:430px){
+  .brand{gap:0 10px}
+  .brand span{display:none}
+  .topbar-inner{padding:14px 18px}
+}
+
+.appbar{display:flex;align-items:center;gap:8px}
+.icon-btn{background:var(--surface2);border:1px solid var(--line);color:var(--ink2);border-radius:99px;
+ padding:7px 13px;font:500 .76rem 'Hanken Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;
+ gap:7px;transition:.18s;white-space:nowrap}
+.icon-btn:hover{border-color:var(--line2);color:var(--ink)}
+.icon-btn.cta{background:var(--accent);border-color:var(--accent);color:#fff}
+.icon-btn.cta:hover{filter:brightness(.93);color:#fff}
+.icon-btn[hidden]{display:none}
+
+.banner{position:fixed;left:50%;transform:translateX(-50%) translateY(-140%);top:calc(12px + env(safe-area-inset-top));
+ z-index:120;background:var(--surface);border:1px solid var(--line2);box-shadow:var(--shadow);border-radius:12px;
+ padding:13px 16px;display:flex;align-items:center;gap:14px;max-width:min(560px,calc(100vw - 28px));
+ transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.banner.show{transform:translateX(-50%) translateY(0)}
+.banner p{font-size:.85rem;line-height:1.5;color:var(--ink2);flex:1}
+.banner p b{color:var(--ink);font-weight:600;display:block;font-size:.9rem}
+.banner .acts{display:flex;gap:7px;flex-shrink:0}
+
+.offline-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0}
+
+/* ═══════════════════════════════════════════════
+   TONE SCAN
+   ═══════════════════════════════════════════════ */
+.modeseg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+ background:var(--surface);margin-bottom:24px}
+.modeseg button{font:500 .84rem 'Hanken Grotesk',sans-serif;padding:11px 20px;background:none;border:none;
+ cursor:pointer;color:var(--muted);transition:.18s;display:flex;align-items:center;gap:8px}
+.modeseg button.on{background:var(--accent);color:#fff}
+.pcmode{display:none}.pcmode.on{display:block;animation:fade .25s ease}
+
+.scanstage{position:relative;width:100%;max-width:380px;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
+ background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.scanstage video,.scanstage canvas,.scanstage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scanstage video{transform:scaleX(-1)}
+.scanstage .placeholder{text-align:center;padding:26px;color:var(--muted);font-size:.86rem;line-height:1.7;z-index:2}
+.scanstage .placeholder b{display:block;color:var(--ink);font-size:1rem;margin-bottom:6px;font-family:'Fraunces',serif}
+.guide{position:absolute;inset:0;pointer-events:none;z-index:3}
+.zonebox{position:absolute;border:1.5px dashed rgba(255,255,255,.9);border-radius:5px;
+ box-shadow:0 0 0 1.5px rgba(0,0,0,.35);transition:border-color .2s}
+.zonebox.hot{border-color:#7CFFB2;border-style:solid}
+.scanwrap{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.scanside{flex:1;min-width:280px;max-width:520px}
+.scanacts{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+
+.quality{display:flex;flex-direction:column;gap:9px;margin:16px 0}
+.qline{display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--ink2)}
+.qline .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--line2)}
+.qline.good .dot{background:var(--ok)}.qline.mid .dot{background:var(--warn)}.qline.bad .dot{background:var(--bad)}
+.qline .val{margin-left:auto;color:var(--muted);font-size:.78rem;font-family:'IBM Plex Mono',monospace}
+
+.tonecard{display:flex;gap:20px;flex-wrap:wrap;align-items:center;background:var(--surface);
+ border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:18px}
+.tonecard .swatchstack{display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;
+ border:1px solid var(--line);flex-shrink:0}
+.tonecard .swatchstack div{width:86px;height:30px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:12px;margin:18px 0 6px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px}
+.metric .k{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;
+ margin-bottom:5px}
+.metric .v{font-size:1.18rem;font-family:'Fraunces',serif;color:var(--ink);line-height:1.2}
+.metric .n{font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+
+/* drape test */
+.drapewrap{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:8px}
+.drape{position:relative;width:190px;border-radius:12px;overflow:hidden;border:1px solid var(--line);
+ background:var(--surface2)}
+.drape canvas{display:block;width:100%;height:auto}
+.drape .cap{padding:8px 10px 10px;text-align:center}
+.drape .cap b{display:block;font-size:.8rem;font-weight:600}
+.drape .cap span{font-size:.68rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.drape .verdict{font-size:.72rem;font-weight:600;margin-top:3px}
+.drape .verdict.up{color:var(--ok)}.drape .verdict.down{color:var(--bad)}
+.drapepicks{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+
+.privacy{display:flex;gap:11px;align-items:flex-start;background:var(--accent-soft);
+ border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;margin:18px 0;max-width:660px}
+.privacy .lock{font-size:1rem;line-height:1.4}
+.privacy p{font-size:.83rem;line-height:1.65;color:var(--ink2)}
+.privacy b{color:var(--ink)}
+
+@media(max-width:720px){
+  .scanstage{max-width:100%}
+  .drape{width:calc(50% - 11px)}
+  .banner{flex-direction:column;align-items:stretch}
+  .banner .acts{justify-content:flex-end}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><h1>Chro<em>matic</em></h1><span>Colour theory, pairing & palettes</span></div>
+    <div class="appbar">
+      <span class="icon-btn" id="offline-chip" hidden><span class="offline-dot"></span>Offline</span>
+      <button class="icon-btn cta" id="install-btn" hidden><span>⤓</span><span>Install</span></button>
+      <button class="theme-btn" id="theme"><span id="theme-ico">◐</span><span id="theme-lbl">Dark</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="banner" id="update-banner">
+  <p><b>A new version is ready</b>Reload to pick up the latest build.</p>
+  <div class="acts">
+    <button class="btn sm" id="update-later">Later</button>
+    <button class="btn sm primary" id="update-now">Reload</button>
+  </div>
+</div>
+
+<div class="banner" id="ios-banner">
+  <p><b>Install Chromatic</b>Tap <b style="display:inline">Share</b> in Safari, then <b style="display:inline">Add to Home Screen</b> — it will work offline and open full-screen.</p>
+  <div class="acts"><button class="btn sm" id="ios-dismiss">Got it</button></div>
+</div>
+
+<nav><div class="nav-inner" id="nav">
+  <button class="active" data-s="learn">Learn</button>
+  <button data-s="advisor">Pairing Advisor</button>
+  <button data-s="library">Palette Library</button>
+  <button data-s="wheel">Wheel &amp; Harmony</button>
+  <button data-s="lab">Palette Lab</button>
+  <button data-s="personal">Personal Colour</button>
+  <button data-s="glossary">Glossary</button>
+</div></nav>
+
+<!-- ══ LEARN ══ -->
+<section id="s-learn" class="section active"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Start here</div>
+    <h2>Colour theory from scratch</h2>
+    <p class="desc">Nine short lessons, about two minutes each. No prior knowledge assumed. Quizzes are scored as you go.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><div class="cap-n">1</div><p><b>Read in any order</b> — each lesson stands alone, but they build if you go in sequence.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Everything is visual</b> — swatches, mixing demos and side-by-side comparisons rather than definitions.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Then use the other tabs</b> — the Advisor is where you'll make real decisions.</p></div>
+  </div>
+  <div class="progress" id="progress"><span class="qscore" id="qscore">Quiz score 0 / 0</span></div>
+  <div class="lessons" id="lessons"></div>
+</div></section>
+
+<!-- ══ ADVISOR ══ -->
+<section id="s-advisor" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">The decision tool</div>
+    <h2>Pairing Advisor</h2>
+    <p class="desc">Give it one colour — the kurti you own, the wall you're painting, the base layer on your canvas — and it returns colours <strong>by name</strong>, grouped by the job they do, with a reason and a suggested use for each.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><div class="cap-n">1</div><p><b>Pick a colour</b> — use the picker, type a hex, or search 190 named colours below.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Read the five groups</b> — grounding darks, safe, bold, neutrals, metals. Each says where to use it.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Tap any suggestion</b> to add it to your palette (visible in the tray at the bottom).</p></div>
+  </div>
+
+  <div class="row">
+    <div class="ctl"><label>Colour</label><input type="color" id="adv-input" value="#F79E8A"></div>
+    <input type="text" id="adv-hex" value="#F79E8A" size="9" maxlength="7" class="mono" style="width:112px">
+    <div class="seg" id="adv-mode"><button class="on" data-m="paint">Paint / RYB</button><button data-m="screen">Screen / RGB</button></div>
+    <button class="btn sm" id="toggle-picker">Browse named colours ▾</button>
+  </div>
+
+  <div class="picker" id="picker" style="display:none">
+    <div class="picker-top">
+      <input type="search" id="csearch" placeholder="Search by name — salmon, teal, mustard, indigo…">
+      <span class="pickcount" id="pickcount"></span>
+    </div>
+    <div class="fams" id="fams"></div>
+    <div class="swatchgrid" id="swatchgrid"></div>
+  </div>
+
+  <div id="adv-id"></div>
+  <div id="adv-out"></div>
+</div></section>
+
+<!-- ══ LIBRARY ══ -->
+<section id="s-library" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Curated, not calculated</div>
+    <h2>Palette Library</h2>
+    <p class="desc">Combinations that work because someone chose them, not because a formula produced them. The Wada sets come from Sanzo Wada's 1930s dictionary; the reference sets are recurring schemes from painting, fashion and interiors.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><div class="cap-n">1</div><p><b>Filter by mood</b> — soft, bold, earth, deep, or by source.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Every set explains itself</b> — why those colours hold together, and what to use it for.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Load into the Lab</b> to test proportions and see it previewed on an outfit or canvas.</p></div>
+  </div>
+  <div class="fams" id="libfilter"></div>
+  <div class="libgrid" id="libgrid"></div>
+  <p class="hint">Wada's colour names come from the Ridgway system he worked from. Hex values are close modern approximations — the originals were printed inks, and no digital value is exact.</p>
+</div></section>
+
+<!-- ══ WHEEL ══ -->
+<section id="s-wheel" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Explore &amp; generate</div>
+    <h2>Wheel &amp; Harmony</h2>
+    <p class="desc">Sample any colour off the wheel, then generate the six classic harmonies from it — on a paint-accurate wheel, which most online tools quietly get wrong.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><div class="cap-n">1</div><p><b>Click the wheel</b> to sample. Full breakdown appears beside it.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Switch Paint / Screen</b> — in paint mode red's opposite is green, not cyan.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Refine</b> softens raw geometry into something actually wearable.</p></div>
+  </div>
+
+  <div class="row">
+    <div class="seg" id="wheel-mode"><button class="on" data-m="paint">Paint / RYB</button><button data-m="screen">Screen / RGB</button></div>
+    <span style="font-size:.83rem;color:var(--muted)" id="modenote"></span>
+  </div>
+
+  <div class="wheelwrap">
+    <canvas id="wheel" width="320" height="320"></canvas>
+    <div class="wheelinfo">
+      <div style="height:82px;border-radius:var(--r);border:1px solid var(--line)" id="w-swatch"></div>
+      <h3 class="block" style="margin:14px 0 0;font-size:1.55rem" id="w-name">Salmon Pink</h3>
+      <div class="kv">
+        <span class="k">Hex</span><span class="v mono" id="w-hex"></span>
+        <span class="k">RGB</span><span class="v mono" id="w-rgb"></span>
+        <span class="k">Family</span><span class="v" id="w-fam"></span>
+        <span class="k">Value</span><span class="v" id="w-val"></span>
+        <span class="k">Saturation</span><span class="v" id="w-sat"></span>
+        <span class="k">Opposite</span><span class="v" id="w-comp"></span>
+        <span class="k">Mood</span><span class="v" id="w-mood"></span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm primary" id="w-send">Get pairings →</button>
+        <button class="btn sm" id="w-add">Add to palette</button>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="block">Harmonies from this colour</h3>
+  <div class="row">
+    <select id="h-type">
+      <option value="complementary">Complementary</option>
+      <option value="analogous">Analogous</option>
+      <option value="triadic">Triadic</option>
+      <option value="split">Split-Complementary</option>
+      <option value="tetradic">Tetradic / Square</option>
+      <option value="monochromatic">Monochromatic</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--ink2)">
+      <input type="checkbox" id="h-refine" checked style="accent-color:var(--accent);width:16px;height:16px"> Refine for real use
+    </label>
+    <button class="btn sm" id="h-send">Send set to Lab</button>
+  </div>
+  <div class="harmrow" id="h-row"></div>
+  <p class="lede" id="h-desc"></p>
+  <div class="callout"><b>Why "Refine" is on by default.</b> Raw geometry puts every colour at identical saturation and lightness, which is exactly why generated palettes so often look cheap. Refine varies them the way a designer would — one dominant, the rest supporting. Turn it off to see the unadjusted maths.</div>
+</div></section>
+
+<!-- ══ LAB ══ -->
+<section id="s-lab" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Test it before you commit</div>
+    <h2>Palette Lab</h2>
+    <p class="desc">Your working palette lives here. Build it by hand, pull it out of a photograph, set the proportions, and see it rendered as something real rather than as squares.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><div class="cap-n">1</div><p><b>From a Photo</b> — the fastest route. Shoot your fabric and get its actual colours.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Proportions</b> — most palettes fail on amounts, not colours. This is where you fix that.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Preview &amp; Contrast</b> — see it on a body, a canvas and a room; check what's readable.</p></div>
+  </div>
+
+  <div class="labnav" id="labnav">
+    <button class="active" data-p="build">Build</button>
+    <button data-p="extract">From a Photo</button>
+    <button data-p="prop">Proportions</button>
+    <button data-p="preview">Preview</button>
+    <button data-p="check">Contrast Check</button>
+  </div>
+
+  <div class="panel active" id="p-build">
+    <div class="row">
+      <div class="ctl"><label>Add</label><input type="color" id="lab-add" value="#4A6D96"></div>
+      <button class="btn primary" id="lab-add-btn">Add colour</button>
+      <button class="btn" id="lab-clear">Clear all</button>
+      <button class="btn" id="lab-export">Export</button>
+    </div>
+    <div id="pstrip"></div>
+    <div class="pswatches" id="pswatches"></div>
+    <p class="hint">Tap any swatch to send it to the Pairing Advisor. Hover to remove.</p>
+    <div id="exportbox" style="display:none;margin-top:20px">
+      <pre id="exporttext" class="mono" style="font-size:.8rem;line-height:1.8;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);padding:16px 18px;border-radius:var(--r);overflow-x:auto;white-space:pre;max-width:640px"></pre>
+    </div>
+  </div>
+
+  <div class="panel" id="p-extract">
+    <p class="lede">Photograph your fabric, a painting, a room, a sunset. This pulls out the dominant colours so you work from something real instead of guessing from a screen.</p>
+    <div class="dropzone" id="dropzone"><p><b>Tap to choose a photo</b><br>or drag one here</p></div>
+    <input type="file" id="fileinput" accept="image/*" style="display:none">
+    <div style="margin-top:22px">
+      <img id="photoprev" alt="">
+      <div class="pswatches" id="extracted"></div>
+      <button class="btn primary" id="use-extracted" style="display:none">Use as my palette</button>
+    </div>
+    <p class="hint">Photos never leave your device — extraction runs entirely in your browser.</p>
+  </div>
+
+  <div class="panel" id="p-prop">
+    <p class="lede">The same colours in different amounts give completely different results. The classic guideline is <strong>60 / 30 / 10</strong>: one dominant, one supporting, one accent. Most palettes fail because the colours were used in equal amounts, not because the colours were wrong.</p>
+    <div id="propbar"></div>
+    <div class="proprows" id="proprows"></div>
+    <button class="btn sm" id="prop-reset">Reset to 60 / 30 / 10</button>
+  </div>
+
+  <div class="panel" id="p-preview">
+    <p class="lede">Squares lie. Colour behaves differently across shape, quantity and adjacency. These are rough, but far more honest than swatches — and they update live as you change the palette.</p>
+    <div class="prevwrap">
+      <div class="prevbox"><h5>As an outfit</h5><div id="prev-outfit"></div></div>
+      <div class="prevbox"><h5>As a painting</h5><div id="prev-canvas"></div></div>
+      <div class="prevbox"><h5>As a room</h5><div id="prev-room"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-check">
+    <p class="lede">If you're putting text on a background — a label, a logo, a poster, embroidery on cloth — this says whether it's actually readable. Read across: each cell is the contrast between the row colour and the column colour.</p>
+    <div style="overflow-x:auto"><table class="matrix" id="matrix"></table></div>
+    <div class="legend">
+      <span><i style="background:rgba(47,125,79,.4)"></i> 4.5+ — fine for body text</span>
+      <span><i style="background:rgba(154,107,18,.4)"></i> 3.0–4.5 — large text only</span>
+      <span><i style="background:rgba(176,58,46,.3)"></i> Under 3.0 — not readable</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- ══ PERSONAL ══ -->
+<section id="s-personal" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Which colours suit you</div>
+    <h2>Personal Colour</h2>
+    <p class="desc">Your skin has an undertone sitting beneath its surface depth. Colours sharing that undertone make your skin look even and your eyes brighter. Colours fighting it make you look tired. Measure it with the camera, or answer six questions.</p>
+  </div>
+
+  <div class="modeseg" id="pcmodeseg">
+    <button class="on" data-m="scan"><span>◉</span> Scan my skin</button>
+    <button data-m="quiz"><span>✎</span> Answer 6 questions</button>
+  </div>
+
+  <!-- ── SCAN ── -->
+  <div class="pcmode on" id="m-scan">
+    <div class="caps">
+      <div class="cap"><div class="cap-n">1</div><p><b>Face a window</b> in daylight. No make-up on the sampled areas, no coloured lamp, no sunglasses.</p></div>
+      <div class="cap"><div class="cap-n">2</div><p><b>Fill the oval</b> with your face and hold still. Four patches are sampled: forehead, both cheeks, jaw.</p></div>
+      <div class="cap"><div class="cap-n">3</div><p><b>Get measured values</b> — CIELAB, ITA°, undertone angle — then a palette built from your own numbers.</p></div>
+    </div>
+
+    <div class="privacy">
+      <span class="lock">🔒</span>
+      <p><b>Nothing leaves this device.</b> There is no server and no upload. The camera stream is read straight into a canvas, analysed in JavaScript and discarded — the only thing kept is a handful of numbers in your browser's local storage, which you can wipe at any time.</p>
+    </div>
+
+    <div class="scanwrap">
+      <div class="scanstage" id="scanstage">
+        <div class="placeholder" id="scanplaceholder">
+          <b>Camera off</b>
+          Start the camera, or upload a well-lit photo of your face instead.
+        </div>
+        <video id="scanvideo" playsinline muted autoplay style="display:none"></video>
+        <canvas id="scanfreeze" style="display:none"></canvas>
+        <div class="guide" id="scanguide" style="display:none"></div>
+      </div>
+
+      <div class="scanside">
+        <div class="scanacts">
+          <button class="btn primary" id="scan-start">Start camera</button>
+          <button class="btn" id="scan-upload">Upload a photo</button>
+          <button class="btn primary" id="scan-shoot" style="display:none">Capture &amp; analyse</button>
+          <button class="btn" id="scan-again" style="display:none">Retake</button>
+          <button class="btn" id="scan-white" style="display:none">Set white reference</button>
+        </div>
+        <input type="file" id="scanfile" accept="image/*" style="display:none">
+
+        <div class="quality" id="scanquality" style="display:none"></div>
+        <p class="hint" id="scanhint">Works on any device with a camera. On desktop you may need to allow camera access; the upload route works everywhere and gives identical results if the photo is evenly lit.</p>
+      </div>
+    </div>
+
+    <div id="scanresult"></div>
+  </div>
+
+  <!-- ── QUIZ ── -->
+  <div class="pcmode" id="m-quiz">
+    <div class="caps">
+      <div class="cap"><div class="cap-n">1</div><p><b>Answer in daylight</b> if you can — artificial light distorts the wrist and fabric tests.</p></div>
+      <div class="cap"><div class="cap-n">2</div><p><b>Get your season</b> plus specific named colours, neutrals and metals.</p></div>
+      <div class="cap"><div class="cap-n">3</div><p><b>Load them into the Lab</b> or tap any one for full pairing advice.</p></div>
+    </div>
+    <div id="pcq"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn primary" id="pcrun">Show my palette</button>
+      <button class="btn" id="pcreset">Reset</button>
+    </div>
+    <div id="pcresult"></div>
+  </div>
+
+  <p class="hint">Seasonal analysis is a well-established styling heuristic, not a clinical measurement. The scan measures your skin's actual CIELAB coordinates honestly, but lighting, camera white balance, fabric and cut all still matter — and plenty of people look excellent in colours the system says they shouldn't. Treat it as a strong starting point, not a rule.</p>
+</div></section>
+
+<!-- ══ GLOSSARY ══ -->
+<section id="s-glossary" class="section"><div class="wrap">
+  <div class="sec-head">
+    <div class="kicker">Reference</div>
+    <h2>Glossary</h2>
+    <p class="desc">Plain-English definitions for every colour term in this tool and most of the ones you'll meet elsewhere.</p>
+  </div>
+  <div class="row"><input type="search" id="glsearch" placeholder="Search terms…" style="min-width:260px"></div>
+  <div class="glgrid" id="glgrid"></div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>Chromatic — a colour companion</span>
+  <span>Sample · Pair · Build · Preview</span>
+</div></footer>
+
+<div class="tray" id="tray"><div class="tray-inner">
+  <div class="tray-bar" id="traybar">
+    <span class="t">Your palette</span><span class="c" id="traycount"></span>
+    <span class="arrow">▾</span>
+  </div>
+  <div class="tray-body" id="traybody"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════ MATHS ═════ */
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function hexToRgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');
+ return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>clamp(Math.round(v),0,255).toString(16).padStart(2,'0')).join('');}
+function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h,s,l=(mx+mn)/2;
+ if(mx===mn){h=s=0;}else{const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);
+ switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}
+ return[h*360,s*100,l*100];}
+function hslToHex(h,s,l){h=((h%360)+360)%360;s=clamp(s,0,100)/100;l=clamp(l,0,100)/100;
+ const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);
+ return Math.round(255*c).toString(16).padStart(2,'0');};return`#${f(0)}${f(8)}${f(4)}`;}
+function hexToHsl(x){const[r,g,b]=hexToRgb(x);return rgbToHsl(r,g,b);}
+function rgbToLab(r,g,b){const f=v=>{v/=255;return v>.04045?Math.pow((v+.055)/1.055,2.4):v/12.92;};
+ r=f(r);g=f(g);b=f(b);
+ let x=(r*.4124+g*.3576+b*.1805)/.95047,y=(r*.2126+g*.7152+b*.0722),z=(r*.0193+g*.1192+b*.9505)/1.08883;
+ const k=t=>t>.008856?Math.cbrt(t):(7.787*t)+16/116;x=k(x);y=k(y);z=k(z);
+ return[116*y-16,500*(x-y),200*(y-z)];}
+const labDist=(a,b)=>Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2);
+const RYB=[[0,0],[30,15],[60,30],[90,45],[120,60],[150,90],[180,120],[210,180],[240,240],[270,265],[300,280],[330,320],[360,360]];
+function rybToRgbHue(h){h=((h%360)+360)%360;for(let i=0;i<RYB.length-1;i++){const[a,c]=RYB[i],[b,d]=RYB[i+1];
+ if(h>=a&&h<=b){return c+(h-a)/(b-a)*(d-c);}}return h;}
+function rgbToRybHue(h){h=((h%360)+360)%360;for(let i=0;i<RYB.length-1;i++){const[a,c]=RYB[i],[b,d]=RYB[i+1];
+ if(h>=c&&h<=d){return a+(h-c)/(d-c)*(b-a);}}return h;}
+function rotate(h,deg,mode){return mode==='screen'?((h+deg)%360+360)%360:rybToRgbHue(rgbToRybHue(h)+deg);}
+function contrastRatio(x,y){const lum=hx=>{const[r,g,b]=hexToRgb(hx).map(v=>{v/=255;
+ return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;};
+ const a=lum(x),b=lum(y);return(Math.max(a,b)+.05)/(Math.min(a,b)+.05);}
+function readableOn(hex){return contrastRatio(hex,'#141414')>contrastRatio(hex,'#FFFFFF')?'#141414':'#FFFFFF';}
+
+/* ═════ NAMED COLOURS (190) ═════ */
+const NAMED=[
+["Vermilion","#E34234","Red"],["Scarlet","#C8342B","Red"],["Chilli Red","#C1272D","Red"],["Crimson","#A8213C","Red"],
+["Cherry","#B01A2E","Red"],["Ruby","#9B1B30","Red"],["Cardinal","#A32638","Red"],["Brick Red","#9C4A38","Red"],
+["Tomato","#E04B32","Red"],["Poppy","#D93B32","Red"],["Sindoor","#D02A26","Red"],["Rust","#A8451F","Red"],
+["Terracotta","#C1654A","Red"],["Paprika","#B04A2E","Red"],["Henna","#9C4B34","Red"],["Oxblood","#6B2028","Red"],
+["Burgundy","#6E1E28","Red"],["Maroon","#5A1E2B","Red"],["Wine","#722F45","Red"],["Garnet","#7A2233","Red"],
+["Barn Red","#7C2A24","Red"],
+["Powder Pink","#F2D4D7","Pink"],["Blush","#E8B4B8","Pink"],["Ballet Pink","#F0C8CB","Pink"],
+["Rose Quartz","#E3B7BB","Pink"],["Salmon Pink","#F79E8A","Pink"],["Coral","#F27059","Pink"],
+["Coral Pink","#F08A7A","Pink"],["Peony","#E888A0","Pink"],["Watermelon","#E8536A","Pink"],
+["Rose","#D4607A","Pink"],["Dusty Rose","#C08A8A","Pink"],["Old Rose","#BE7F80","Pink"],
+["Raspberry","#B5335B","Pink"],["Fuchsia","#C42A6E","Pink"],["Magenta","#B32B6E","Pink"],
+["Mulberry","#8C3A5C","Pink"],["Rani Pink","#D81E5B","Pink"],
+["Peach","#F5C39E","Orange"],["Apricot","#EFA971","Orange"],["Cantaloupe","#F0A25E","Orange"],
+["Tangerine","#F0873C","Orange"],["Marigold","#E89A3C","Orange"],["Saffron","#E8A32C","Orange"],
+["Amber","#D98E28","Orange"],["Burnt Orange","#BF5B1D","Orange"],["Pumpkin","#D2691E","Orange"],
+["Persimmon","#D4562A","Orange"],["Clay","#B96A47","Orange"],["Ginger","#B06A32","Orange"],
+["Copper","#B06D3B","Brown"],["Cognac","#9A5B33","Brown"],["Caramel","#A9743F","Brown"],
+["Camel","#C19A6B","Brown"],["Tan","#B08E62","Brown"],["Fawn","#C4A484","Brown"],
+["Biscuit","#D3B48C","Brown"],["Sienna","#8A4B2A","Brown"],["Chestnut","#75432B","Brown"],
+["Umber","#6B4423","Brown"],["Walnut","#5F4331","Brown"],["Coffee","#4B3527","Brown"],
+["Chocolate","#5C3A26","Brown"],["Espresso","#3E2A20","Brown"],["Bark","#3A2C22","Brown"],
+["Mocha","#7A5C48","Brown"],["Khaki","#A6926C","Brown"],["Nutmeg","#7E5138","Brown"],
+["Vanilla","#F3E7C0","Yellow"],["Butter","#F5E3A0","Yellow"],["Champagne","#EFE0BE","Yellow"],
+["Buff","#E4CE9E","Yellow"],["Sand","#DEC79A","Yellow"],["Wheat","#D8BE84","Yellow"],
+["Honey","#DDAE4B","Yellow"],["Turmeric","#D4A017","Yellow"],["Mustard","#C8A02C","Yellow"],
+["Ochre","#C4922A","Yellow"],["Old Gold","#AE8B34","Yellow"],["Lemon","#F0DE55","Yellow"],
+["Acid Yellow","#E4E24A","Yellow"],["Chartreuse","#C4CE3C","Green"],["Citron","#C9CC55","Green"],
+["Lime","#9DC63F","Green"],["Apple Green","#7FB646","Green"],["Mint","#B8DCC4","Green"],
+["Seafoam","#A5D6C4","Green"],["Pistachio","#A2C48B","Green"],["Celadon","#9CBDA4","Green"],
+["Sage","#A3B18A","Green"],["Willow","#A8B98C","Green"],["Eucalyptus","#7FA090","Green"],
+["Fern","#6E9455","Green"],["Grass","#5B9E4A","Green"],["Kelly Green","#3E8E4F","Green"],
+["Basil","#4F7A3F","Green"],["Jade","#4E9C81","Green"],["Emerald","#1E7A5C","Green"],
+["Malachite","#1F7A4E","Green"],["Viridian","#2E7D6B","Green"],["Pine","#35604A","Green"],
+["Forest","#2C5240","Green"],["Hunter Green","#26432F","Green"],["Bottle Green","#1E3A2C","Green"],
+["Olive","#7A7B3A","Green"],["Moss","#6B7239","Green"],["Army Green","#58603C","Green"],
+["Khaki Green","#7A7C5A","Green"],["Avocado","#8A9A4E","Green"],
+["Ice Blue","#D2E2EC","Blue"],["Powder Blue","#B7CFE0","Blue"],["Sky Blue","#8FB8D8","Blue"],
+["Cerulean","#3B85B5","Blue"],["Azure","#2E7FC0","Blue"],["Cornflower","#6E8FC7","Blue"],
+["Periwinkle","#9AA8DC","Blue"],["Denim","#4A6D96","Blue"],["French Blue","#3C6E9C","Blue"],
+["Steel Blue","#4B7089","Blue"],["Slate Blue","#5A6E86","Blue"],["Air Force Blue","#5D7B94","Blue"],
+["Cobalt","#2A4F9E","Blue"],["Royal Blue","#2A46A0","Blue"],["Sapphire","#1F3F86","Blue"],
+["Indigo","#2C3E7A","Blue"],["Prussian Blue","#1B3A57","Blue"],["Navy","#1E2C4F","Blue"],
+["Midnight Blue","#171F38","Blue"],["Cyan","#35BFD0","Blue"],["Aqua","#7CC7C4","Blue"],
+["Turquoise","#45B5AC","Blue"],["Teal","#1F7A75","Blue"],["Peacock","#17646E","Blue"],
+["Petrol","#1D5A63","Blue"],["Deep Sea","#14484F","Blue"],
+["Lavender","#C3B4D6","Purple"],["Lilac","#B99CC9","Purple"],["Wisteria","#A88CC4","Purple"],
+["Heather","#A395B4","Purple"],["Mauve","#A8879C","Purple"],["Orchid","#A96FB0","Purple"],
+["Amethyst","#7D5BA6","Purple"],["Violet","#6B4A9C","Purple"],["Iris","#5B4A96","Purple"],
+["Ultraviolet","#574A8E","Purple"],["Grape","#4E2A63","Purple"],["Plum","#6B3453","Purple"],
+["Damson","#52294A","Purple"],["Aubergine","#43263C","Purple"],["Blackberry","#34203A","Purple"],
+["White","#FBFAF7","Neutral"],["Off-White","#F3F0E9","Neutral"],["Alabaster","#EFEBE2","Neutral"],
+["Ivory","#F2EADF","Neutral"],["Cream","#F4EBD9","Neutral"],["Eggshell","#EDE6DA","Neutral"],
+["Bone","#E8E1D4","Neutral"],["Linen","#E3DAC9","Neutral"],["Ecru","#DDD2BC","Neutral"],
+["Oatmeal","#D6CBB8","Neutral"],["Greige","#C4BAAD","Neutral"],["Stone","#B7ADA0","Neutral"],
+["Pebble","#A9A093","Neutral"],["Taupe","#96897A","Neutral"],["Mushroom","#857C70","Neutral"],
+["Warm Grey","#8C857D","Neutral"],["Ash","#9AA0A2","Neutral"],["Cool Grey","#8A8F94","Neutral"],
+["Slate Grey","#6E757A","Neutral"],["Pewter","#5E6469","Neutral"],["Charcoal","#3B3E42","Neutral"],
+["Graphite","#2E3134","Neutral"],["Onyx","#26282B","Neutral"],["Off-Black","#22201E","Neutral"],
+["Black","#141414","Neutral"],
+["Gold","#C0A050","Metal"],["Antique Gold","#A8873E","Metal"],["Brass","#A98A45","Metal"],
+["Bronze","#96703C","Metal"],["Rose Gold","#C08874","Metal"],["Copper Metal","#B87333","Metal"],
+["Silver","#B8BCC0","Metal"],["Platinum","#C9CCCE","Metal"],["Gunmetal","#4A4E54","Metal"],
+["Pewter Metal","#7D8287","Metal"]
+];
+const NL=NAMED.map(n=>({name:n[0],hex:n[1],fam:n[2],lab:rgbToLab(...hexToRgb(n[1]))}));
+function nearest(hex,filter){const lab=rgbToLab(...hexToRgb(hex));let best=null,bd=1e9;
+ for(const c of NL){if(filter&&!filter(c))continue;const d=labDist(lab,c.lab);if(d<bd){bd=d;best=c;}}
+ return best||NL[0];}
+function familyOf(h){h=((h%360)+360)%360;
+ if(h<12||h>=348)return['Red','Warm'];if(h<40)return['Orange-Red','Warm'];if(h<52)return['Orange','Warm'];
+ if(h<68)return['Yellow','Warm'];if(h<95)return['Yellow-Green','Warm-neutral'];if(h<150)return['Green','Cool'];
+ if(h<195)return['Blue-Green','Cool'];if(h<245)return['Blue','Cool'];if(h<280)return['Blue-Violet','Cool'];
+ if(h<315)return['Violet','Cool'];return['Red-Violet','Warm-cool border'];}
+const valueWord=l=>l<22?'Very dark':l<40?'Dark':l<60?'Mid':l<78?'Light':'Very light';
+const satWord=s=>s<12?'Near-neutral':s<32?'Muted':s<58?'Medium':s<80?'Saturated':'Very saturated';
+const isWarm=h=>{h=((h%360)+360)%360;return h<75||h>=315;};
+function moodOf(h,s,l){if(s<14)return l<35?'Grounding, serious, architectural':'Calm, quiet, restrained';
+ if(l<22)return'Depth, authority, mystery';if(l>82)return'Airy, delicate, soft';h=((h%360)+360)%360;
+ if(h<28||h>332)return'Passion, urgency, appetite';if(h<52)return'Warmth, generosity, energy';
+ if(h<72)return'Optimism, brightness, attention';if(h<160)return'Growth, balance, freshness';
+ if(h<255)return'Calm, trust, distance';return'Luxury, imagination, ceremony';}
+
+/* ═════ THEME ═════ */
+const themeBtn=document.getElementById('theme');
+themeBtn.onclick=()=>{
+ const dark=document.documentElement.getAttribute('data-theme')==='dark';
+ document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+ document.getElementById('theme-lbl').textContent=dark?'Dark':'Light';
+ document.getElementById('theme-ico').textContent=dark?'◐':'◑';
+ drawWheel();
+};
+
+/* ═════ NAV ═════ */
+document.getElementById('nav').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+ document.getElementById('s-'+b.dataset.s).classList.add('active');b.classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+});
+const goTo=id=>document.querySelector(`#nav button[data-s="${id}"]`).click();
+let tT;const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+ clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),1800);};
+
+/* ═════ PALETTE + TRAY ═════ */
+let palette=['#C1654A','#E4CE9E','#54604B','#2F3A31','#EFE2C4'];
+function addColour(hex){if(!palette.includes(hex))palette.push(hex);if(palette.length>12)palette.shift();
+ renderPalette();buildProp();}
+document.getElementById('traybar').onclick=()=>document.getElementById('tray').classList.toggle('hidden');
+function renderTray(){
+ const b=document.getElementById('traybody');
+ document.getElementById('traycount').textContent=palette.length?`${palette.length} colour${palette.length>1?'s':''}`:'';
+ if(!palette.length){b.innerHTML='<span class="tray-empty">Empty — add colours from any tab and they collect here.</span>';return;}
+ b.innerHTML=palette.map(c=>`<div class="tray-sw" style="background:${c}" data-hex="${c}" title="${nearest(c).name} ${c.toUpperCase()}"></div>`).join('')
+  +`<button class="btn sm" id="tray-open" style="margin-left:8px">Open Lab →</button>`;
+ b.querySelectorAll('.tray-sw').forEach(s=>s.onclick=()=>{setAdvisor(s.dataset.hex);goTo('advisor');});
+ document.getElementById('tray-open').onclick=()=>goTo('lab');
+}
+
+/* ═════ ADVISOR ═════ */
+let advMode='paint';
+function R(base,deg,s,l){return hslToHex(rotate(base,deg,advMode),clamp(s,0,100),clamp(l,0,100));}
+function mk(hex,why,use){const n=nearest(hex);return{hex:n.hex,name:n.name,why,use};}
+const dedupe=a=>{const s=new Set();return a.filter(r=>s.has(r.hex)?false:(s.add(r.hex),true));};
+
+function advise(hex){
+ const[h,s,l]=hexToHsl(hex);const warm=isWarm(h);
+ const dark=dedupe([
+  mk(hslToHex(h,clamp(s*.8,0,80),clamp(Math.min(l*.34,22),8,24)),
+   'A very dark version of your own colour. Defines and outlines without introducing a second hue — the single most reliable choice there is.','Lace / tie · outline · shoes · shadow'),
+  mk(warm?'#3E2A20':'#22201E',warm?'Warm near-black. Reads far softer than true black beside a warm colour.':'Cool near-black. Crisp and graphic without the flatness of pure black.','Tie · belt · footwear · contour'),
+  mk(R(h,180,s*.5,18),'The dark complement. Grounds the whole thing while quietly making your base colour look richer.','Trousers · base layer · deep shadow'),
+  mk(warm?'#5C3A26':'#2E3134',warm?'Chocolate brown — the warm alternative to black. It never fights a warm colour.':'Graphite. Neutral weight that stays out of the way.','Trim · hardware · structure')]);
+ const safe=dedupe([
+  mk(R(h,-28,s*.85,l),'Sits right beside your colour on the wheel. Flows rather than competes.','Layering · second garment'),
+  mk(R(h,28,s*.8,l*.92),'Neighbouring hue, slightly deeper. Interest without any tension.','Trim · lining · second panel'),
+  mk(hslToHex(h,s*.55,clamp(l+16,0,92)),'Your own colour lightened and softened — a tonal partner.','Inner layer · dupatta · ground wash'),
+  mk(hslToHex(h,clamp(s*1.05,0,95),clamp(l-24,8,90)),'Your own colour deepened. Tonal dressing at its simplest.','Bottoms · shadow tones')]);
+ const bold=dedupe([
+  mk(R(h,180,s*.62,l<50?clamp(l+14,0,80):clamp(l-22,12,90)),'Directly opposite yours. Maximum contrast — softened here so it reads rich rather than loud.','Statement accessory · focal point'),
+  mk(R(h,155,s*.7,clamp(l-14,12,88)),'Split-complement. Nearly the same punch, considerably easier to live with.','Bag · shoes · accent brushwork'),
+  mk(R(h,205,s*.7,clamp(l-14,12,88)),'The other split-complement — cooler or warmer depending on your base.','Scarf · stone · highlight'),
+  mk(R(h,118,s*.6,clamp(l-8,15,85)),'Triadic partner. Bold, but balanced rather than oppositional.','Print secondary · patterned piece')]);
+ const nt=warm?['#F4EBD9','#D6CBB8','#C19A6B','#96897A']:['#F3F0E9','#E8E1D4','#8A8F94','#3B3E42'];
+ const nwhy=warm
+  ?['Warm off-white. Lifts a warm colour without the glare of pure white.',
+    'Soft warm neutral — about the safest possible ground for your colour.',
+    'A warm mid-neutral that behaves almost like a colour. Very flattering with warm hues.',
+    'Muted warm grey. Grounds without darkening everything.']
+  :['Clean off-white. Sharpens a cool colour and keeps it crisp.',
+    'Soft cool neutral. Quiet, unobtrusive, endlessly usable.',
+    'Cool grey — the natural companion to cool hues.',
+    'Deep neutral for weight and structure.'];
+ const nuse=['Base layer · ground','Background · wall · canvas ground','Second garment · mid-tone','Anchor · frame · base'];
+ const neutral=dedupe(nt.map((t,i)=>{const n=nearest(t,c=>c.fam==='Neutral'||c.fam==='Brown');
+  return{hex:n.hex,name:n.name,why:nwhy[i],use:nuse[i]};}));
+ const metals=warm
+  ?[mk('#C0A050','Warm gold echoes the warmth in your colour. The default festive choice.','Jewellery · buttons · embroidery'),
+    mk('#96703C','Antique bronze — subtler than bright gold, and more grown-up.','Hardware · thread · frame'),
+    mk('#C08874','Rose gold. Warm but softer than yellow gold; excellent with pinks and corals.','Jewellery · fine detail')]
+  :[mk('#B8BCC0','Silver matches the coolness in your colour and stays crisp.','Jewellery · hardware'),
+    mk('#4A4E54','Gunmetal — cool, matte, modern. Reads intentional rather than shiny.','Buckles · zips · structure'),
+    mk('#C08874','Rose gold — the one warm metal that works with cool hues without clashing.','Jewellery · accent detail')];
+ const avoidHex=hslToHex(rotate(h,32,advMode),clamp(s*1.05,0,100),clamp(l+2,0,100));
+ return{dark,safe,bold,neutral,metals,avoidHex,avoidName:nearest(avoidHex).name,h,s,l,warm};
+}
+function group(title,sub,items){
+ return `<div class="recgroup"><h4>${title}</h4><div class="sub">${sub}</div><div class="reclist">${
+  items.map(r=>`<div class="rec" data-hex="${r.hex}"><div class="chip" style="background:${r.hex}"></div>
+  <div><div class="nm">${r.name}</div><div class="hx mono">${r.hex.toUpperCase()}</div>
+  <div class="why">${r.why}</div><div class="use">${r.use}</div></div></div>`).join('')}</div></div>`;
+}
+function setAdvisor(hex){document.getElementById('adv-input').value=hex;
+ document.getElementById('adv-hex').value=hex.toUpperCase();runAdvisor();}
+function runAdvisor(){
+ const hex=document.getElementById('adv-input').value;const a=advise(hex);
+ const n=nearest(hex);const[fam,temp]=familyOf(a.h);
+ document.getElementById('adv-id').innerHTML=`
+ <div class="idcard"><div class="big" style="background:${hex}"></div>
+  <div class="info"><h3>${n.name}</h3>
+   <div class="mono" style="font-size:.84rem;color:var(--muted)">${hex.toUpperCase()} · rgb(${hexToRgb(hex).join(', ')})</div>
+   <div class="idmeta"><span class="pill">${fam}</span><span class="pill">${temp}</span>
+    <span class="pill">${valueWord(a.l)}</span><span class="pill">${satWord(a.s)}</span>
+    <span class="pill">${moodOf(a.h,a.s,a.l)}</span></div></div>
+  <button class="btn sm" onclick="addColour('${hex}');toast('Added to palette')">Add to palette</button></div>
+ <div class="callout"><b>Handle ${a.avoidName} with care</b>
+  <span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${a.avoidHex};vertical-align:-2px;border:1px solid var(--line)"></span>
+  — and anything close to it. It sits just far enough from your colour to look like a near-miss rather than a decision. Either move much closer (tonal) or much further (contrast); the middle distance is where palettes go wrong.</div>`;
+ document.getElementById('adv-out').innerHTML=
+  group('Grounding darks','For ties, laces, outlines, shoes and shadows — the colour that defines everything else',a.dark)+
+  group('Safe &amp; harmonious','Low risk, always works. These flow with your colour rather than challenging it',a.safe)+
+  group('Bold contrast','When you want the second colour to be noticed',a.bold)+
+  group('Neutral anchors','What to build the rest of the look or composition on',a.neutral)+
+  group('Metals','Jewellery, hardware, thread, frames',a.metals)+
+  (advMode==='paint'?`<div class="callout"><b>Painter's note.</b> Mixing your colour with its opposite (${nearest(hslToHex(rotate(a.h,180,'paint'),a.s,a.l)).name}) in small amounts doesn't give you mud — it gives you a living, slightly warm grey. That's how you dull a colour without reaching for black, which flattens luminosity.</div>`:'');
+}
+document.getElementById('adv-out').addEventListener('click',e=>{
+ const r=e.target.closest('.rec');if(!r)return;addColour(r.dataset.hex);
+ toast(`${nearest(r.dataset.hex).name} added`);});
+document.getElementById('adv-input').addEventListener('input',e=>{
+ document.getElementById('adv-hex').value=e.target.value.toUpperCase();runAdvisor();});
+document.getElementById('adv-hex').addEventListener('change',e=>{
+ let v=e.target.value.trim();if(!v.startsWith('#'))v='#'+v;
+ if(/^#[0-9a-f]{6}$/i.test(v)){document.getElementById('adv-input').value=v;runAdvisor();}
+ else toast('Enter a hex like #F79E8A');});
+document.getElementById('adv-mode').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('#adv-mode button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');advMode=b.dataset.m;runAdvisor();});
+
+/* ── named colour picker ── */
+const FAMS=['All','Red','Pink','Orange','Brown','Yellow','Green','Blue','Purple','Neutral','Metal'];
+let curFam='All',curQ='';
+document.getElementById('toggle-picker').onclick=function(){
+ const p=document.getElementById('picker');const open=p.style.display!=='none';
+ p.style.display=open?'none':'block';
+ this.textContent=open?'Browse named colours ▾':'Hide named colours ▴';
+};
+function renderFams(){
+ document.getElementById('fams').innerHTML=FAMS.map(f=>
+  `<button class="chipbtn ${f===curFam?'on':''}" data-f="${f}">${f}</button>`).join('');
+}
+function renderSwatchGrid(){
+ const list=NAMED.filter(c=>(curFam==='All'||c[2]===curFam)&&c[0].toLowerCase().includes(curQ));
+ document.getElementById('pickcount').textContent=`${list.length} of ${NAMED.length}`;
+ document.getElementById('swatchgrid').innerHTML=list.map(c=>
+  `<div class="sg" data-hex="${c[1]}"><div class="sw" style="background:${c[1]}"></div>
+   <div class="lb"><b>${c[0]}</b><span class="mono">${c[1].toUpperCase()}</span></div></div>`).join('')
+  ||'<p class="hint">No colour matches that search.</p>';
+}
+document.getElementById('fams').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;curFam=b.dataset.f;renderFams();renderSwatchGrid();});
+document.getElementById('csearch').addEventListener('input',e=>{
+ curQ=e.target.value.toLowerCase().trim();renderSwatchGrid();});
+document.getElementById('swatchgrid').addEventListener('click',e=>{
+ const s=e.target.closest('.sg');if(!s)return;setAdvisor(s.dataset.hex);
+ window.scrollTo({top:document.getElementById('adv-id').offsetTop-140,behavior:'smooth'});});
+renderFams();renderSwatchGrid();runAdvisor();
+
+/* ═════ LIBRARY ═════ */
+const LIB=[
+{n:'Salmon & Slate',src:'Wada',cat:'Soft',c:['Ochraceous Salmon|#E3A183','Dark Medici Blue|#4C6672','Ivory Buff|#EFE2C4'],
+ d:'A warm flesh-pink held down by dusty blue-grey. The buff stops it turning cold. Warmth grounded by an unsaturated cool is Wada\'s signature move.'},
+{n:'Vinaceous Dusk',src:'Wada',cat:'Soft',c:['Vinaceous Tawny|#C8825F','Hyssop Violet|#7E6E9E','Cream Buff|#F1DEB9'],
+ d:'Tawny orange against muted violet. Almost complementary, but both desaturated — so it reads romantic instead of aggressive.'},
+{n:'Pompeian Ground',src:'Wada',cat:'Earth',c:['Pompeian Red|#9E4436','Olive Ocher|#A4832F','Deep Slate Olive|#2F3A31'],
+ d:'Three earth pigments that would have sat on any classical wall. The dark olive does the job of black with none of its flatness.'},
+{n:'Fawn & Vandyke',src:'Wada',cat:'Earth',c:['Fawn Color|#C4A484','Vandyke Red|#7C3B34','Cream Color|#F3E5C6'],
+ d:'The neutral-plus-one-deep-red formula. Works on a canvas, a wall, or a camel coat with a burgundy lining.'},
+{n:'Turtle & Coral',src:'Wada',cat:'Bold',c:['Turtle Green|#6C7A4C','Coral Red|#E1604F','Light Buff|#EFDCB4'],
+ d:'A muddy green with a bright coral. The green is dull enough that the coral does all the shouting — one dominant, two supporting.'},
+{n:'Cossack Bloom',src:'Wada',cat:'Bold',c:['Cossack Green|#4C5B3D','Begonia Rose|#D9607A','Cartridge Buff|#EFE6CC'],
+ d:'Deep military green with soft pink. Unlikely, and it keeps returning in fashion because pink looks fresher against something drab.'},
+{n:'Sulphine Nights',src:'Wada',cat:'Deep',c:['Sulphine Yellow|#A88B2A','Dark Medici Blue|#4C6672','Warm Blackish Brown|#332721'],
+ d:'A dirty gold against slate. The near-black brown stops it becoming merely decorative and makes it serious.'},
+{n:'Grenadine Signal',src:'Wada',cat:'Bold',c:['Grenadine Pink|#E1786B','Cendre Green|#8FA187','Sepia|#463227'],
+ d:'Warm pink, grey-green, dark brown. Wada\'s recurring three-step: bright, then muted, then almost-black.'},
+{n:'Naples & Nopal',src:'Wada',cat:'Bold',c:['Naples Yellow|#EED9A0','Nopal Red|#B03A3E','Andover Green|#54604B'],
+ d:'A pale yellow doing the work of a neutral, a strong red for focus, olive to stop the whole thing looking like a flag.'},
+{n:'Hermosa Morning',src:'Wada',cat:'Soft',c:['Hermosa Pink|#F2C4CE','Calamine Blue|#B7CBDB','Baryta Yellow|#F1EBA8'],
+ d:'Three unrelated pastels at identical lightness. This is precisely why soft maximalism works — shared value holds unrelated hues together.'},
+{n:'Mikado & Medici',src:'Wada',cat:'Bold',c:['Mikado Orange|#E58B33','Dark Medici Blue|#4C6672','Ivory Buff|#EFE2C4'],
+ d:'The clearest complementary pairing in the book. The orange is warmed and the blue is greyed — that adjustment is the entire trick.'},
+{n:'Corinthian Rose',src:'Wada',cat:'Deep',c:['Corinthian Pink|#E0A9A2','Deep Slate Olive|#2F3A31','Old Gold|#B0913F'],
+ d:'Muted rose against near-black olive, gold as the only bright note. Extremely wearable in Indian and Western dress alike.'},
+{n:'Cendre Study',src:'Wada',cat:'Earth',c:['Light Cendre Green|#B4C3AC','Deep Slate Olive|#2F3A31','Chamois|#E9D9A8'],
+ d:'A tonal green scheme, almost monochromatic, rescued from dullness by the warm chamois.'},
+{n:'Vanderpoel Depths',src:'Wada',cat:'Deep',c:["Vanderpoel's Blue|#2E5C86",'Apricot Yellow|#F0BE6E','Warm Blackish Brown|#332721'],
+ d:'Blue and apricot are near-opposites; the dark brown acts as the outline holding them apart.'},
+{n:'Eugenia Field',src:'Wada',cat:'Earth',c:['Eugenia Red|#A83C4A','Cendre Green|#8FA187','Cream Buff|#F1DEB9'],
+ d:'Dusty red with a sage-ish green. Nearly complementary, both muted — which is why it feels antique rather than loud.'},
+{n:'Argyle Evening',src:'Wada',cat:'Soft',c:['Argyle Purple|#8A6480','Sea-foam Yellow|#E7E4B8','Dark Greenish Glaucous|#7C9088'],
+ d:'Dusty purple, pale yellow-green, grey-green. Nothing is saturated; the whole scheme lives in the muted middle.'},
+{n:'Bittersweet Frame',src:'Wada',cat:'Bold',c:['Bittersweet Orange|#DE7440','Deep Slate Olive|#2F3A31','Light Buff|#EFDCB4'],
+ d:'Bright orange against very dark olive. If you want one colour to glow, put it beside something almost black.'},
+{n:"Rood's Autumn",src:'Wada',cat:'Earth',c:["Rood's Brown|#8C5238",'Olive Ocher|#A4832F','Chartreuse Yellow|#CFCE72'],
+ d:'A warm analogous run from brown through to yellow-green. Nature does exactly this every October.'},
+{n:'Spinel & Glaucous',src:'Wada',cat:'Bold',c:['Spinel Red|#C1516F','Dark Greenish Glaucous|#7C9088','Ivory Buff|#EFE2C4'],
+ d:'A cool-leaning red against grey-green. The ivory stops the two vibrating against each other.'},
+{n:'Veronia Twilight',src:'Wada',cat:'Deep',c:['Veronia Purple|#6C4A6E','Mauvette|#CDB6CC','Deep Slate Olive|#2F3A31'],
+ d:'A monochromatic purple scheme closed with a near-black olive. Three values of essentially one idea.'},
+{n:'Empire Contrast',src:'Wada',cat:'Bold',c:['Empire Yellow|#F0C93E','Dull Blue-Violet|#5E6389','Verona Brown|#6E4630'],
+ d:'Bright yellow, dusty blue-violet, warm brown. The yellow is the accent — use it at ten percent, never thirty.'},
+{n:'Old Rose Interior',src:'Wada',cat:'Soft',c:['Old Rose|#BE7F80','Andover Green|#54604B','Ivory Buff|#EFE2C4'],
+ d:'This exact combination has been on the walls of good rooms for a century. Muted rose plus muted green is close to unfailable.'},
+{n:'Salvia Cool',src:'Wada',cat:'Soft',c:['Salvia Blue|#5A6E9E','Light Cendre Green|#B4C3AC','Cream Color|#F3E5C6'],
+ d:'Cool and quiet, but still warm because of the cream. Good for anything that should look calm without looking cold.'},
+{n:'Carmine Ceremony',src:'Wada',cat:'Deep',c:['Carmine|#9B2138','Old Gold|#B0913F','Warm Blackish Brown|#332721'],
+ d:'Deep red, antique gold, near-black. The most reliable formula in festive Indian dress — arrived at independently by a Japanese painter in 1933.'},
+{n:'Lincoln Depths',src:'Wada',cat:'Deep',c:['Lincoln Green|#33452F','Apricot Yellow|#F0BE6E','Vinaceous Tawny|#C8825F'],
+ d:'A very dark green with two warm lights. The green functions as background; the warms function as figures.'},
+{n:'Buff Architecture',src:'Wada',cat:'Earth',c:['Chamois|#E9D9A8','Verona Brown|#6E4630','Dark Medici Blue|#4C6672'],
+ d:'Sand, brown, slate blue. A structural palette — most good buildings and most good coats are made of this.'},
+/* reference sets */
+{n:'Tonal Dressing',src:'Reference',cat:'Soft',c:['Biscuit|#D3B48C','Camel|#C19A6B','Tan|#B08E62','Nutmeg|#7E5138'],
+ d:'Head-to-toe in one family. Polished, elongating, hard to get wrong — but it flattens unless you vary texture: matte against shine, chunky against smooth.'},
+{n:'Power Contrast',src:'Reference',cat:'Bold',c:['Off-Black|#22201E','White|#FBFAF7','Chilli Red|#C1272D','Off-Black|#22201E'],
+ d:'Dark base, light contrast, one saturated accent. The red lip, the red sole, the scarlet bag against all-black. The eye goes straight there, which is the entire point.'},
+{n:'Chiaroscuro',src:'Reference',cat:'Deep',c:['Black|#0D0D0D','Bark|#2C1A0E','Sienna|#7A4A20','Butter|#F0C080'],
+ d:"Caravaggio's near-black ground with one dramatic light source. Almost no colour at all — just value carving form out of darkness."},
+{n:'Impressionist Light',src:'Reference',cat:'Soft',c:['Powder Blue|#A8C4E0','Biscuit|#D4B896','Willow|#8FB87A','Vanilla|#F5E6C8'],
+ d:'Monet placed small strokes of different colours side by side rather than mixing them. The eye blends them at distance into something more luminous than mixed paint can be.'},
+{n:'Earthy Grounding',src:'Reference',cat:'Earth',c:['Ochre|#8B6914','Camel|#C4A460','Oatmeal|#D9C4A0','Alabaster|#F0E8D8'],
+ d:'Terracotta, sand, ochre, cream. Warm, muted and quiet. Natural materials live inside this palette, which is why these rooms feel like they belong.'},
+{n:'French Navy & Ivory',src:'Reference',cat:'Deep',c:['Navy|#1C2951','Cream|#F5F0E6','Old Gold|#C5A46E','Navy|#1C2951'],
+ d:'Navy reads as authority without aggression; ivory softens without weakness. Hermès, Chanel and Ralph Lauren return here every season for a reason.'},
+{n:'Fauvist Pure Hue',src:'Reference',cat:'Bold',c:['Vermilion|#E63030','Saffron|#F5A500','Grass|#2ECC71','Azure|#3498DB'],
+ d:'Matisse and Derain painted how things felt, not how they looked. A face could be green. In fashion terms: choosing colour purely for emotional impact.'},
+{n:'Soft Maximalism',src:'Reference',cat:'Soft',c:['Lilac|#C9A0C8','Seafoam|#8BC4B8','Butter|#F5D08C','Peach|#F2B5A0'],
+ d:'Several saturated hues held together only because they share one lightness level. That shared value is the sole thing stopping it becoming chaos.'},
+{n:'Festive Indian',src:'Reference',cat:'Deep',c:['Cherry|#9B2138','Old Gold|#B0913F','Bottle Green|#1E3A2C','Cream|#F3E5C6'],
+ d:'Deep red, antique gold, bottle green, cream. Warm with high value-contrast, built for lamplight rather than daylight — exactly why it reads as celebratory.'},
+{n:'Monsoon Muted',src:'Reference',cat:'Soft',c:['Slate Grey|#6E757A','Sage|#A3B18A','Ecru|#DDD2BC','Petrol|#1D5A63'],
+ d:'Grey-green and slate with a warm neutral. A cool, damp, low-contrast scheme — restful, and unusually flattering in overcast light.'}
+];
+const LIBFILTERS=['All','Soft','Bold','Earth','Deep','Wada','Reference'];
+let libF='All';
+function renderLib(){
+ document.getElementById('libfilter').innerHTML=LIBFILTERS.map(f=>
+  `<button class="chipbtn ${f===libF?'on':''}" data-f="${f}">${f}</button>`).join('');
+ const list=LIB.filter(w=>libF==='All'||w.cat===libF||w.src===libF);
+ document.getElementById('libgrid').innerHTML=list.map(w=>{
+  const cols=w.c.map(x=>x.split('|'));
+  return `<div class="libcard">
+   <div class="libstrip">${cols.map(c=>`<div style="background:${c[1]}"></div>`).join('')}</div>
+   <div class="libbody"><span class="libtag">${w.src} · ${w.cat}</span><h4>${w.n}</h4>
+    <div class="libnames mono">${cols.map(c=>`${c[0]} ${c[1].toUpperCase()}`).join('<br>')}</div>
+    <div class="libnote">${w.d}</div>
+    <div class="libacts">
+     <button class="btn sm primary lib-use" data-c="${cols.map(c=>c[1]).join(',')}">Use palette</button>
+     <button class="btn sm lib-adv" data-hex="${cols[0][1]}">Pair with first colour</button>
+    </div></div></div>`;}).join('');
+}
+document.getElementById('libfilter').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;libF=b.dataset.f;renderLib();});
+document.getElementById('libgrid').addEventListener('click',e=>{
+ const u=e.target.closest('.lib-use');
+ if(u){palette=u.dataset.c.split(',');renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');return;}
+ const a=e.target.closest('.lib-adv');
+ if(a){setAdvisor(a.dataset.hex);goTo('advisor');}});
+renderLib();
+
+/* ═════ WHEEL ═════ */
+let wheelMode='paint',sampled='#F79E8A';
+function drawWheel(){
+ const c=document.getElementById('wheel'),ctx=c.getContext('2d');
+ const cx=160,cy=160,r=150;ctx.clearRect(0,0,320,320);
+ for(let a=0;a<360;a++){
+  const hue=wheelMode==='paint'?rybToRgbHue(a):a;
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+  g.addColorStop(0,'#ffffff');g.addColorStop(.55,`hsl(${hue},82%,60%)`);g.addColorStop(1,`hsl(${hue},90%,42%)`);
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,r,(a-1.2)*Math.PI/180,(a+1.2)*Math.PI/180);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+ }
+ const og=ctx.createRadialGradient(cx,cy,r-11,cx,cy,r);
+ og.addColorStop(0,'transparent');og.addColorStop(1,'rgba(0,0,0,.18)');
+ ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=og;ctx.fill();
+ document.getElementById('modenote').textContent=wheelMode==='paint'
+  ?'Red sits opposite green — the wheel that matches physical pigment.'
+  :'Red sits opposite cyan — correct for screens only.';
+}
+function showSample(hex){
+ sampled=hex;const[h,s,l]=hexToHsl(hex);const n=nearest(hex);const[fam,temp]=familyOf(h);
+ const ch=rotate(h,180,wheelMode),chex=hslToHex(ch,s,l);
+ document.getElementById('w-swatch').style.background=hex;
+ document.getElementById('w-name').textContent=n.name;
+ document.getElementById('w-hex').textContent=hex.toUpperCase();
+ document.getElementById('w-rgb').textContent=hexToRgb(hex).join(', ');
+ document.getElementById('w-fam').textContent=`${fam} · ${temp}`;
+ document.getElementById('w-val').textContent=valueWord(l);
+ document.getElementById('w-sat').textContent=satWord(s);
+ document.getElementById('w-comp').textContent=`${nearest(chex).name} · ${chex.toUpperCase()}`;
+ document.getElementById('w-mood').textContent=moodOf(h,s,l);
+ renderHarmony();
+}
+document.getElementById('wheel').addEventListener('click',function(e){
+ const rc=this.getBoundingClientRect();
+ const sx=(e.clientX-rc.left)*(320/rc.width),sy=(e.clientY-rc.top)*(320/rc.height);
+ const p=this.getContext('2d').getImageData(sx,sy,1,1).data;
+ if(p[3]<10)return;showSample(rgbToHex(p[0],p[1],p[2]));});
+document.getElementById('wheel-mode').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('#wheel-mode button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');wheelMode=b.dataset.m;drawWheel();showSample(sampled);});
+document.getElementById('w-send').onclick=()=>{setAdvisor(sampled);goTo('advisor');};
+document.getElementById('w-add').onclick=()=>{addColour(sampled);toast('Added to palette');};
+
+/* harmonies */
+const HARM={
+ complementary:{n:'Complementary',d:'Two colours directly opposite. Maximum contrast and impact. Use one as the clear dominant and the other as a small accent — split evenly they fight each other.',off:[0,180]},
+ analogous:{n:'Analogous',d:'Neighbouring hues. Harmonious and nature-like: this is what a forest, a sunset or a good tonal outfit is doing. Very hard to get wrong.',off:[-30,0,30,60]},
+ triadic:{n:'Triadic',d:'Three colours evenly spaced. Vibrant but balanced. Bold and graphic in fashion; structurally useful in painting for keeping a composition alive.',off:[0,120,240]},
+ split:{n:'Split-Complementary',d:'Your colour plus the two either side of its opposite. Nearly the punch of complementary and considerably easier to wear. The best place to start if you want contrast without drama.',off:[0,150,210]},
+ tetradic:{n:'Tetradic / Square',d:'Four colours evenly spaced. Rich and complex — genuinely difficult unless one dominates and the rest sit at ten to fifteen percent.',off:[0,90,180,270]},
+ monochromatic:{n:'Monochromatic',d:'One hue across different lightness and saturation. The basis of tonal dressing and of the Blue Period. Sophisticated, cohesive, impossible to clash with itself.',off:null}
+};
+function harmonySet(){
+ const type=document.getElementById('h-type').value;
+ const refine=document.getElementById('h-refine').checked;
+ const[h,s,l]=hexToHsl(sampled);const H=HARM[type];
+ let out;
+ if(type==='monochromatic'){
+  out=[[h,s*.45,clamp(l*.42,8,40)],[h,s*.75,clamp(l*.72,14,60)],[h,s,l],
+       [h,s*.7,clamp(l+16,0,88)],[h,s*.38,clamp(l+34,0,95)]];
+ }else out=H.off.map((deg,i)=>{
+  const hh=rotate(h,deg,wheelMode);if(!refine||i===0)return[hh,s,l];
+  const sf=[1,.62,.78,.55][i%4],lg=[0,l<50?16:-20,-9,11][i%4];
+  return[hh,s*sf,clamp(l+lg,10,92)];});
+ return out.map(([a,b,c])=>hslToHex(a,b,c));
+}
+function renderHarmony(){
+ const type=document.getElementById('h-type').value;const cols=harmonySet();
+ document.getElementById('h-row').innerHTML=cols.map((c,i)=>{
+  const n=nearest(c);
+  return `<div class="hsw" data-hex="${c}"><div class="blk" style="background:${c}"></div>
+   <span>${n.name}<br><span class="mono" style="font-size:.72rem;color:var(--muted)">${c.toUpperCase()}</span>${
+    i===0&&type!=='monochromatic'?'<br><i>dominant</i>':''}</span></div>`;}).join('');
+ document.getElementById('h-desc').innerHTML=`<strong>${HARM[type].n}.</strong> ${HARM[type].d}`;
+}
+document.getElementById('h-row').addEventListener('click',e=>{
+ const s=e.target.closest('.hsw');if(!s)return;addColour(s.dataset.hex);toast('Added to palette');});
+document.getElementById('h-type').addEventListener('change',renderHarmony);
+document.getElementById('h-refine').addEventListener('change',renderHarmony);
+document.getElementById('h-send').onclick=()=>{palette=harmonySet();renderPalette();buildProp();
+ toast('Sent to the Lab');goTo('lab');};
+drawWheel();showSample('#F79E8A');
+
+/* ═════ LAB ═════ */
+function renderPalette(){
+ const strip=document.getElementById('pstrip'),sw=document.getElementById('pswatches');
+ strip.innerHTML=palette.map(c=>`<div style="background:${c}"></div>`).join('');
+ sw.innerHTML=palette.map((c,i)=>{const n=nearest(c);
+  return `<div class="psw"><div class="blk" style="background:${c}" data-hex="${c}"></div>
+   <div class="lb"><b>${n.name}</b><span class="mono">${c.toUpperCase()}</span></div>
+   <button class="rm" data-i="${i}">×</button></div>`;}).join('')
+  ||'<p class="hint">Palette is empty. Add colours from the Advisor, Library, Wheel or a photo.</p>';
+ document.getElementById('exportbox').style.display='none';
+ renderPreviews();renderMatrix();renderTray();
+}
+document.getElementById('pswatches').addEventListener('click',e=>{
+ const r=e.target.closest('.rm');
+ if(r){palette.splice(+r.dataset.i,1);renderPalette();buildProp();return;}
+ const b=e.target.closest('.blk');
+ if(b){setAdvisor(b.dataset.hex);goTo('advisor');}});
+document.getElementById('lab-add-btn').onclick=()=>addColour(document.getElementById('lab-add').value);
+document.getElementById('lab-clear').onclick=()=>{palette=[];renderPalette();buildProp();};
+document.getElementById('lab-export').onclick=()=>{
+ const named=palette.map(c=>`${nearest(c).name.padEnd(18)}${c.toUpperCase()}`).join('\n');
+ const css=palette.map((c,i)=>`  --colour-${i+1}: ${c};`).join('\n');
+ document.getElementById('exporttext').textContent=`${named}\n\n:root {\n${css}\n}`;
+ document.getElementById('exportbox').style.display='block';};
+document.getElementById('labnav').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('#labnav button').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');document.getElementById('p-'+b.dataset.p).classList.add('active');});
+
+/* photo */
+const dz=document.getElementById('dropzone'),fi=document.getElementById('fileinput');
+dz.onclick=()=>fi.click();
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--accent)';});
+dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';
+ if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+fi.onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0]);};
+let extracted=[];
+function handleFile(f){
+ const rd=new FileReader();
+ rd.onload=ev=>{const img=new Image();
+  img.onload=()=>{
+   const pv=document.getElementById('photoprev');pv.src=ev.target.result;pv.style.display='block';
+   extracted=extractPalette(img,6);
+   document.getElementById('extracted').innerHTML=extracted.map(c=>{const n=nearest(c);
+    return `<div class="psw"><div class="blk" style="background:${c}" data-hex="${c}"></div>
+     <div class="lb"><b>${n.name}</b><span class="mono">${c.toUpperCase()}</span></div></div>`;}).join('');
+   document.getElementById('use-extracted').style.display='inline-block';};
+  img.src=ev.target.result;};
+ rd.readAsDataURL(f);
+}
+function extractPalette(img,count){
+ const W=120,H=Math.max(1,Math.round(W*img.height/img.width));
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+ const cx=cv.getContext('2d');cx.drawImage(img,0,0,W,H);
+ const d=cx.getImageData(0,0,W,H).data,buckets={};
+ for(let i=0;i<d.length;i+=4){if(d[i+3]<125)continue;
+  const r=d[i],g=d[i+1],b=d[i+2],k=`${r>>4},${g>>4},${b>>4}`;
+  if(!buckets[k])buckets[k]={r:0,g:0,b:0,n:0};
+  const bk=buckets[k];bk.r+=r;bk.g+=g;bk.b+=b;bk.n++;}
+ const arr=Object.values(buckets).map(b=>({hex:rgbToHex(b.r/b.n,b.g/b.n,b.b/b.n),n:b.n,
+  lab:rgbToLab(b.r/b.n,b.g/b.n,b.b/b.n)})).sort((a,b)=>b.n-a.n);
+ const out=[];
+ for(const c of arr){if(out.every(o=>labDist(o.lab,c.lab)>17))out.push(c);if(out.length>=count)break;}
+ return out.map(o=>o.hex);
+}
+document.getElementById('extracted').addEventListener('click',e=>{
+ const b=e.target.closest('.blk');if(b){setAdvisor(b.dataset.hex);goTo('advisor');}});
+document.getElementById('use-extracted').onclick=()=>{palette=extracted.slice();
+ renderPalette();buildProp();toast('Palette set from photo');
+ document.querySelector('#labnav button[data-p="build"]').click();};
+
+/* proportions */
+let props=[];
+function buildProp(){const d=[60,30,10,6,4];
+ props=palette.slice(0,5).map((c,i)=>({hex:c,pct:d[i]||5}));renderProp();}
+function renderProp(){
+ const total=props.reduce((a,b)=>a+b.pct,0)||1;
+ document.getElementById('propbar').innerHTML=props.map(p=>
+  `<div style="background:${p.hex};flex:${p.pct}"></div>`).join('')||'';
+ document.getElementById('proprows').innerHTML=props.map((p,i)=>
+  `<div class="proprow"><div class="sw" style="background:${p.hex}"></div>
+   <div class="lbl">${nearest(p.hex).name}</div>
+   <input type="range" min="1" max="100" value="${p.pct}" data-i="${i}">
+   <div class="pct mono">${Math.round(p.pct/total*100)}%</div></div>`).join('')
+  ||'<p class="hint">Add colours to your palette first.</p>';
+ renderPreviews();
+}
+document.getElementById('proprows').addEventListener('input',e=>{
+ if(e.target.type!=='range')return;props[+e.target.dataset.i].pct=+e.target.value;renderProp();});
+document.getElementById('prop-reset').onclick=buildProp;
+
+/* previews */
+const pc=(i,f)=>palette[i]||f;
+function renderPreviews(){
+ const a=pc(0,'#C1654A'),b=pc(1,'#E4CE9E'),c=pc(2,'#54604B'),d=pc(3,'#2F3A31'),e=pc(4,'#EFE2C4');
+ document.getElementById('prev-outfit').innerHTML=`
+ <svg width="160" height="245" viewBox="0 0 160 245">
+  <rect width="160" height="245" fill="${e}" rx="8"/>
+  <circle cx="80" cy="37" r="20" fill="#D9AE86"/>
+  <path d="M60 27 Q80 9 100 27 Q100 13 80 11 Q60 13 60 27Z" fill="#2b1d16"/>
+  <rect x="75" y="54" width="10" height="10" fill="#D9AE86"/>
+  <path d="M49 64 Q80 56 111 64 L118 138 L42 138 Z" fill="${a}"/>
+  <path d="M49 64 L33 126 L48 130 L56 79 Z" fill="${a}"/>
+  <path d="M111 64 L127 126 L112 130 L104 79 Z" fill="${a}"/>
+  <rect x="46" y="136" width="68" height="66" fill="${b}" rx="3"/>
+  <rect x="46" y="136" width="68" height="8" fill="${c}"/>
+  <rect x="50" y="202" width="25" height="15" fill="${d}" rx="3"/>
+  <rect x="85" y="202" width="25" height="15" fill="${d}" rx="3"/>
+  <circle cx="128" cy="136" r="13" fill="${c}"/><rect x="126" y="118" width="4" height="18" fill="${d}"/>
+ </svg>`;
+ document.getElementById('prev-canvas').innerHTML=`
+ <svg width="195" height="150" viewBox="0 0 195 150">
+  <rect width="195" height="150" fill="${e}"/>
+  <rect y="0" width="195" height="78" fill="${b}"/>
+  <rect y="78" width="195" height="72" fill="${c}"/>
+  <circle cx="140" cy="33" r="23" fill="${a}" opacity=".92"/>
+  <path d="M0 104 Q50 72 100 104 T195 95 L195 150 L0 150Z" fill="${d}"/>
+  <rect x="28" y="64" width="14" height="52" fill="${a}"/><rect x="28" y="55" width="14" height="11" fill="${d}"/>
+  <rect width="195" height="150" fill="none" stroke="${d}" stroke-width="6"/>
+ </svg>`;
+ document.getElementById('prev-room').innerHTML=`
+ <svg width="195" height="150" viewBox="0 0 195 150">
+  <rect width="195" height="150" fill="${b}"/>
+  <rect y="112" width="195" height="38" fill="${c}"/>
+  <rect x="18" y="48" width="56" height="46" fill="${e}" stroke="${d}" stroke-width="3"/>
+  <rect x="95" y="78" width="82" height="34" fill="${a}" rx="5"/>
+  <rect x="95" y="69" width="82" height="13" fill="${a}" rx="6"/>
+  <rect x="104" y="62" width="19" height="15" fill="${d}" rx="3"/>
+  <rect x="130" y="62" width="19" height="15" fill="${e}" rx="3"/>
+  <rect x="32" y="112" width="130" height="8" fill="${d}" opacity=".5"/>
+  <circle cx="165" cy="36" r="12" fill="${d}"/>
+ </svg>`;
+}
+/* contrast matrix */
+function renderMatrix(){
+ const t=document.getElementById('matrix');const p=palette.slice(0,8);
+ if(p.length<2){t.innerHTML='<tr><td style="background:none;color:var(--muted);text-align:left">Add at least two colours to compare.</td></tr>';return;}
+ let html='<tr><th></th>'+p.map(c=>`<th><span class="mx-sw" style="background:${c}"></span></th>`).join('')+'</tr>';
+ p.forEach(r=>{
+  html+=`<tr><th><span class="mx-sw" style="background:${r}"></span></th>`;
+  p.forEach(c=>{
+   if(r===c){html+='<td style="background:var(--surface2);color:var(--muted)">—</td>';return;}
+   const v=contrastRatio(r,c);
+   const cl=v>=4.5?'mx-good':v>=3?'mx-mid':'mx-bad';
+   html+=`<td class="${cl}" title="${nearest(r).name} on ${nearest(c).name}">${v.toFixed(1)}</td>`;});
+  html+='</tr>';});
+ t.innerHTML=html;
+}
+renderPalette();buildProp();
+
+/* ═════ PERSONAL COLOUR ═════ */
+const PCQ=[
+ {q:'Look at the veins on the inside of your wrist in daylight. What colour do they appear?',
+  o:[['Green or olive','w'],['Blue or purple','c'],['A mix of both','n'],["Can't tell",'n']]},
+ {q:'Which jewellery metal looks better against your skin?',o:[['Gold','w'],['Silver / platinum','c'],['Both look fine','n']]},
+ {q:'When you spend time in the sun, what happens first?',
+  o:[['I tan fairly easily','w'],['I burn, then it fades','c'],['I burn first, then tan','n']]},
+ {q:'Hold a pure white shirt and a cream one near your face. Which flatters more?',
+  o:[['Cream / off-white','w'],['Pure white','c'],['No real difference','n']]},
+ {q:'How much contrast is there between your hair, skin and eyes?',
+  o:[['High — very distinct from each other','high'],['Medium','med'],['Low — all similar in depth','low']]},
+ {q:'Which describes your overall colouring best?',
+  o:[['Light and clear','light'],['Deep and rich','deep'],['Soft and muted','soft']]}
+];
+let pcAns={};
+function renderPC(){document.getElementById('pcq').innerHTML=PCQ.map((q,i)=>
+ `<div class="pcq"><div class="q">${i+1}. ${q.q}</div><div class="pcopts">${
+  q.o.map(o=>`<button class="pcbtn ${pcAns[i]===o[1]?'sel':''}" data-q="${i}" data-v="${o[1]}">${o[0]}</button>`).join('')
+ }</div></div>`).join('');}
+document.getElementById('pcq').addEventListener('click',e=>{
+ const b=e.target.closest('.pcbtn');if(!b)return;pcAns[+b.dataset.q]=b.dataset.v;renderPC();});
+const SEASONS={
+ Spring:{sub:'Warm & Bright',
+  d:'Your colouring is warm-toned and relatively light or clear. You suit colours that are warm and fresh — a garden in April rather than autumn leaves. Clarity is the key: your colours should look clean, not dusty.',
+  best:['Coral','Peach','Apricot','Tangerine','Marigold','Chartreuse','Fern','Turquoise','Cornflower','Camel','Cream','Ivory'],
+  avoid:'Black, charcoal, cool grey, aubergine and icy pastels',
+  neutral:'Cream, Camel, Tan, Warm Grey',metal:'Gold and rose gold'},
+ Autumn:{sub:'Warm & Deep',
+  d:'Warm-toned with real depth. You suit colours that look like they came out of the earth — spice, rust, moss, bronze. Muted and warm works far better on you than bright and cool.',
+  best:['Terracotta','Rust','Burnt Orange','Mustard','Ochre','Olive','Moss','Forest','Teal','Cognac','Chocolate','Oxblood'],
+  avoid:'Pure black, icy pink, cool pastels, fuchsia and pure white',
+  neutral:'Cream, Camel, Chocolate, Espresso',metal:'Antique gold, bronze, copper'},
+ Summer:{sub:'Cool & Soft',
+  d:'Cool-toned and relatively soft. You suit colours with grey in them — dusty, hazy, gentle. High-contrast brights tend to overwhelm you; muted cool tones make your skin look even.',
+  best:['Dusty Rose','Mauve','Lavender','Powder Blue','Sky Blue','Slate Blue','Sage','Celadon','Denim','Plum','Cool Grey','Bone'],
+  avoid:'Orange, rust, mustard, warm brown and pure black',
+  neutral:'Bone, Cool Grey, Taupe, Navy',metal:'Silver, white gold, pewter'},
+ Winter:{sub:'Cool & Bright',
+  d:'Cool-toned with strong contrast. You are one of relatively few people who genuinely suits pure black and pure white. Your colours should be clear and saturated — muted tones can wash you out.',
+  best:['Crimson','Raspberry','Emerald','Cobalt','French Blue','Amethyst','Violet','Aubergine','Navy','Midnight Blue','White','Black'],
+  avoid:'Mustard, camel, beige, orange and muted olive',
+  neutral:'White, Black, Charcoal, Navy',metal:'Silver, platinum, gunmetal'}
+};
+document.getElementById('pcrun').onclick=()=>{
+ if(Object.keys(pcAns).length<PCQ.length){toast('Answer all six questions first');return;}
+ let w=0,c=0;for(let i=0;i<4;i++){if(pcAns[i]==='w')w++;if(pcAns[i]==='c')c++;}
+ const warm=w>c,depth=pcAns[5],con=pcAns[4];
+ let season;
+ if(warm)season=depth==='light'?'Spring':'Autumn';
+ else season=(con==='high'||depth==='deep')?'Winter':'Summer';
+ const S=SEASONS[season];
+ const hexOf=n=>{const f=NAMED.find(x=>x[0]===n);return f?f[1]:null;};
+ const cols=S.best.map(n=>({n,h:hexOf(n)})).filter(x=>x.h);
+ const el=document.getElementById('pcresult');el.style.display='block';
+ el.innerHTML=`
+  <div class="kicker" style="font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px">Your result</div>
+  <h2 class="disp" style="font-size:2rem;margin-bottom:4px">You read as <em style="font-style:italic;color:var(--accent)">${season}</em></h2>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">${S.sub} · ${warm?'warm':'cool'} undertone · ${con==='high'?'high':con==='med'?'medium':'low'} contrast</p>
+  <p class="lede">${S.d}</p>
+  <h3 class="block">Your colours</h3>
+  <div class="pswatches">${cols.map(c=>
+   `<div class="psw"><div class="blk" style="background:${c.h}" data-hex="${c.h}"></div>
+    <div class="lb"><b>${c.n}</b><span class="mono">${c.h.toUpperCase()}</span></div></div>`).join('')}</div>
+  <h3 class="block">Neutrals &amp; metals</h3>
+  <p class="lede">Build on <strong>${S.neutral}</strong>. For metal: <strong>${S.metal}</strong>.</p>
+  <div class="callout"><b>Handle with care:</b> ${S.avoid}. These don't become forbidden — but they'll usually want to sit away from your face, or be broken up with a scarf or collar in one of your own colours.</div>
+  <button class="btn primary" id="pc-load">Load these into the Lab</button>`;
+ document.getElementById('pc-load').onclick=()=>{palette=cols.slice(0,6).map(c=>c.h);
+  renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');};
+ el.querySelectorAll('.blk').forEach(b=>b.onclick=()=>{setAdvisor(b.dataset.hex);goTo('advisor');});
+ el.scrollIntoView({behavior:'smooth',block:'start'});
+};
+document.getElementById('pcreset').onclick=()=>{pcAns={};renderPC();
+ document.getElementById('pcresult').style.display='none';};
+renderPC();
+
+/* ═════ GLOSSARY ═════ */
+const TERMS=[
+['Hue','The actual colour — red, yellow, blue. Its name before you do anything to it. In everyday use "hue" and "colour" mean the same thing.'],
+['Saturation','How vivid or washed-out a colour is. Fire-engine red is high saturation; dusty rose is low. Take it to zero and you get grey.'],
+['Value','How light or dark a colour is. Light blue and navy are the same hue at different values. Painters usually care about this more than hue.'],
+['Tint','A colour mixed with white. Blush is a tint of red, baby blue a tint of blue. Tints read soft and gentle.'],
+['Shade','A colour mixed with black. Burgundy is a shade of red, navy a shade of blue. Shades read serious and deep.'],
+['Tone','A colour mixed with grey — neither lighter nor darker, just muted. Almost all "expensive-looking" palettes are made of tones.'],
+['Warm colours','Reds, oranges, yellows. They advance toward the viewer and pull the eye. Use them for energy and focus.'],
+['Cool colours','Blues, greens, violets. They recede. Use them for space, distance and calm.'],
+['Undertone','The colour sitting beneath your skin\'s surface — warm (golden/olive), cool (pink/blue) or neutral. It doesn\'t change with a tan.'],
+['RYB vs RGB','Two colour models. RYB is pigment: red\'s opposite is green. RGB is light: red\'s opposite is cyan. Use RYB for anything physical.'],
+['Complementary','Two colours opposite each other on the wheel. Highest possible contrast. Mixed together in paint, they neutralise into grey.'],
+['Analogous','Colours next to each other on the wheel. Naturally harmonious — this is what most landscapes are doing.'],
+['Neutral','White, black, grey and the earthy beiges and browns. They don\'t compete. Most wardrobes are built on them.'],
+['Accent colour','A small pop of contrast in an otherwise restrained scheme — usually about ten percent. The eye goes there first.'],
+['Colour harmony','A set of colours that work together because of their geometric relationship on the wheel. Not random, but not automatic either.'],
+['Contrast','How different two colours are. High contrast is dramatic and readable; low contrast is subtle and calm. Both are useful deliberately.'],
+['Simultaneous contrast','The same colour looks different depending on what surrounds it. Grey looks lighter on black than on white. This is why fabric looks different in the shop.'],
+['Local colour','The "real" colour of an object — a red apple. Impressionists abandoned it entirely and painted light instead.'],
+['Colorway','One specific colour combination applied to a design. A jacket might sell in three colorways; the cut never changes.'],
+['60 / 30 / 10','A proportion guideline: one dominant colour, one supporting, one accent. Most failed palettes use the right colours in the wrong amounts.'],
+['Chroma','Close to saturation, but measured against a neutral of the same lightness. Used in more technical colour systems like Munsell.'],
+['Colour temperature','Every colour has a warm or cool bias, even within one hue. A yellow-red behaves differently from a blue-red when you mix or match it.']
+];
+function renderGl(q=''){
+ const list=TERMS.filter(([t,d])=>t.toLowerCase().includes(q)||d.toLowerCase().includes(q));
+ document.getElementById('glgrid').innerHTML=list.map(([t,d])=>
+  `<div class="gl"><h4>${t}</h4><p>${d}</p></div>`).join('')||'<p class="hint">No term matches that search.</p>';
+}
+document.getElementById('glsearch').addEventListener('input',e=>renderGl(e.target.value.toLowerCase().trim()));
+renderGl();
+
+/* ═════ LESSONS ═════ */
+let qTot=0,qOk=0;
+const LESSONS=[
+{t:'Why does colour even matter?',s:'The two-minute case for caring',b:`
+<p>Here's something worth noticing: <strong>you already have colour instincts.</strong> You know all-black to a funeral makes sense. You know a bright yellow ambulance would look strange. You know some people's outfits just work, without being able to say why.</p>
+<p>Colour theory is simply the name for the system behind those instincts. Learn it and you move from <strong>hoping something looks good</strong> to <strong>knowing it will.</strong></p>
+<div class="callout"><b>The big idea.</b> Colour isn't decoration. It signals mood, controls where the eye goes, creates distance and tells a story — all before a single word. Designers use this deliberately. Now you can too.</div>`},
+
+{t:'The three families of colour',s:'Primary, secondary, tertiary',b:`
+<p>Colour works like a family tree. At the top sit three that can't be mixed from anything else — the <strong>primaries</strong>:</p>
+<div class="cdemo">
+<div class="cs"><div class="cb" style="width:72px;height:72px;background:#E34234"></div><span class="cl">Red<br>Primary</span></div>
+<div class="cs"><div class="cb" style="width:72px;height:72px;background:#F0DE55"></div><span class="cl">Yellow<br>Primary</span></div>
+<div class="cs"><div class="cb" style="width:72px;height:72px;background:#2A4F9E"></div><span class="cl">Blue<br>Primary</span></div></div>
+<p>Mix any two primaries and you get a <strong>secondary</strong>:</p>
+<div class="mixrow"><div class="cs"><div class="mixsw" style="background:#E34234"></div><span class="cl">Red</span></div><span class="mixop">+</span>
+<div class="cs"><div class="mixsw" style="background:#F0DE55"></div><span class="cl">Yellow</span></div><span class="mixop">=</span>
+<div class="cs"><div class="mixsw" style="background:#E8952A"></div><span class="cl">Orange</span></div></div>
+<div class="mixrow"><div class="cs"><div class="mixsw" style="background:#F0DE55"></div><span class="cl">Yellow</span></div><span class="mixop">+</span>
+<div class="cs"><div class="mixsw" style="background:#2A4F9E"></div><span class="cl">Blue</span></div><span class="mixop">=</span>
+<div class="cs"><div class="mixsw" style="background:#3E8E4F"></div><span class="cl">Green</span></div></div>
+<div class="mixrow"><div class="cs"><div class="mixsw" style="background:#2A4F9E"></div><span class="cl">Blue</span></div><span class="mixop">+</span>
+<div class="cs"><div class="mixsw" style="background:#E34234"></div><span class="cl">Red</span></div><span class="mixop">=</span>
+<div class="cs"><div class="mixsw" style="background:#6B4A9C"></div><span class="cl">Violet</span></div></div>
+<p>Mix a primary with a neighbouring secondary and you get a <strong>tertiary</strong> — red-orange, blue-green, and so on. Twelve colours in total. Everything else is one of those twelve made lighter, darker or duller.</p>
+<div class="quiz"><div class="q">What do you get when you mix red and blue?</div><div class="qopts">
+<button class="qbtn" data-ok="0" data-fb="Orange is red + yellow.">Orange</button>
+<button class="qbtn" data-ok="1" data-fb="Correct. Red + blue = violet, a secondary colour.">Violet</button>
+<button class="qbtn" data-ok="0" data-fb="Green is yellow + blue.">Green</button></div><div class="qfb"></div></div>`},
+
+{t:'There are two colour wheels',s:'And most online tools use the wrong one',b:`
+<p>This trips up almost everyone, and it's the single most common error in colour tools.</p>
+<p><strong>The paint wheel (RYB)</strong> uses red, yellow and blue as primaries. On it, red sits opposite <strong>green</strong>. This is the wheel artists have used for centuries because it matches how physical pigment behaves when you actually mix it.</p>
+<p><strong>The light wheel (RGB)</strong> uses red, green and blue. On it, red sits opposite <strong>cyan</strong>. Correct for screens, where colour is emitted light rather than reflected pigment.</p>
+<div class="cdemo">
+<div class="cs"><div style="display:flex;width:130px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#E34234"></div><div style="flex:1;background:#3E8E4F"></div></div><span class="cl">Paint wheel<br>Red ↔ Green</span></div>
+<div class="cs"><div style="display:flex;width:130px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#E34234"></div><div style="flex:1;background:#35BFD0"></div></div><span class="cl">Light wheel<br>Red ↔ Cyan</span></div></div>
+<p>Practically: painting, dyeing, choosing fabric, arranging flowers → use <strong>Paint / RYB</strong>. Designing something that will only ever be seen on a screen → use <strong>Screen / RGB</strong>. Every tool here lets you switch.</p>
+<div class="quiz"><div class="q">You're mixing oil paint and want the opposite of red. What do you reach for?</div><div class="qopts">
+<button class="qbtn" data-ok="0" data-fb="Cyan is red's opposite in light, not pigment. On canvas it won't behave as you expect.">Cyan</button>
+<button class="qbtn" data-ok="1" data-fb="Correct. In pigment red's complement is green — which is also why mixing the two gives you a neutral grey rather than a colour.">Green</button>
+<button class="qbtn" data-ok="0" data-fb="Blue is a primary, not red's opposite.">Blue</button></div><div class="qfb"></div></div>`},
+
+{t:'Warm versus cool',s:'The most useful idea here',b:`
+<p>Every colour carries a temperature, and it's the most practical single idea in both fashion and painting.</p>
+<div class="tempbar"><div style="background:#E34234"></div><div style="background:#E8952A"></div><div style="background:#F0DE55"></div>
+<div style="background:#C4CE3C"></div><div style="background:#3E8E4F"></div><div style="background:#45B5AC"></div>
+<div style="background:#2A4F9E"></div><div style="background:#5B4A96"></div><div style="background:#6B4A9C"></div></div>
+<p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">← Warm · · · · · · · · · · · · · · · Cool →</p>
+<p><strong>Warm colours</strong> feel like fire and sunlight. They <strong>advance</strong> — they seem to come toward you and they pull the eye. Wear red and people look at you.</p>
+<p><strong>Cool colours</strong> feel like water and sky. They <strong>recede</strong> — calmer, more distant, more spacious.</p>
+<div class="callout"><b>Fashion.</b> Want attention on your face? A warm colour near the neck. Want a lower half to read smaller? Cool and dark.</div>
+<div class="callout"><b>Painting.</b> Warm foreground, cool background. Objects will feel nearer or further with no change of size at all. It's the cheapest depth trick there is.</div>
+<div class="quiz"><div class="q">You want a sky in your painting to feel far away. What temperature?</div><div class="qopts">
+<button class="qbtn" data-ok="0" data-fb="Warm colours advance — they'd pull the sky forward.">Warm</button>
+<button class="qbtn" data-ok="1" data-fb="Correct. Cool colours recede. A cool sky reads as distant with no other cues needed.">Cool</button>
+<button class="qbtn" data-ok="0" data-fb="Temperature is one of the strongest depth tools available — it always matters.">Doesn't matter</button></div><div class="qfb"></div></div>`},
+
+{t:'One colour, four different moods',s:'Tints, shades and tones',b:`
+<p>Take red. Now look at four versions. All red — all feeling entirely different:</p>
+<div class="cdemo">
+<div class="cs"><div class="cb" style="width:76px;height:92px;background:#F2D4D7"></div><span class="cl">Powder Pink<br>+ White<br><em>Tint</em></span></div>
+<div class="cs"><div class="cb" style="width:76px;height:92px;background:#E34234"></div><span class="cl">Vermilion<br>unmixed<br><em>Pure hue</em></span></div>
+<div class="cs"><div class="cb" style="width:76px;height:92px;background:#6E1E28"></div><span class="cl">Burgundy<br>+ Black<br><em>Shade</em></span></div>
+<div class="cs"><div class="cb" style="width:76px;height:92px;background:#BE7F80"></div><span class="cl">Old Rose<br>+ Grey<br><em>Tone</em></span></div></div>
+<p><strong>Tint</strong> (+ white) → soft, romantic, airy.<br><strong>Shade</strong> (+ black) → deep, serious, formal.<br><strong>Tone</strong> (+ grey) → muted, complex, sophisticated. Almost every "expensive-looking" palette lives here.</p>
+<div class="callout"><b>Why this matters.</b> A pure red dress shouts. The same red toned to a dusty brick whispers. Identical hue, opposite effect. If a colour feels like too much, you usually don't need a different colour — you need a different tone of it.</div>
+<div class="quiz"><div class="q">Navy is a shade of blue. What was added?</div><div class="qopts">
+<button class="qbtn" data-ok="0" data-fb="White makes tints — lighter, like powder blue.">White</button>
+<button class="qbtn" data-ok="0" data-fb="Grey makes tones — duller, not darker. Navy is genuinely darker.">Grey</button>
+<button class="qbtn" data-ok="1" data-fb="Correct. Shades come from adding black, which deepens a colour into something more serious.">Black</button></div><div class="qfb"></div></div>`},
+
+{t:'Why some combinations work',s:'Harmony, without the jargon',b:`
+<p>Some combinations look great and others look wrong, and <strong>it isn't random</strong> — it comes down to where the colours sit relative to each other on the wheel.</p>
+<div class="cdemo">
+<div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#C1272D"></div><div style="flex:1;background:#3E8E4F"></div></div><span class="cl">Complementary<br>Opposites. Maximum drama.</span></div>
+<div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#3C6E9C"></div><div style="flex:1;background:#1F7A75"></div><div style="flex:1;background:#5B4A96"></div></div><span class="cl">Analogous<br>Neighbours. Calm.</span></div>
+<div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#C1272D"></div><div style="flex:1;background:#F0DE55"></div><div style="flex:1;background:#2A4F9E"></div></div><span class="cl">Triadic<br>Three. Bold, balanced.</span></div>
+<div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#7E5138"></div><div style="flex:1;background:#B08E62"></div><div style="flex:1;background:#D3B48C"></div></div><span class="cl">Monochromatic<br>One hue. Always elegant.</span></div></div>
+<div class="callout"><b>The honest caveat.</b> These rules produce combinations that are <em>valid</em>, not automatically <em>beautiful</em>. A perfect complementary pair at full saturation often looks cheap. What makes real palettes sing is breaking the symmetry — one dominant, the others muted and supporting. That's exactly what Sanzo Wada did, and it's why the Palette Library looks better than anything the Harmony generator produces.</div>
+<div class="callout"><b>Easiest place to start.</b> Monochromatic. Pick one colour you love and use it light, mid and dark. It will always look intentional.</div>`},
+
+{t:'Proportion matters more than the colours',s:'The 60 / 30 / 10 rule',b:`
+<p>Here's the mistake nearly everyone makes: they pick three lovely colours, use equal amounts of each, decide it looks wrong, and blame the colours.</p>
+<p>The colours were fine. The <strong>proportions</strong> were wrong.</p>
+<div class="cdemo">
+<div class="cs"><div style="display:flex;width:170px;height:62px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:1;background:#1E3A2C"></div><div style="flex:1;background:#C1654A"></div><div style="flex:1;background:#E4CE9E"></div></div>
+<span class="cl">Equal thirds<br>Restless, competing</span></div>
+<div class="cs"><div style="display:flex;width:170px;height:62px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
+<div style="flex:6;background:#1E3A2C"></div><div style="flex:3;background:#E4CE9E"></div><div style="flex:1;background:#C1654A"></div></div>
+<span class="cl">60 / 30 / 10<br>Resolved, intentional</span></div></div>
+<p>Same three colours. The second works because there's a clear hierarchy — one colour is obviously in charge, one supports, one is a small accent. In an outfit: coat, trousers, bag. In a painting: ground, mass, focal point. In a room: walls, furniture, cushions.</p>
+<div class="callout"><b>Try it.</b> The Palette Lab has a Proportions panel with sliders. Take any palette, set everything equal, then drag it toward 60/30/10 and watch it resolve.</div>`},
+
+{t:"Colour changes depending on what's beside it",s:'Simultaneous contrast',b:`
+<p>Colour doesn't exist alone. The identical grey looks lighter on black and darker on white:</p>
+<div class="cdemo">
+<div class="cs"><div style="width:104px;height:76px;background:#808080;border-radius:8px 8px 0 0;border:1px solid var(--line)"></div>
+<div style="width:104px;height:20px;background:#111;border-radius:0 0 8px 8px"></div><span class="cl">Looks lighter</span></div>
+<div class="cs"><div style="width:104px;height:76px;background:#808080;border-radius:8px 8px 0 0;border:1px solid var(--line)"></div>
+<div style="width:104px;height:20px;background:#EEE;border-radius:0 0 8px 8px;border:1px solid var(--line)"></div><span class="cl">Looks darker</span></div></div>
+<p>This is why fabric looks different in the shop than at home, why colour-matching under artificial light is unreliable, and why something you loved on screen can disappoint in person.</p>
+<div class="callout"><b>Practical rule.</b> Never judge a colour alone. Always look at it beside the colours it will actually live with, in the light it will actually be seen in. Colours perform — they don't simply exist.</div>
+<div class="quiz"><div class="q">You're styling a camel coat. Which background makes it look richest?</div><div class="qopts">
+<button class="qbtn" data-ok="0" data-fb="Similar values blend — beige and camel flatten each other.">A beige wall</button>
+<button class="qbtn" data-ok="1" data-fb="Correct. The dark ground creates the contrast that lets the warm camel glow.">A dark background</button>
+<button class="qbtn" data-ok="0" data-fb="White works, but contrast is weaker and it competes with the coat's lighter areas.">A white background</button></div><div class="qfb"></div></div>`},
+
+{t:'Where to go from here',s:'You now know more than most people',b:`
+<p>You've got the foundations: the three colour families, the two wheels and when each applies, temperature, tints and shades and tones, harmony, proportion, and context. That's more than most people ever consciously consider.</p>
+<p>Now put it to work. <strong>Pairing Advisor</strong> is the tab for real decisions — give it the colour of something you own and it names what goes beside it. <strong>Palette Library</strong> is for inspiration rather than logic. <strong>Palette Lab</strong> is where you test whether it holds up. <strong>Personal Colour</strong> tells you which of all this suits you specifically.</p>
+<div class="callout"><b>One thing to do today.</b> Photograph something you own in a colour you love, drop it into the Lab's photo panel, and see what it's actually made of. Almost everything is more complicated than it looks.</div>`}
+];
+const lessonsEl=document.getElementById('lessons'),progEl=document.getElementById('progress');
+LESSONS.forEach((L,i)=>{
+ const d=document.createElement('span');d.className='pdot';d.id='pd-'+i;
+ progEl.insertBefore(d,document.getElementById('qscore'));
+ const c=document.createElement('div');c.className='lesson';
+ c.innerHTML=`<div class="lhead"><div class="lnum">${String(i+1).padStart(2,'0')}</div>
+  <div class="ltitle"><h4>${L.t}</h4><p>${L.s}</p></div><span class="larrow">▶</span></div>
+  <div class="lbody">${L.b}</div>`;
+ c.querySelector('.lhead').onclick=()=>{
+  const open=c.classList.contains('open');
+  document.querySelectorAll('.lesson').forEach(x=>x.classList.remove('open'));
+  if(!open){c.classList.add('open');d.classList.add('done');
+   setTimeout(()=>c.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+ };
+ lessonsEl.appendChild(c);
+});
+lessonsEl.addEventListener('click',e=>{
+ const b=e.target.closest('.qbtn');if(!b||b.disabled)return;
+ const box=b.closest('.quiz');
+ box.querySelectorAll('.qbtn').forEach(x=>{x.disabled=true;x.style.cursor='default';});
+ const ok=b.dataset.ok==='1';b.classList.add(ok?'ok':'no');
+ if(!ok)box.querySelector('.qbtn[data-ok="1"]').classList.add('ok');
+ const fb=box.querySelector('.qfb');fb.textContent=b.dataset.fb;fb.classList.add('show');
+ qTot++;if(ok)qOk++;
+ document.getElementById('qscore').textContent=`Quiz score ${qOk} / ${qTot}`;
+});
+renderTray();
+
+/* ══════════════════════════════════════════════════════════════════════
+   PWA LAYER · PERSISTENCE · CAMERA SKIN-TONE ANALYSIS
+   Everything below is additive — nothing above was rewritten.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+/* ═════ 1 · PERSISTENCE ═════ */
+const KEY='chromatic.v1';
+let S={};
+try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(_){S={}}
+let saveT;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{
+ try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}},200);}
+
+if(Array.isArray(S.palette)&&S.palette.length)palette=S.palette.slice();
+const _renderPalette=renderPalette;
+renderPalette=function(){_renderPalette.apply(this,arguments);S.palette=palette.slice();save();};
+renderPalette();buildProp();
+
+/* theme — restore, follow the OS on first run, keep the browser chrome in step */
+document.querySelectorAll('meta[name="theme-color"][media]').forEach(m=>m.remove());
+const metaTheme=document.createElement('meta');metaTheme.name='theme-color';
+document.head.appendChild(metaTheme);
+function applyTheme(mode){
+ document.documentElement.setAttribute('data-theme',mode);
+ document.getElementById('theme-lbl').textContent=mode==='dark'?'Light':'Dark';
+ document.getElementById('theme-ico').textContent=mode==='dark'?'◑':'◐';
+ metaTheme.content=mode==='dark'?'#141518':'#FAF9F7';
+ drawWheel();
+}
+applyTheme(S.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+document.getElementById('theme').onclick=()=>{
+ const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+ S.theme=next;save();applyTheme(next);
+};
+
+/* lesson progress + quiz score */
+if(typeof S.qOk==='number'){qOk=S.qOk;qTot=S.qTot||0;
+ document.getElementById('qscore').textContent=`Quiz score ${qOk} / ${qTot}`;}
+(S.lessonsDone||[]).forEach(i=>{const d=document.getElementById('pd-'+i);if(d)d.classList.add('done');});
+lessonsEl.addEventListener('click',()=>{S.qOk=qOk;S.qTot=qTot;save();});
+document.querySelectorAll('.lesson .lhead').forEach((head,i)=>head.addEventListener('click',()=>{
+ const set=new Set(S.lessonsDone||[]);set.add(i);S.lessonsDone=[...set];save();}));
+
+/* six-question answers */
+if(S.pcAns&&Object.keys(S.pcAns).length){pcAns=S.pcAns;renderPC();}
+document.getElementById('pcq').addEventListener('click',()=>{S.pcAns=pcAns;save();});
+
+/* ═════ 2 · SERVICE WORKER, INSTALL, UPDATE, OFFLINE ═════ */
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const installBtn=document.getElementById('install-btn');
+const updBanner=document.getElementById('update-banner');
+const iosBanner=document.getElementById('ios-banner');
+const show=el=>el.classList.add('show'), hide=el=>el.classList.remove('show');
+let deferredPrompt=null;
+
+addEventListener('beforeinstallprompt',e=>{
+ e.preventDefault();deferredPrompt=e;
+ if(!standalone)installBtn.hidden=false;
+});
+installBtn.onclick=async()=>{
+ if(!deferredPrompt)return;
+ installBtn.disabled=true;
+ deferredPrompt.prompt();
+ let outcome='dismissed';
+ try{({outcome}=await deferredPrompt.userChoice);}catch(_){}
+ deferredPrompt=null;installBtn.hidden=true;installBtn.disabled=false;
+ toast(outcome==='accepted'?'Installing Chromatic…':'Install dismissed');
+};
+addEventListener('appinstalled',()=>{installBtn.hidden=true;toast('Chromatic installed');});
+
+const iOS=/iP(hone|ad|od)/.test(navigator.userAgent)||
+ (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+if(iOS&&!standalone&&!S.iosNudged)setTimeout(()=>show(iosBanner),2800);
+document.getElementById('ios-dismiss').onclick=()=>{hide(iosBanner);S.iosNudged=1;save();};
+
+const chip=document.getElementById('offline-chip');
+const netState=()=>{chip.hidden=navigator.onLine;};
+addEventListener('online',()=>{netState();toast('Back online');});
+addEventListener('offline',()=>{netState();toast('Offline — everything still works');});
+netState();
+
+function offerUpdate(worker){
+ show(updBanner);
+ document.getElementById('update-now').onclick=()=>{hide(updBanner);worker.postMessage('SKIP_WAITING');};
+ document.getElementById('update-later').onclick=()=>hide(updBanner);
+}
+if('serviceWorker' in navigator&&location.protocol!=='file:'){
+ let hadController=!!navigator.serviceWorker.controller,reloading=false;
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(!hadController){hadController=true;return;}      // first activation — no reload needed
+  if(reloading)return;reloading=true;location.reload();
+ });
+ addEventListener('load',()=>{
+  navigator.serviceWorker.register('sw.js',{scope:'./'}).then(reg=>{
+   if(reg.waiting)offerUpdate(reg.waiting);
+   reg.addEventListener('updatefound',()=>{
+    const nw=reg.installing;if(!nw)return;
+    nw.addEventListener('statechange',()=>{
+     if(nw.state==='installed'&&navigator.serviceWorker.controller)offerUpdate(nw);});
+   });
+   setInterval(()=>reg.update().catch(()=>{}),3600000);
+  }).catch(err=>console.warn('[pwa] service worker registration failed:',err));
+ });
+}
+
+/* keep the sticky nav directly under the topbar whatever height it takes */
+const topbarEl=document.querySelector('.topbar');
+const syncTopbar=()=>document.documentElement.style.setProperty('--topbar-h',topbarEl.offsetHeight+'px');
+syncTopbar();
+if(window.ResizeObserver)new ResizeObserver(syncTopbar).observe(topbarEl);
+addEventListener('resize',syncTopbar);
+addEventListener('orientationchange',()=>setTimeout(syncTopbar,150));
+
+/* ═════ 3 · PERSONAL COLOUR — MODE SWITCH ═════ */
+function setMode(m){
+ document.querySelectorAll('#pcmodeseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+ document.querySelectorAll('.pcmode').forEach(p=>p.classList.toggle('on',p.id==='m-'+m));
+}
+document.getElementById('pcmodeseg').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(b)setMode(b.dataset.m);});
+
+/* ═════ 4 · COLOUR SCIENCE FOR SKIN ═════ */
+const D65=[0.95047,1,1.08883];
+function labToRgb(L,a,b){
+ const fy=(L+16)/116,fx=fy+a/500,fz=fy-b/200;
+ const inv=t=>t>6/29?t*t*t:3*Math.pow(6/29,2)*(t-4/29);
+ const X=D65[0]*inv(fx),Y=D65[1]*inv(fy),Z=D65[2]*inv(fz);
+ const lin=[X*3.2406+Y*-1.5372+Z*-0.4986,X*-0.9689+Y*1.8758+Z*0.0415,X*0.0557+Y*-0.2040+Z*1.0570];
+ const inGamut=lin.every(v=>v>=-0.003&&v<=1.003);
+ const g=v=>{v=Math.min(1,Math.max(0,v));return v<=0.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-0.055;};
+ return{hex:rgbToHex(g(lin[0])*255,g(lin[1])*255,g(lin[2])*255),inGamut};
+}
+const lchOf=lab=>({L:lab[0],C:Math.hypot(lab[1],lab[2]),h:(Math.atan2(lab[2],lab[1])*180/Math.PI+360)%360});
+/* Individual Typology Angle — the dermatological standard for constitutive skin depth */
+const itaOf=lab=>Math.atan2(lab[0]-50,lab[2])*180/Math.PI;
+const itaBand=i=>i>55?'Very light':i>41?'Light':i>28?'Intermediate':i>10?'Tan':i>-30?'Brown':'Deep';
+/* how yellow-based (warm) vs blue-based (cool) a colour is; +1 warm, −1 cool */
+const warmthOf=lab=>{const{C,h}=lchOf(lab);return C<7?0:Math.cos((h-70)*Math.PI/180);};
+
+/* ═════ 5 · CAPTURE ═════ */
+const CW=720,CH=960;
+const stage=document.getElementById('scanstage');
+const video=document.getElementById('scanvideo');
+const freeze=document.getElementById('scanfreeze');
+const guide=document.getElementById('scanguide');
+const placeholder=document.getElementById('scanplaceholder');
+const qualityEl=document.getElementById('scanquality');
+const resultEl=document.getElementById('scanresult');
+const bStart=document.getElementById('scan-start'),bShoot=document.getElementById('scan-shoot'),
+      bAgain=document.getElementById('scan-again'),bUpload=document.getElementById('scan-upload'),
+      bWhite=document.getElementById('scan-white'),fileIn=document.getElementById('scanfile');
+freeze.width=CW;freeze.height=CH;
+const fctx=freeze.getContext('2d',{willReadFrequently:true});
+
+const ZONES=[
+ {k:'forehead',x:.415,y:.185,w:.170,h:.075},
+ {k:'left cheek',x:.270,y:.430,w:.125,h:.110},
+ {k:'right cheek',x:.605,y:.430,w:.125,h:.110},
+ {k:'jaw',x:.430,y:.655,w:.140,h:.070}];
+const HAIR={k:'hair',x:.400,y:.025,w:.200,h:.058};
+
+guide.innerHTML=
+ `<div style="position:absolute;left:16%;top:8%;width:68%;height:80%;border:1.5px dashed rgba(255,255,255,.5);
+   border-radius:50%;box-shadow:0 0 0 1.5px rgba(0,0,0,.22)"></div>`+
+ ZONES.concat([HAIR]).map(z=>`<div class="zonebox" data-k="${z.k}"
+   style="left:${z.x*100}%;top:${z.y*100}%;width:${z.w*100}%;height:${z.h*100}%"></div>`).join('');
+
+function drawCover(src,sw,sh,mirror){
+ const scale=Math.max(CW/sw,CH/sh),w=sw*scale,h=sh*scale,x=(CW-w)/2,y=(CH-h)/2;
+ fctx.save();
+ if(mirror){fctx.translate(CW,0);fctx.scale(-1,1);}
+ fctx.drawImage(src,x,y,w,h);
+ fctx.restore();
+}
+
+let stream=null,liveTimer=null,phase='idle';   // idle | live | frozen
+function setPhase(p){
+ phase=p;
+ placeholder.style.display = p==='idle'?'block':'none';
+ video.style.display       = p==='live'?'block':'none';
+ freeze.style.display      = p==='frozen'?'block':'none';
+ guide.style.display       = p==='idle'?'none':'block';
+ bStart.style.display      = p==='idle'?'':'none';
+ bUpload.style.display     = p==='frozen'?'none':'';
+ bShoot.style.display      = p==='live'?'':'none';
+ bAgain.style.display      = p==='frozen'?'':'none';
+ bWhite.style.display      = p==='frozen'?'':'none';
+ if(p!=='frozen')armWhite(false);
+}
+
+/* ── white reference: tap something you know is neutral ── */
+let armed=false;
+function armWhite(on){
+ armed=on;
+ bWhite.textContent=on?'Tap a white object…':(whiteRef?'Re-set white reference':'Set white reference');
+ bWhite.classList.toggle('primary',on);
+ stage.style.cursor=on?'crosshair':'';
+}
+bWhite.onclick=()=>armWhite(!armed);
+freeze.addEventListener('click',e=>{
+ if(!armed||phase!=='frozen')return;
+ const rc=freeze.getBoundingClientRect();
+ const x=Math.round((e.clientX-rc.left)*(CW/rc.width));
+ const y=Math.round((e.clientY-rc.top)*(CH/rc.height));
+ const res=gainsFromWhite(fctx.getImageData(0,0,CW,CH),x,y);
+ if(!res||res.err){toast(res&&res.err?'That patch is '+res.err:'Could not sample there');return;}
+ whiteRef=res;armWhite(false);
+ toast('White reference set — re-analysing');
+ runAnalysis();
+});
+function stopCam(){
+ if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
+ if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+ video.srcObject=null;
+}
+bStart.onclick=async()=>{
+ if(!navigator.mediaDevices?.getUserMedia){
+  toast('This browser needs HTTPS for camera access — use Upload a photo');return;}
+ bStart.disabled=true;
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({
+   video:{facingMode:'user',width:{ideal:1280},height:{ideal:1280}},audio:false});
+ }catch(err){
+  bStart.disabled=false;
+  toast(err&&err.name==='NotAllowedError'
+   ?'Camera blocked — allow access, or upload a photo'
+   :'No camera found — upload a photo instead');
+  return;
+ }
+ bStart.disabled=false;
+ video.srcObject=stream;
+ try{await video.play();}catch(_){}
+ setPhase('live');
+ liveTimer=setInterval(liveCheck,280);
+};
+bAgain.onclick=()=>{resultEl.innerHTML='';qualityEl.style.display='none';whiteRef=null;
+ if(stream)setPhase('live');else setPhase('idle');
+ if(stream&&!liveTimer)liveTimer=setInterval(liveCheck,280);};
+bUpload.onclick=()=>fileIn.click();
+fileIn.onchange=e=>{
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ const rd=new FileReader();
+ rd.onload=ev=>{const img=new Image();
+  img.onload=()=>{stopCam();whiteRef=null;drawCover(img,img.naturalWidth,img.naturalHeight,false);
+   setPhase('frozen');runAnalysis();};
+  img.onerror=()=>toast('Could not read that image');
+  img.src=ev.target.result;};
+ rd.readAsDataURL(f);
+ e.target.value='';
+};
+bShoot.onclick=()=>{
+ if(!video.videoWidth){toast('Camera still warming up');return;}
+ if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
+ whiteRef=null;
+ drawCover(video,video.videoWidth,video.videoHeight,true);
+ setPhase('frozen');
+ runAnalysis();
+};
+/* live alignment feedback — turns each patch green once it reads as skin */
+function liveCheck(){
+ if(!video.videoWidth)return;
+ drawCover(video,video.videoWidth,video.videoHeight,true);
+ const img=fctx.getImageData(0,0,CW,CH);
+ ZONES.forEach(z=>{
+  const p=patchPixels(img,z,4);
+  let hit=0;for(const px of p.px)if(isSkin(px[0],px[1],px[2]))hit++;
+  const box=guide.querySelector(`.zonebox[data-k="${z.k}"]`);
+  if(box)box.classList.toggle('hot',hit/Math.max(1,p.px.length)>0.55);
+ });
+}
+addEventListener('pagehide',stopCam);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='live')stopCam(),setPhase('idle');});
+
+/* ═════ 6 · MEASUREMENT ═════ */
+function isSkin(r,g,b){
+ const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+ if(mx<20||mx>250)return false;            // crushed shadow or blown highlight
+ if(r<=b)return false;                     // skin always carries more red than blue
+ if(mx-mn<8&&mx>60)return false;           // flat grey — a wall, not a face
+ const cb=128-0.168736*r-0.331264*g+0.5*b;
+ const cr=128+0.5*r-0.418688*g-0.081312*b;
+ return cr>=132&&cr<=184&&cb>=72&&cb<=134;
+}
+function patchPixels(img,z,step){
+ step=step||1;
+ const x0=Math.round(z.x*CW),y0=Math.round(z.y*CH),
+       x1=Math.min(CW,Math.round((z.x+z.w)*CW)),y1=Math.min(CH,Math.round((z.y+z.h)*CH));
+ const px=[];let clipped=0,n=0;
+ for(let y=y0;y<y1;y+=step)for(let x=x0;x<x1;x+=step){
+  const i=(y*CW+x)*4,r=img.data[i],g=img.data[i+1],b=img.data[i+2];
+  n++;if(Math.max(r,g,b)>=252)clipped++;
+  px.push([r,g,b]);
+ }
+ return{px,clipped:clipped/Math.max(1,n)};
+}
+/* Shades-of-Grey illuminant estimation (Minkowski p=6) over the BACKGROUND only,
+   so the face itself never drags the estimate toward neutral. */
+function estimateIlluminant(img){
+ const p=6;let sr=0,sg=0,sb=0,n=0;
+ for(let y=0;y<CH;y+=3)for(let x=0;x<CW;x+=3){
+  const ex=(x/CW-.5)/.35,ey=(y/CH-.48)/.44;
+  if(ex*ex+ey*ey<1)continue;
+  const i=(y*CW+x)*4,r=img.data[i],g=img.data[i+1],b=img.data[i+2];
+  if(Math.max(r,g,b)<14||Math.max(r,g,b)>250)continue;
+  sr+=Math.pow(r,p);sg+=Math.pow(g,p);sb+=Math.pow(b,p);n++;
+ }
+ if(n<400)return{gain:[1,1,1],cast:0,ok:false,src:'none'};
+ const e=[Math.pow(sr/n,1/p),Math.pow(sg/n,1/p),Math.pow(sb/n,1/p)];
+ const m=(e[0]+e[1]+e[2])/3;
+ const raw=e.map(v=>m/(v||1));
+ const cast=Math.max(...raw)/Math.min(...raw)-1;
+ /* A constant partial strength is the least-bad default. Nothing in the frame can
+    distinguish "orange lamp" (correct fully) from "beige wall" (correct not at all),
+    so we half-correct, flag the cast in the quality panel, and let the user pin an
+    actual white reference when it matters. */
+ return{gain:raw.map(v=>Math.pow(v,0.7)),cast,ok:true,src:'auto'};
+}
+/* Exact gains from a patch the user has told us is neutral. No ambiguity left. */
+function gainsFromWhite(img,cx,cy){
+ const R=9;let r=0,g=0,b=0,n=0;
+ for(let y=Math.max(0,cy-R);y<Math.min(CH,cy+R);y++)
+  for(let x=Math.max(0,cx-R);x<Math.min(CW,cx+R);x++){
+   const i=(y*CW+x)*4;r+=img.data[i];g+=img.data[i+1];b+=img.data[i+2];n++;}
+ if(!n)return null;
+ r/=n;g/=n;b/=n;
+ if(Math.max(r,g,b)<40)return{err:'too dark — pick something brighter'};
+ if(Math.max(r,g,b)>250)return{err:'blown out — pick something less bright'};
+ const m=(r+g+b)/3;
+ const gain=[m/(r||1),m/(g||1),m/(b||1)];
+ return{gain,cast:Math.max(...gain)/Math.min(...gain)-1,ok:true,src:'manual'};
+}
+function robustLab(pixels,gain){
+ const labs=[];
+ for(const[r,g,b]of pixels){
+  const rr=Math.min(255,r*gain[0]),gg=Math.min(255,g*gain[1]),bb=Math.min(255,b*gain[2]);
+  if(!isSkin(rr,gg,bb))continue;
+  labs.push(rgbToLab(rr,gg,bb));
+ }
+ if(labs.length<40)return null;
+ labs.sort((p,q)=>p[0]-q[0]);                        // trim specular highlights and shadow
+ const cut=labs.slice(Math.floor(labs.length*.2),Math.ceil(labs.length*.8));
+ const m=[0,0,0];for(const l of cut){m[0]+=l[0];m[1]+=l[1];m[2]+=l[2];}
+ return{lab:m.map(v=>v/cut.length),n:cut.length,frac:labs.length/pixels.length};
+}
+function meanLab(pixels,gain){
+ let n=0;const m=[0,0,0];
+ for(const[r,g,b]of pixels){
+  const mx=Math.max(r,g,b);if(mx>250)continue;
+  const l=rgbToLab(Math.min(255,r*gain[0]),Math.min(255,g*gain[1]),Math.min(255,b*gain[2]));
+  m[0]+=l[0];m[1]+=l[1];m[2]+=l[2];n++;
+ }
+ return n?m.map(v=>v/n):null;
+}
+function sharpness(img){
+ const at=(x,y)=>{const i=(y*CW+x)*4;return .299*img.data[i]+.587*img.data[i+1]+.114*img.data[i+2];};
+ let s=0,s2=0,n=0;
+ for(let y=Math.round(.15*CH);y<Math.round(.8*CH);y+=3)
+  for(let x=Math.round(.25*CW);x<Math.round(.75*CW);x+=3){
+   const v=4*at(x,y)-at(x-3,y)-at(x+3,y)-at(x,y-3)-at(x,y+3);
+   s+=v;s2+=v*v;n++;}
+ const mean=s/n;return s2/n-mean*mean;
+}
+
+/* ═════ 7 · PROFILE ═════ */
+let whiteRef=null;                       // {gain,cast,src} once the user pins one
+function measure(){
+ const img=fctx.getImageData(0,0,CW,CH);
+ const ill=whiteRef||estimateIlluminant(img);
+ const patches=ZONES.map(z=>{
+  const p=patchPixels(img,z,1);
+  const r=robustLab(p.px,ill.gain);
+  return{k:z.k,lab:r&&r.lab,frac:r?r.frac:0,clipped:p.clipped};
+ });
+ const good=patches.filter(p=>p.lab&&p.frac>0.35);
+ if(good.length<2)return{ok:false,patches,ill};
+
+ const skin=[0,1,2].map(i=>good.reduce((a,p)=>a+p.lab[i],0)/good.length);
+ let spread=0;
+ for(const p of good)spread=Math.max(spread,labDist(p.lab,skin));
+
+ const hairPx=patchPixels(img,HAIR,1);
+ const hairLab=meanLab(hairPx.px,ill.gain);
+ const hairIsSkin=hairLab&&Math.abs(hairLab[0]-skin[0])<9&&labDist(hairLab,skin)<11;
+
+ return{ok:true,skin,patches,good,spread,ill,
+  hair:hairIsSkin?null:hairLab,
+  clipped:Math.max(...patches.map(p=>p.clipped)),
+  focus:sharpness(img)};
+}
+
+function buildProfile(m,contrastOverride){
+ const{L,C,h}=lchOf(m.skin);
+ const a=m.skin[1],b=m.skin[2];
+ const ita=itaOf(m.skin);
+
+ let undertone,warmSign;
+ if(h<46){undertone='Cool';warmSign=-1;}
+ else if(h>=58&&a<10.5){undertone='Olive';warmSign=0;}
+ else if(h>56){undertone='Warm';warmSign=1;}
+ else{undertone='Neutral';warmSign=0;}
+
+ /* Skin chroma is strongly coupled to depth, so a raw C* threshold would call
+    almost everyone "clear". Normalise against the chroma expected at this L*. */
+ const Crel=C/(0.22*L+6);
+
+ const dLraw=m.hair?Math.abs(m.hair[0]-L):null;
+ let contrast=contrastOverride;
+ if(!contrast)contrast=dLraw==null?'Medium':dLraw>44?'High':dLraw>24?'Medium':'Low';
+
+ const clarity=Crel>1.15&&contrast!=='Low'?'Clear':(Crel<0.85||contrast==='Low')?'Muted':'Medium';
+ const dLideal=contrast==='High'?42:contrast==='Medium'?30:18;
+ const Cideal =clarity==='Clear'?55:clarity==='Muted'?24:38;
+
+ /* continuous axes, used for season placement */
+ const ax={
+  w:clamp((h-51)/9,-1,1),                                   // cool ← → warm
+  d:clamp((28-ita)/40,-1,1),                                // light ← → deep
+  c:clamp((Crel-1.0)/0.35,-1,1),                            // muted ← → clear
+  k:clamp(((contrastOverride?{Low:16,Medium:32,High:52}[contrastOverride]:(dLraw??30))-30)/22,-1,1)
+ };
+ /* Olive skin carries a suppressed a*, which drags the hue angle up and makes the
+    warmth axis read it as maximally golden. It isn't — it is neutral-leaning and
+    characteristically muted, so correct both axes rather than trusting the angle. */
+ if(undertone==='Olive'){ax.w=Math.min(ax.w,0.30);ax.c=clamp(ax.c-0.35,-1,1);}
+
+ return{L,C,h,a,b,ita,Crel,dLraw,band:itaBand(ita),undertone,warmSign,contrast,clarity,
+  dLideal,Cideal,ax,skinHex:labToRgb(L,a,b).hex,measuredAt:Date.now()};
+}
+
+function rankNamed(P){
+ /* Score against the same continuous warmth axis the season placement uses. An
+    earlier version scored on the tri-state warm/cool/neutral flag instead, which
+    let the narrative say "Soft Autumn — sage and terracotta" while the ranked list
+    handed back plum and magenta. One axis, one answer. */
+ const targetW=P.ax.w;
+ return NL.map(c=>{
+  const{L,C,h}=lchOf(c.lab);
+  const w=warmthOf(c.lab);
+  const toneFit=(w*targetW+1)/2;
+  const contrastFit=1-Math.min(1,Math.abs(Math.abs(L-P.L)-P.dLideal)/38);
+  const chromaFit=1-Math.min(1,Math.abs(C-P.Cideal)/55);
+  return{...c,L,C,h,warmth:w,score:0.42*toneFit+0.33*contrastFit+0.25*chromaFit};
+ }).sort((x,y)=>y.score-x.score);
+}
+
+const SEASONS12={
+ 'Light Spring':'Warm but delicate. Your colouring is light and clear, so your colours should be too — warm pastels and fresh mid-tones rather than anything heavy. Depth overwhelms you faster than brightness does.',
+ 'True Spring':'Warm and clear at a medium depth. Fresh, sunlit colour is your territory: coral, turquoise, marigold, apple green. Nothing dusty, nothing icy.',
+ 'Bright Spring':'Warm-leaning but with real punch. You carry saturated colour that would flatten most people. Keep it clean and vivid; muted tones are what drain you.',
+ 'Soft Autumn':'Warm and gently muted. Your best colours look like they have a fine layer of dust over them — sage, terracotta, camel, dusty gold. Pure saturation is what fights you.',
+ 'True Autumn':'Warm and rich at medium depth. Spice, rust, moss, bronze, olive. Everything you wear should feel like it came out of the ground rather than off a screen.',
+ 'Deep Autumn':'Warm and deep. You can carry weight that lighter colourings cannot — bottle green, oxblood, espresso, deep teal — as long as it stays warm-based.',
+ 'Light Summer':'Cool and light. Soft, watery, slightly hazy colour: powder blue, dusty rose, celadon. High contrast and heavy darks tend to swamp you.',
+ 'True Summer':'Cool and softly muted. Your colours have grey in them — slate blue, mauve, sage, plum. Warmth is what makes your skin look uneven.',
+ 'Soft Summer':'Cool and very muted, with low natural contrast. The gentlest palette of the twelve. Anything clear or bright reads as louder than you are.',
+ 'Deep Winter':'Cool and deep with strong contrast. Jewel tones on a dark base: emerald, sapphire, aubergine, true black. You can wear the colours nobody else can.',
+ 'True Winter':'Cool and clear. Pure, saturated, icy colour — crimson, cobalt, stark white, true black. Muted and earthy tones are what dull you.',
+ 'Bright Winter':'Cool with maximum clarity and contrast. Your colours should be as vivid as they come. Beige, camel and dusty tones are the ones that fail you.'
+};
+/* Each season is a point in (warmth, depth, clarity, contrast) space. The axis a
+   season is *named for* is its dominant one, so it gets the heavier weight — that
+   is what separates, say, Soft Autumn from True Autumn. Nearest point wins. */
+const SEASON_POINTS=[
+ ['Light Spring', { w: .5, d:-.9, c: .2, k:-.4 }, 'd'],
+ ['True Spring',  { w:1.0, d:-.3, c: .6, k: .1 }, 'w'],
+ ['Bright Spring',{ w: .5, d:-.2, c:1.0, k: .7 }, 'c'],
+ ['Soft Autumn',  { w: .5, d: .1, c:-.9, k:-.5 }, 'c'],
+ ['True Autumn',  { w:1.0, d: .4, c:-.2, k: .2 }, 'w'],
+ ['Deep Autumn',  { w: .5, d: .9, c: .2, k: .6 }, 'd'],
+ ['Light Summer', { w:-.5, d:-.9, c:-.3, k:-.6 }, 'd'],
+ ['True Summer',  { w:-1.0,d: .0, c:-.4, k:-.2 }, 'w'],
+ ['Soft Summer',  { w:-.4, d: .1, c:-1.0,k:-.7 }, 'c'],
+ ['Deep Winter',  { w:-.5, d: .9, c: .4, k: .8 }, 'd'],
+ ['True Winter',  { w:-1.0,d: .3, c: .6, k: .6 }, 'w'],
+ ['Bright Winter',{ w:-.4, d: .0, c:1.0, k:1.0 }, 'c'],
+];
+function seasonOf(P){
+ const a=P.ax;
+ let best=null,bd=Infinity;
+ for(const[name,pt,dom]of SEASON_POINTS){
+  let s=0;
+  for(const k of ['w','d','c','k']){
+   const weight=k===dom?2.0:(k==='k'?0.6:1.0);
+   s+=weight*Math.pow(a[k]-pt[k],2);
+  }
+  if(s<bd){bd=s;best=name;}
+ }
+ return best;
+}
+
+/* ═════ 8 · DRAPE TEST ═════ */
+function drapeCanvas(hex){
+ const w=190,h=210,cv=document.createElement('canvas');
+ cv.width=w*2;cv.height=h*2;cv.style.width='100%';
+ const c=cv.getContext('2d');c.scale(2,2);
+ c.fillStyle=hex;c.fillRect(0,0,w,h);
+ const[hh,ss,ll]=hexToHsl(hex);
+ c.fillStyle=hslToHex(hh,ss*.6,clamp(ll-9,4,94));
+ c.fillRect(0,h*0.72,w,h*0.28);                 // the "garment" under the chin
+ c.save();
+ c.beginPath();c.ellipse(w/2,h*0.42,w*0.36,h*0.40,0,0,Math.PI*2);c.clip();
+ const sx=.22*CW,sy=.05*CH,sw=.56*CW,sh=.74*CH;
+ c.drawImage(freeze,sx,sy,sw,sh,w/2-w*0.36,h*0.42-h*0.40,w*0.72,h*0.80);
+ c.restore();
+ return cv;
+}
+
+/* ═════ 9 · RENDER ═════ */
+let LAST=null;
+function qline(state,label,val){
+ return `<div class="qline ${state}"><span class="dot"></span><span>${label}</span><span class="val">${val}</span></div>`;
+}
+function runAnalysis(){
+ const m=measure();
+ qualityEl.style.display='block';
+ if(!m.ok){
+  qualityEl.innerHTML=qline('bad','Could not find enough skin in the sample patches','—');
+  resultEl.innerHTML=`<div class="callout" style="margin-top:18px"><b>No reading.</b> Move closer so your face fills the oval, turn to face your light source, and make sure the four dashed boxes land on bare skin rather than hair, glasses or background.</div>`;
+  return;
+ }
+ const focusState=m.focus>120?'good':m.focus>40?'mid':'bad';
+ const expState=m.clipped<0.02?'good':m.clipped<0.08?'mid':'bad';
+ const manual=m.ill.src==='manual';
+ const castState=manual?'good':m.ill.cast<0.18?'good':m.ill.cast<0.4?'mid':'bad';
+ const evenState=m.spread<7?'good':m.spread<13?'mid':'bad';
+ const conf=Math.round(100*(
+  0.3*(focusState==='good'?1:focusState==='mid'?.55:.15)+
+  0.25*(expState==='good'?1:expState==='mid'?.5:.1)+
+  0.25*(castState==='good'?1:castState==='mid'?.5:.15)+
+  0.2*(evenState==='good'?1:evenState==='mid'?.55:.2)));
+ qualityEl.innerHTML=
+  qline(focusState,'Focus',m.focus.toFixed(0))+
+  qline(expState,'Exposure — blown pixels',(m.clipped*100).toFixed(1)+'%')+
+  qline(castState,manual?'White balance — pinned to your reference':'Light neutrality (auto, half-corrected)',
+   (m.ill.cast*100).toFixed(0)+'% cast')+
+  (!manual&&m.ill.cast>=0.25?`<div class="qline bad"><span class="dot"></span><span>Strong colour cast — the reading will be off. Tap <b>Set white reference</b>, then tap anything white or grey in the shot.</span></div>`:'')+
+  qline(evenState,'Agreement across patches','ΔE '+m.spread.toFixed(1))+
+  qline(conf>75?'good':conf>50?'mid':'bad','Overall confidence',conf+' / 100');
+
+ LAST={m,contrastOverride:null,conf};
+ paint();
+}
+
+function paint(){
+ const{m,conf}=LAST;
+ const P=buildProfile(m,LAST.contrastOverride);
+ const ranked=rankNamed(P);
+ const hues=ranked.filter(c=>c.fam!=='Neutral'&&c.fam!=='Metal');
+ /* Bucket by lightness before taking the top of each. Without this a mid-depth,
+    high-contrast reading returns nothing but darks — no colour can sit 42 L*
+    points *above* L*63 — and you get a palette of six near-identical burgundies. */
+ const BANDS=[
+  {k:'Lights',  t:'Tops, layers near the face, anything you want to look open',    f:c=>c.L>66},
+  {k:'Mid-tones',t:'The body of an outfit — the piece you wear the most of',       f:c=>c.L>=40&&c.L<=66},
+  {k:'Darks',   t:'Bottoms, outerwear, the colour that grounds everything else',   f:c=>c.L<40}];
+ /* Pure score-ranking inside a band returns five near-identical yellows, because
+    whatever hue family wins on tone fit sweeps the whole band. Space the picks out. */
+ const spread=(list,n,minGap)=>{
+  const out=[];
+  for(const c of list){
+   if(out.length>=n)break;
+   const clash=out.some(o=>{const d=Math.abs(o.h-c.h);return Math.min(d,360-d)<minGap;});
+   if(!clash)out.push(c);
+  }
+  for(const c of list){if(out.length>=n)break;if(!out.includes(c))out.push(c);}
+  return out;
+ };
+ const bands=BANDS.map(b=>({...b,cols:spread(hues.filter(b.f),5,26)})).filter(b=>b.cols.length);
+ const best=bands.flatMap(b=>b.cols).sort((a,b)=>b.score-a.score);
+ const worst=hues.slice(-5).reverse();
+ const neutrals=ranked.filter(c=>c.fam==='Neutral');
+ const light=neutrals.filter(c=>c.L>78)[0]||neutrals[0];
+ const dark=neutrals.filter(c=>c.L<38)[0]||neutrals[neutrals.length-1];
+ const mid=neutrals.filter(c=>c.L>=38&&c.L<=78)[0];
+ const metals=ranked.filter(c=>c.fam==='Metal').slice(0,2);
+ const season=seasonOf(P);
+ const skinHex=labToRgb(P.L,P.a,P.b).hex;
+ const drapes=[best[0],best[1],worst[0],worst[1]].filter(Boolean);
+
+ S.tone={skin:m.skin,profile:{...P},season,conf};save();
+
+ resultEl.innerHTML=`
+ <h3 class="block">What was measured</h3>
+ <div class="tonecard">
+  <div class="swatchstack">${m.good.map(p=>`<div style="background:${labToRgb(...p.lab).hex}" title="${p.k}"></div>`).join('')}</div>
+  <div class="info" style="flex:1;min-width:220px">
+   <h3 style="font-size:1.4rem;font-weight:600;margin-bottom:2px">${P.undertone} undertone · ${P.band}</h3>
+   <div class="mono" style="font-size:.8rem;color:var(--muted)">
+    L* ${P.L.toFixed(1)} · a* ${P.a.toFixed(1)} · b* ${P.b.toFixed(1)} · C* ${P.C.toFixed(1)} · h ${P.h.toFixed(0)}° · ITA ${P.ita.toFixed(1)}°</div>
+   <div class="idmeta">
+    <span class="pill">Averaged over ${m.good.length} patches</span>
+    <span class="pill">${conf}/100 confidence</span>
+    <span class="pill">${m.ill.src==='manual'?'White reference pinned':m.ill.ok?'Auto white balance':'No balance reference'}</span></div>
+  </div>
+  <div><div style="width:74px;height:74px;border-radius:10px;border:1px solid var(--line);background:${skinHex}"></div>
+   <div class="mono" style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:5px">${skinHex.toUpperCase()}</div></div>
+ </div>
+
+ <div class="metrics">
+  <div class="metric"><div class="k">Depth</div><div class="v">${P.band}</div><div class="n">ITA ${P.ita.toFixed(1)}°</div></div>
+  <div class="metric"><div class="k">Undertone</div><div class="v">${P.undertone}</div><div class="n">hue ${P.h.toFixed(0)}°</div></div>
+  <div class="metric"><div class="k">Clarity</div><div class="v">${P.clarity}</div><div class="n">chroma ${P.C.toFixed(1)}</div></div>
+  <div class="metric"><div class="k">Contrast</div><div class="v">${P.contrast}</div><div class="n">${m.hair?'ΔL '+Math.abs(m.hair[0]-P.L).toFixed(0):'not detected'}</div></div>
+ </div>
+ <div class="row" style="margin-top:14px;align-items:center">
+  <span style="font-size:.82rem;color:var(--muted)">Hair-to-skin contrast wrong? Set it:</span>
+  <div class="fams" id="conover" style="margin:0">
+   ${['Low','Medium','High'].map(c=>`<button class="chipbtn ${P.contrast===c?'on':''}" data-c="${c}">${c}</button>`).join('')}
+  </div>
+ </div>
+
+ <h3 class="block">You read as <em style="font-style:italic;color:var(--accent)">${season}</em></h3>
+ <p class="lede">${SEASONS12[season]}</p>
+ <div class="callout"><b>How this was derived.</b> Undertone comes from the hue angle of your skin in CIELAB (${P.h.toFixed(0)}° — under 46° reads cool, over 56° warm). Depth comes from ITA°, the measure dermatologists use. Every colour below was then scored against those numbers: how well its warmth matches your undertone, how close its lightness sits to the ${P.dLideal}-point gap your contrast level wants, and how close its chroma sits to your clarity level. No lookup table decided this.</div>
+
+ <h3 class="block">Your colours</h3>
+ <div class="sub" style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Scored against your own measurements and split by lightness, so you can build a whole outfit rather than a pile of one value. Tap any colour for full pairing advice.</div>
+ ${bands.map(b=>`
+  <h4 style="font-size:1.1rem;margin:18px 0 2px">${b.k}</h4>
+  <div class="sub" style="font-size:.8rem;color:var(--muted);margin-bottom:10px">${b.t}</div>
+  <div class="pswatches">${b.cols.map(c=>
+   `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
+    <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>`).join('')}
+
+ <h3 class="block">Your neutrals and metals</h3>
+ <div class="pswatches">${[light,mid,dark].filter(Boolean).concat(metals).map(c=>
+  `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
+   <div class="lb"><b>${c.name}</b><span class="mono">${c.fam}</span></div></div>`).join('')}</div>
+ <p class="hint">Your white is <strong>${light?light.name:'—'}</strong> rather than any white; your black is <strong>${dark?dark.name:'—'}</strong>. Those two choices change an outfit more than the accent colour does.</p>
+
+ <h3 class="block">Drape test</h3>
+ <p class="lede">This is the actual test a colour analyst does — your face against the colour, nothing else changed. Compare the first two with the last two.</p>
+ <div class="drapewrap" id="drapewrap"></div>
+
+ <h3 class="block">Handle with care</h3>
+ <div class="pswatches">${worst.map(c=>
+  `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
+   <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>
+ <p class="hint">Not forbidden — just keep them away from your face, or break them up with a collar or scarf in one of your own colours.</p>
+
+ <div class="row" style="margin-top:26px">
+  <button class="btn primary" id="tone-load">Load my colours into the Lab</button>
+  <button class="btn" id="tone-pair">Pair my best colour</button>
+  <button class="btn" id="tone-forget">Forget my scan</button>
+ </div>`;
+
+ const dw=document.getElementById('drapewrap');
+ drapes.forEach(c=>{
+  const box=document.createElement('div');box.className='drape';
+  box.appendChild(drapeCanvas(c.hex));
+  const up=c.score>=0.58,down=c.score<0.45;
+  box.insertAdjacentHTML('beforeend',
+   `<div class="cap"><b>${c.name}</b><span>${c.hex.toUpperCase()}</span>
+    <div class="verdict ${up?'up':down?'down':''}">${
+     up?'↑ lifts you':down?'↓ drains you':'· neutral'} · ${(c.score*100).toFixed(0)}%</div></div>`);
+  dw.appendChild(box);
+ });
+
+ resultEl.querySelectorAll('.blk[data-hex]').forEach(b=>b.onclick=()=>{
+  setAdvisor(b.dataset.hex);goTo('advisor');});
+ document.getElementById('conover').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  LAST.contrastOverride=b.dataset.c;paint();
+  document.getElementById('scanresult').scrollIntoView({behavior:'smooth',block:'start'});};
+ document.getElementById('tone-load').onclick=()=>{
+  /* one from each lightness band plus your two neutrals — a usable 60/30/10 set */
+  palette=bands.map(b=>b.cols[0].hex).concat([light,mid,dark].filter(Boolean).map(c=>c.hex))
+   .filter((v,i,arr)=>arr.indexOf(v)===i);
+  renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');};
+ document.getElementById('tone-pair').onclick=()=>{setAdvisor(best[0].hex);goTo('advisor');};
+ document.getElementById('tone-forget').onclick=()=>{
+  delete S.tone;save();stopCam();fctx.clearRect(0,0,CW,CH);
+  resultEl.innerHTML='';qualityEl.style.display='none';setPhase('idle');
+  toast('Scan and photo discarded');};
+}
+
+/* restore a previous reading (numbers only — the photo is never stored) */
+if(S.tone&&S.tone.profile){
+ const t=S.tone;
+ document.getElementById('scanhint').innerHTML=
+  `Last reading: <strong>${t.profile.undertone} undertone · ${t.profile.band} · ${t.season}</strong>
+   (confidence ${t.conf}/100). Only these numbers were kept — the photo was discarded. Scan again to update.`;
+}
+
+/* ═════ 10 · DEEP LINKS ═════ */
+const qp=new URLSearchParams(location.search);
+const dest=qp.get('go');
+if(dest&&document.querySelector(`#nav button[data-s="${dest}"]`))goTo(dest);
+if(qp.get('scan')==='1'){setMode('scan');}
+
+})();
+</script>
+</body>
+</html>

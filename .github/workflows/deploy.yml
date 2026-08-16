@@ -1,0 +1,63 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege that still lets the Pages deployment run.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; the newest push wins.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The service worker names its caches after VERSION. If that string never
+      # changes, a deploy can leave users on stale cached assets. Stamping it with
+      # the commit SHA makes every deploy produce fresh caches automatically, so
+      # nobody has to remember to bump it by hand.
+      - name: Stamp service worker with commit SHA
+        run: |
+          sed -i "s/^const VERSION = '.*';/const VERSION = 'v${GITHUB_SHA::7}';/" sw.js
+          grep -n "^const VERSION" sw.js
+
+      - name: Regenerate icons
+        run: node tools/make-icons.js
+
+      # Cheap guard: catch a broken build before it reaches anyone's phone.
+      - name: Sanity-check the build
+        run: |
+          set -e
+          for f in index.html manifest.webmanifest sw.js favicon.ico \
+                   icons/icon-192.png icons/icon-512.png icons/maskable-512.png; do
+            [ -s "$f" ] || { echo "::error::missing or empty: $f"; exit 1; }
+          done
+          node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'))" \
+            || { echo '::error::manifest is not valid JSON'; exit 1; }
+          node --check sw.js
+          echo "build looks sane"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
