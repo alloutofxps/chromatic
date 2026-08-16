@@ -345,7 +345,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   .topbar-inner{padding:14px 18px}
 }
 
-.appbar{display:flex;align-items:center;gap:8px}
+.appbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+/* "what are you working on" — a native select, so it behaves properly on phones */
+.ctx-pick{display:flex;align-items:center;gap:8px;background:var(--surface2);
+ border:1px solid var(--line);border-radius:99px;padding:4px 6px 4px 14px;transition:.18s}
+.ctx-pick:hover,.ctx-pick:focus-within{border-color:var(--accent)}
+.ctx-lead{font-size:.72rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.ctx-pick select{font:600 .78rem 'Hanken Grotesk',sans-serif;color:var(--accent);
+ background:var(--surface);border:1px solid var(--line);border-radius:99px;
+ padding:5px 9px;cursor:pointer;outline:none;max-width:46vw}
+.ctx-pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@media(max-width:560px){.ctx-lead{display:none}.ctx-pick{padding-left:6px}}
+/* lesson callouts that only apply to what you're working on */
+.ctx-note{display:none}
+.ctx-note.on{display:block}
 .icon-btn{background:var(--surface2);border:1px solid var(--line);color:var(--ink2);border-radius:99px;
  padding:7px 13px;font:500 .76rem 'Hanken Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;
  gap:7px;transition:.18s;white-space:nowrap}
@@ -439,6 +453,15 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="topbar-inner">
     <div class="brand"><h1>Chro<em>matic</em></h1><span>Colour theory, pairing & palettes</span></div>
     <div class="appbar">
+      <label class="ctx-pick" for="ctx-select">
+        <span class="ctx-lead">I'm working on</span>
+        <select id="ctx-select">
+          <option value="clothing">Clothing &amp; style</option>
+          <option value="art">Art &amp; painting</option>
+          <option value="interiors">Interiors &amp; home</option>
+          <option value="design">Design &amp; screens</option>
+        </select>
+      </label>
       <span class="icon-btn" id="offline-chip" hidden><span class="offline-dot"></span>Offline</span>
       <button class="icon-btn cta" id="install-btn" hidden><span>⤓</span><span>Install</span></button>
       <button class="theme-btn" id="theme"><span id="theme-ico">◐</span><span id="theme-lbl">Dark</span></button>
@@ -447,7 +470,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 </div>
 
 <div class="banner" id="update-banner">
-  <p><b>A new version is ready</b>Reload to pick up the latest build.</p>
+  <p><b>There is a new version ready</b>Reload the page to get it.</p>
   <div class="acts">
     <button class="btn sm" id="update-later">Later</button>
     <button class="btn sm primary" id="update-now">Reload</button>
@@ -455,7 +478,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 </div>
 
 <div class="banner" id="ios-banner">
-  <p><b>Install Chromatic</b>Tap <b style="display:inline">Share</b> in Safari, then <b style="display:inline">Add to Home Screen</b> — it will work offline and open full-screen.</p>
+  <p><b>Install Chromatic</b>Tap <b style="display:inline">Share</b> in Safari, then <b style="display:inline">Add to Home Screen</b>. It will open full screen and keep working with no internet.</p>
   <div class="acts"><button class="btn sm" id="ios-dismiss">Got it</button></div>
 </div>
 
@@ -474,12 +497,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="sec-head">
     <div class="kicker">Start here</div>
     <h2>Colour theory from scratch</h2>
-    <p class="desc">Nine short lessons, about two minutes each. No prior knowledge assumed. Quizzes are scored as you go.</p>
+    <p class="desc">Nine short lessons. Each one takes about two minutes, and you don't need to know anything about colour before you begin. There are a few quizzes along the way, and your score sits at the top of the page.</p>
   </div>
   <div class="caps">
-    <div class="cap"><div class="cap-n">1</div><p><b>Read in any order</b> — each lesson stands alone, but they build if you go in sequence.</p></div>
-    <div class="cap"><div class="cap-n">2</div><p><b>Everything is visual</b> — swatches, mixing demos and side-by-side comparisons rather than definitions.</p></div>
-    <div class="cap"><div class="cap-n">3</div><p><b>Then use the other tabs</b> — the Advisor is where you'll make real decisions.</p></div>
+    <div class="cap"><div class="cap-n">1</div><p><b>Read them in any order.</b> Each lesson makes sense on its own, but they do build up if you start at the top.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>There are more pictures than words.</b> Most of this is much easier to show you than to explain.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Then try the other tabs.</b> The Pairing Advisor is the one you will come back to.</p></div>
   </div>
   <div class="progress" id="progress"><span class="qscore" id="qscore">Quiz score 0 / 0</span></div>
   <div class="lessons" id="lessons"></div>
@@ -488,14 +511,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 <!-- ══ ADVISOR ══ -->
 <section id="s-advisor" class="section"><div class="wrap">
   <div class="sec-head">
-    <div class="kicker">The decision tool</div>
+    <div class="kicker">The one you'll use most</div>
     <h2>Pairing Advisor</h2>
-    <p class="desc">Give it one colour — the kurti you own, the wall you're painting, the base layer on your canvas — and it returns colours <strong>by name</strong>, grouped by the job they do, with a reason and a suggested use for each.</p>
+    <p class="desc">Tell it one colour you already have. It might be <span id="adv-example">a shirt you already own, a jacket you are trying to match, or a length of fabric you just bought</span>. It gives you back a list of colours that go with it. Every colour has a name, a reason it works, and an idea of where to put it.</p>
   </div>
   <div class="caps">
-    <div class="cap"><div class="cap-n">1</div><p><b>Pick a colour</b> — use the picker, type a hex, or search 190 named colours below.</p></div>
-    <div class="cap"><div class="cap-n">2</div><p><b>Read the five groups</b> — grounding darks, safe, bold, neutrals, metals. Each says where to use it.</p></div>
-    <div class="cap"><div class="cap-n">3</div><p><b>Tap any suggestion</b> to add it to your palette (visible in the tray at the bottom).</p></div>
+    <div class="cap"><div class="cap-n">1</div><p><b>Pick your colour first.</b> Use the colour box, type in a hex code, or search 190 colours by name.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>The results come in five groups.</b> Each group does a different job, and every colour tells you where it belongs.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Tap any colour you like.</b> It gets saved to your palette in the bar at the bottom of the screen.</p></div>
   </div>
 
   <div class="row">
@@ -507,7 +530,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 
   <div class="picker" id="picker" style="display:none">
     <div class="picker-top">
-      <input type="search" id="csearch" placeholder="Search by name — salmon, teal, mustard, indigo…">
+      <input type="search" id="csearch" placeholder="Search by name, like salmon, teal, mustard or indigo">
       <span class="pickcount" id="pickcount"></span>
     </div>
     <div class="fams" id="fams"></div>
@@ -521,31 +544,31 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 <!-- ══ LIBRARY ══ -->
 <section id="s-library" class="section"><div class="wrap">
   <div class="sec-head">
-    <div class="kicker">Curated, not calculated</div>
+    <div class="kicker">Picked by hand</div>
     <h2>Palette Library</h2>
-    <p class="desc">Combinations that work because someone chose them, not because a formula produced them. The Wada sets come from Sanzo Wada's 1930s dictionary; the reference sets are recurring schemes from painting, fashion and interiors.</p>
+    <p class="desc">These colour sets work because real people chose them and kept using them. No formula was involved. The Wada sets come from a colour dictionary published by the Japanese painter Sanzo Wada in the 1930s. The reference sets are combinations that keep turning up in painting, fashion and interiors.</p>
   </div>
   <div class="caps">
-    <div class="cap"><div class="cap-n">1</div><p><b>Filter by mood</b> — soft, bold, earth, deep, or by source.</p></div>
-    <div class="cap"><div class="cap-n">2</div><p><b>Every set explains itself</b> — why those colours hold together, and what to use it for.</p></div>
-    <div class="cap"><div class="cap-n">3</div><p><b>Load into the Lab</b> to test proportions and see it previewed on an outfit or canvas.</p></div>
+    <div class="cap"><div class="cap-n">1</div><p><b>Use the buttons to filter.</b> You can narrow it down by mood, or by where the set came from.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Every set explains itself.</b> It tells you why those colours hold together and what you might use them for.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Send one to the Palette Lab.</b> There you can change the amounts and see it on an outfit or a painting.</p></div>
   </div>
   <div class="fams" id="libfilter"></div>
   <div class="libgrid" id="libgrid"></div>
-  <p class="hint">Wada's colour names come from the Ridgway system he worked from. Hex values are close modern approximations — the originals were printed inks, and no digital value is exact.</p>
+  <p class="hint">The colour names in the Wada sets come from an older naming system he worked from. The hex codes here are close modern matches. The originals were printed with ink, so no screen colour can ever be exact.</p>
 </div></section>
 
 <!-- ══ WHEEL ══ -->
 <section id="s-wheel" class="section"><div class="wrap">
   <div class="sec-head">
-    <div class="kicker">Explore &amp; generate</div>
+    <div class="kicker">Pick one colour, get a set</div>
     <h2>Wheel &amp; Harmony</h2>
-    <p class="desc">Sample any colour off the wheel, then generate the six classic harmonies from it — on a paint-accurate wheel, which most online tools quietly get wrong.</p>
+    <p class="desc">Click anywhere on the wheel to pick a colour. Then build one of six classic colour sets from it. This wheel is laid out the way real paint behaves, which is something most colour tools online get wrong.</p>
   </div>
   <div class="caps">
-    <div class="cap"><div class="cap-n">1</div><p><b>Click the wheel</b> to sample. Full breakdown appears beside it.</p></div>
-    <div class="cap"><div class="cap-n">2</div><p><b>Switch Paint / Screen</b> — in paint mode red's opposite is green, not cyan.</p></div>
-    <div class="cap"><div class="cap-n">3</div><p><b>Refine</b> softens raw geometry into something actually wearable.</p></div>
+    <div class="cap"><div class="cap-n">1</div><p><b>Click the wheel to pick a colour.</b> Everything the app can tell you about it appears next to the wheel.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Switch between Paint and Screen.</b> In paint the opposite of red is green. On a screen it is cyan.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Leave Refine switched on.</b> It softens the maths into colours you would actually wear.</p></div>
   </div>
 
   <div class="row">
@@ -591,20 +614,20 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   </div>
   <div class="harmrow" id="h-row"></div>
   <p class="lede" id="h-desc"></p>
-  <div class="callout"><b>Why "Refine" is on by default.</b> Raw geometry puts every colour at identical saturation and lightness, which is exactly why generated palettes so often look cheap. Refine varies them the way a designer would — one dominant, the rest supporting. Turn it off to see the unadjusted maths.</div>
+  <div class="callout"><b>Why Refine is switched on to begin with.</b> The plain maths gives every colour the same brightness and the same strength. That is exactly why colour sets from generators so often look cheap. Refine changes them the way a designer would, so one colour leads and the others support it. Switch it off if you want to see the raw version.</div>
 </div></section>
 
 <!-- ══ LAB ══ -->
 <section id="s-lab" class="section"><div class="wrap">
   <div class="sec-head">
-    <div class="kicker">Test it before you commit</div>
+    <div class="kicker">Try it before you commit</div>
     <h2>Palette Lab</h2>
-    <p class="desc">Your working palette lives here. Build it by hand, pull it out of a photograph, set the proportions, and see it rendered as something real rather than as squares.</p>
+    <p class="desc">This is where your palette lives. Build it by hand, or pull the colours straight out of a photo. Then decide how much of each colour to use and see the whole thing on an outfit, a painting and a room.</p>
   </div>
   <div class="caps">
-    <div class="cap"><div class="cap-n">1</div><p><b>From a Photo</b> — the fastest route. Shoot your fabric and get its actual colours.</p></div>
-    <div class="cap"><div class="cap-n">2</div><p><b>Proportions</b> — most palettes fail on amounts, not colours. This is where you fix that.</p></div>
-    <div class="cap"><div class="cap-n">3</div><p><b>Preview &amp; Contrast</b> — see it on a body, a canvas and a room; check what's readable.</p></div>
+    <div class="cap"><div class="cap-n">1</div><p><b>From a Photo is the quickest way in.</b> Take a picture of your fabric and get its real colours out.</p></div>
+    <div class="cap"><div class="cap-n">2</div><p><b>Most palettes go wrong on the amounts.</b> The colours are usually fine. Proportions is where you sort that out.</p></div>
+    <div class="cap"><div class="cap-n">3</div><p><b>Then check your work.</b> Preview puts the palette on a person, a painting and a room. Contrast Check tells you whether text will be readable.</p></div>
   </div>
 
   <div class="labnav" id="labnav">
@@ -624,47 +647,48 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
     </div>
     <div id="pstrip"></div>
     <div class="pswatches" id="pswatches"></div>
-    <p class="hint">Tap any swatch to send it to the Pairing Advisor. Hover to remove.</p>
+    <p class="hint">Tap any colour to send it to the Pairing Advisor. To remove one, hover over it and click the small cross.</p>
     <div id="exportbox" style="display:none;margin-top:20px">
       <pre id="exporttext" class="mono" style="font-size:.8rem;line-height:1.8;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);padding:16px 18px;border-radius:var(--r);overflow-x:auto;white-space:pre;max-width:640px"></pre>
     </div>
   </div>
 
   <div class="panel" id="p-extract">
-    <p class="lede">Photograph your fabric, a painting, a room, a sunset. This pulls out the dominant colours so you work from something real instead of guessing from a screen.</p>
-    <div class="dropzone" id="dropzone"><p><b>Tap to choose a photo</b><br>or drag one here</p></div>
+    <p class="lede">Take a photo of your fabric, a painting, a room or a sunset. The app pulls out the main colours in it, so you are working from something real instead of guessing at a screen.</p>
+    <div class="dropzone" id="dropzone"><p><b>Tap here to choose a photo</b><br>or drag one onto this box</p></div>
     <input type="file" id="fileinput" accept="image/*" style="display:none">
     <div style="margin-top:22px">
       <img id="photoprev" alt="">
       <div class="pswatches" id="extracted"></div>
       <button class="btn primary" id="use-extracted" style="display:none">Use as my palette</button>
     </div>
-    <p class="hint">Photos never leave your device — extraction runs entirely in your browser.</p>
+    <p class="hint">Your photos never leave your device. All of this happens inside your browser.</p>
   </div>
 
   <div class="panel" id="p-prop">
-    <p class="lede">The same colours in different amounts give completely different results. The classic guideline is <strong>60 / 30 / 10</strong>: one dominant, one supporting, one accent. Most palettes fail because the colours were used in equal amounts, not because the colours were wrong.</p>
+    <p class="lede">The same colours used in different amounts give you a completely different result. The old rule of thumb is <strong>60 / 30 / 10</strong>. That means one colour leads, a second one supports it, and a third shows up in small doses. <span id="prop-example">In an outfit that is usually a coat, then trousers, then a bag.</span> When a palette does not work, the amounts are usually to blame long before the colours are.</p>
     <div id="propbar"></div>
     <div class="proprows" id="proprows"></div>
     <button class="btn sm" id="prop-reset">Reset to 60 / 30 / 10</button>
   </div>
 
   <div class="panel" id="p-preview">
-    <p class="lede">Squares lie. Colour behaves differently across shape, quantity and adjacency. These are rough, but far more honest than swatches — and they update live as you change the palette.</p>
-    <div class="prevwrap">
-      <div class="prevbox"><h5>As an outfit</h5><div id="prev-outfit"></div></div>
-      <div class="prevbox"><h5>As a painting</h5><div id="prev-canvas"></div></div>
-      <div class="prevbox"><h5>As a room</h5><div id="prev-room"></div></div>
+    <p class="lede">A row of squares will mislead you. A colour behaves differently depending on its shape, how much of it there is, and what sits next to it. These little drawings are rough, but they are a lot more honest than squares, and they update as you change your palette.</p>
+    <div class="prevwrap" id="prevwrap">
+      <div class="prevbox" data-prev="outfit"><h5>As an outfit</h5><div id="prev-outfit"></div></div>
+      <div class="prevbox" data-prev="canvas"><h5>As a painting</h5><div id="prev-canvas"></div></div>
+      <div class="prevbox" data-prev="room"><h5>As a room</h5><div id="prev-room"></div></div>
+      <div class="prevbox" data-prev="poster"><h5>As a page</h5><div id="prev-poster"></div></div>
     </div>
   </div>
 
   <div class="panel" id="p-check">
-    <p class="lede">If you're putting text on a background — a label, a logo, a poster, embroidery on cloth — this says whether it's actually readable. Read across: each cell is the contrast between the row colour and the column colour.</p>
+    <p class="lede">Putting text on top of a colour? A label, a logo, a poster, or embroidery on cloth? This table tells you whether people will be able to read it. Read across the rows. Each box shows how well the row colour stands out against the column colour. Bigger numbers are better.</p>
     <div style="overflow-x:auto"><table class="matrix" id="matrix"></table></div>
     <div class="legend">
-      <span><i style="background:rgba(47,125,79,.4)"></i> 4.5+ — fine for body text</span>
-      <span><i style="background:rgba(154,107,18,.4)"></i> 3.0–4.5 — large text only</span>
-      <span><i style="background:rgba(176,58,46,.3)"></i> Under 3.0 — not readable</span>
+      <span><i style="background:rgba(47,125,79,.4)"></i> 4.5 and above. Fine for normal text.</span>
+      <span><i style="background:rgba(154,107,18,.4)"></i> Between 3 and 4.5. Big text only.</span>
+      <span><i style="background:rgba(176,58,46,.3)"></i> Under 3. People will struggle to read it.</span>
     </div>
   </div>
 </div></section>
@@ -674,7 +698,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="sec-head">
     <div class="kicker">Which colours suit you</div>
     <h2>Personal Colour</h2>
-    <p class="desc">Your skin has an undertone sitting beneath its surface depth. Colours sharing that undertone make your skin look even and your eyes brighter. Colours fighting it make you look tired. Measure it with the camera, or answer six questions.</p>
+    <p class="desc">Just under the surface, your skin has a warm or a cool tint to it. That tint is called your undertone. Colours that match it make your skin look even and your eyes look brighter. Colours that fight it make you look tired. You can measure yours with the camera, or answer six questions instead.</p>
   </div>
 
   <div class="modeseg" id="pcmodeseg">
@@ -685,14 +709,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <!-- ── SCAN ── -->
   <div class="pcmode on" id="m-scan">
     <div class="caps">
-      <div class="cap"><div class="cap-n">1</div><p><b>Face a window</b> in daylight. No make-up on the sampled areas, no coloured lamp, no sunglasses.</p></div>
-      <div class="cap"><div class="cap-n">2</div><p><b>Fill the oval</b> with your face and hold still. Four patches are sampled: forehead, both cheeks, jaw.</p></div>
-      <div class="cap"><div class="cap-n">3</div><p><b>Get measured values</b> — CIELAB, ITA°, undertone angle — then a palette built from your own numbers.</p></div>
+      <div class="cap"><div class="cap-n">1</div><p><b>Stand facing a window.</b> Daylight works best. Take your glasses off, and try not to have make-up on your forehead, cheeks or jaw.</p></div>
+      <div class="cap"><div class="cap-n">2</div><p><b>Line your face up in the oval.</b> Hold still. The app reads four small patches of skin: your forehead, both cheeks and your jaw.</p></div>
+      <div class="cap"><div class="cap-n">3</div><p><b>You get real measurements back.</b> Not a guess. Then a set of colours worked out from your own numbers.</p></div>
     </div>
 
     <div class="privacy">
       <span class="lock">🔒</span>
-      <p><b>Nothing leaves this device.</b> There is no server and no upload. The camera stream is read straight into a canvas, analysed in JavaScript and discarded — the only thing kept is a handful of numbers in your browser's local storage, which you can wipe at any time.</p>
+      <p><b>Nothing leaves your phone.</b> There is no server here and nothing gets uploaded. The picture is read, measured, and then thrown away. The only thing kept is a short list of numbers, and you can delete those at any time.</p>
     </div>
 
     <div class="scanwrap">
@@ -717,7 +741,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
         <input type="file" id="scanfile" accept="image/*" style="display:none">
 
         <div class="quality" id="scanquality" style="display:none"></div>
-        <p class="hint" id="scanhint">Works on any device with a camera. On desktop you may need to allow camera access; the upload route works everywhere and gives identical results if the photo is evenly lit.</p>
+        <p class="hint" id="scanhint">This works on any device with a camera. Your browser will ask for permission the first time. If you would rather not use the camera, uploading a photo gives you exactly the same result, as long as the light in the photo is even.</p>
       </div>
     </div>
 
@@ -727,9 +751,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <!-- ── QUIZ ── -->
   <div class="pcmode" id="m-quiz">
     <div class="caps">
-      <div class="cap"><div class="cap-n">1</div><p><b>Answer in daylight</b> if you can — artificial light distorts the wrist and fabric tests.</p></div>
-      <div class="cap"><div class="cap-n">2</div><p><b>Get your season</b> plus specific named colours, neutrals and metals.</p></div>
-      <div class="cap"><div class="cap-n">3</div><p><b>Load them into the Lab</b> or tap any one for full pairing advice.</p></div>
+      <div class="cap"><div class="cap-n">1</div><p><b>Answer these in daylight if you can.</b> Indoor bulbs will throw off the wrist test and the fabric test.</p></div>
+      <div class="cap"><div class="cap-n">2</div><p><b>You get a season at the end.</b> It comes with named colours, the right neutrals and the right metals.</p></div>
+      <div class="cap"><div class="cap-n">3</div><p><b>Send them to the Lab when you're done.</b> Or tap any single colour to get full pairing advice for it.</p></div>
     </div>
     <div id="pcq"></div>
     <div style="display:flex;gap:10px;margin-top:16px">
@@ -739,7 +763,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
     <div id="pcresult"></div>
   </div>
 
-  <p class="hint">Seasonal analysis is a well-established styling heuristic, not a clinical measurement. The scan measures your skin's actual CIELAB coordinates honestly, but lighting, camera white balance, fabric and cut all still matter — and plenty of people look excellent in colours the system says they shouldn't. Treat it as a strong starting point, not a rule.</p>
+  <p class="hint">One thing to keep in mind. The season system is a styling method that stylists have used for decades. It is not a medical test. The scan does measure your skin honestly, but the light in the room, your camera, the fabric and the cut of a garment all still matter. Plenty of people look wonderful in colours this system says they should avoid. Treat it as a good place to start rather than a rule you have to follow.</p>
 </div></section>
 
 <!-- ══ GLOSSARY ══ -->
@@ -747,15 +771,15 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="sec-head">
     <div class="kicker">Reference</div>
     <h2>Glossary</h2>
-    <p class="desc">Plain-English definitions for every colour term in this tool and most of the ones you'll meet elsewhere.</p>
+    <p class="desc">Simple explanations for every colour word used in this app, and most of the ones you will come across anywhere else.</p>
   </div>
   <div class="row"><input type="search" id="glsearch" placeholder="Search terms…" style="min-width:260px"></div>
   <div class="glgrid" id="glgrid"></div>
 </div></section>
 
 <footer><div class="wrap">
-  <span>Chromatic — a colour companion</span>
-  <span>Sample · Pair · Build · Preview</span>
+  <span>Chromatic, a colour companion</span>
+  <span>Pick a colour. Find its partners. Build something.</span>
 </div></footer>
 
 <div class="tray" id="tray"><div class="tray-inner">
@@ -877,11 +901,11 @@ function familyOf(h){h=((h%360)+360)%360;
 const valueWord=l=>l<22?'Very dark':l<40?'Dark':l<60?'Mid':l<78?'Light':'Very light';
 const satWord=s=>s<12?'Near-neutral':s<32?'Muted':s<58?'Medium':s<80?'Saturated':'Very saturated';
 const isWarm=h=>{h=((h%360)+360)%360;return h<75||h>=315;};
-function moodOf(h,s,l){if(s<14)return l<35?'Grounding, serious, architectural':'Calm, quiet, restrained';
- if(l<22)return'Depth, authority, mystery';if(l>82)return'Airy, delicate, soft';h=((h%360)+360)%360;
- if(h<28||h>332)return'Passion, urgency, appetite';if(h<52)return'Warmth, generosity, energy';
- if(h<72)return'Optimism, brightness, attention';if(h<160)return'Growth, balance, freshness';
- if(h<255)return'Calm, trust, distance';return'Luxury, imagination, ceremony';}
+function moodOf(h,s,l){if(s<14)return l<35?'Feels solid and serious':'Feels calm and quiet';
+ if(l<22)return'Feels deep and mysterious';if(l>82)return'Feels light and airy';h=((h%360)+360)%360;
+ if(h<28||h>332)return'Feels urgent and passionate';if(h<52)return'Feels warm and generous';
+ if(h<72)return'Feels bright and cheerful';if(h<160)return'Feels fresh and natural';
+ if(h<255)return'Feels calm and trustworthy';return'Feels rich and formal';}
 
 /* ═════ THEME ═════ */
 const themeBtn=document.getElementById('theme');
@@ -913,12 +937,153 @@ document.getElementById('traybar').onclick=()=>document.getElementById('tray').c
 function renderTray(){
  const b=document.getElementById('traybody');
  document.getElementById('traycount').textContent=palette.length?`${palette.length} colour${palette.length>1?'s':''}`:'';
- if(!palette.length){b.innerHTML='<span class="tray-empty">Empty — add colours from any tab and they collect here.</span>';return;}
+ if(!palette.length){b.innerHTML='<span class="tray-empty">This is empty for now. Add colours from any tab and they will collect here.</span>';return;}
  b.innerHTML=palette.map(c=>`<div class="tray-sw" style="background:${c}" data-hex="${c}" title="${nearest(c).name} ${c.toUpperCase()}"></div>`).join('')
   +`<button class="btn sm" id="tray-open" style="margin-left:8px">Open Lab →</button>`;
  b.querySelectorAll('.tray-sw').forEach(s=>s.onclick=()=>{setAdvisor(s.dataset.hex);goTo('advisor');});
  document.getElementById('tray-open').onclick=()=>goTo('lab');
 }
+
+/* ═════ WHAT ARE YOU WORKING ON? ═════
+   One setting that rewrites the examples across the app. "Use it as an accent"
+   is useless advice until someone tells you accent on what — so every colour
+   suggestion names an actual object you could put it on. */
+const CTX={
+ clothing:{
+  label:'Clothing & style',
+  example:'a shirt you already own, a jacket you are trying to match, or a length of fabric you just bought',
+  thing:'outfit',
+  groups:{
+   dark:'These are for shoes, belts, collars and hems. They give an outfit its edges.',
+   safe:'These are hard to get wrong. Use them for a second layer or a lining.',
+   bold:'Pick one of these when you want a single piece to get noticed.',
+   neutral:'The quiet colours you build the rest of the outfit on top of.',
+   metal:'For jewellery, buttons, buckles and stitching.'},
+  use:{
+   dark:['Good for shoes, a belt, or the trim on a collar',
+         'Good for boots, a belt or a watch strap',
+         'Good for trousers, a skirt or an outer layer',
+         'Good for buttons, a zip or the stitching'],
+   safe:['Good for a second layer, like a cardigan or an open shirt',
+         'Good for a collar, a cuff or a lining',
+         'Good for a top worn underneath, or a light scarf',
+         'Good for trousers or a skirt'],
+   bold:['Good for one standout piece, like a bag or a jacket',
+         'Good for a bag, shoes or a scarf',
+         'Good for a scarf, a hat or a piece of jewellery',
+         'Good as the second colour in a pattern'],
+   neutral:['Good for a plain top or a base layer',
+            'Good for a coat, trousers or a skirt',
+            'Good for a second garment in a middle tone',
+            'Good for shoes, a bag or a belt'],
+   metal:['Good for jewellery, buttons or embroidery',
+          'Good for a buckle, a chain or stitching',
+          'Good for earrings, a ring or one small detail']},
+  prop:'In an outfit that is usually a coat, then trousers, then a bag.',
+  preview:'outfit'
+ },
+ art:{
+  label:'Art & painting',
+  example:'the base layer already on your canvas, a pigment you want to build around, or a photo you are painting from',
+  thing:'painting',
+  groups:{
+   dark:'These are for outlines, shadow and the darkest parts of the picture. They give the image its structure.',
+   safe:'These are hard to get wrong. Use them in the middle tones where you want things to sit quietly.',
+   bold:'Pick one of these for the part of the picture you want the eye to land on.',
+   neutral:'The quiet colours you lay down first and build on top of.',
+   metal:'For gilding, frames and metallic paint.'},
+  use:{
+   dark:['Good for outlines and the darkest shadows',
+         'Good for your deepest dark, instead of black straight from the tube',
+         'Good for shadow on the ground and underneath objects',
+         'Good for a frame, or the edges of shapes'],
+   safe:['Good for the middle tones sitting next to your main colour',
+         'Good for a second area of the picture',
+         'Good for a light wash over the background',
+         'Good for the shadowed side of your main shape'],
+   bold:['Good for the focal point, wherever you want the eye to go',
+         'Good for one small patch of bright accent',
+         'Good for a highlight, or a spot of reflected light',
+         'Good for a second shape you want noticed'],
+   neutral:['Good for the ground you paint on top of',
+            'Good for the background or the sky',
+            'Good for the middle distance',
+            'Good for the darkest anchor in the composition'],
+   metal:['Good for gilding or metallic highlights',
+          'Good for a frame, or an aged detail',
+          'Good for one small glint of light']},
+  prop:'In a painting that is usually the background, then the main mass, then the focal point.',
+  preview:'canvas'
+ },
+ interiors:{
+  label:'Interiors & home',
+  example:'a sofa you already have, a wall you are about to paint, or a rug you have just bought',
+  thing:'room',
+  groups:{
+   dark:'These are for door frames, skirting, metalwork and shadow. They give a room its edges.',
+   safe:'These are hard to get wrong. Use them on a second wall or on bigger furniture.',
+   bold:'Pick one of these for the thing you want people to notice when they walk in.',
+   neutral:'The quiet colours that go on the walls and the floor.',
+   metal:'For handles, taps, lamps and frames.'},
+  use:{
+   dark:['Good for door frames, skirting or a painted window frame',
+         'Good for metalwork, handles or a fireplace',
+         'Good for the floor, or one large piece of furniture',
+         'Good for shelving, trim or a border'],
+   safe:['Good for a second wall, or the inside of a shelf',
+         'Good for curtains or a blind',
+         'Good for the ceiling, or a lighter feature wall',
+         'Good for a rug or a big armchair'],
+   bold:['Good for one armchair, a front door, or a piece of art',
+         'Good for cushions, a throw or a lampshade',
+         'Good for a vase, a rug border or a smaller chair',
+         'Good as the second colour in a patterned fabric'],
+   neutral:['Good for the main walls',
+            'Good for the ceiling, or a large soft furnishing',
+            'Good for the floor or a big rug',
+            'Good for the darkest anchor in the room'],
+   metal:['Good for handles, taps and light fittings',
+          'Good for a lamp base, a picture frame or a hinge',
+          'Good for one small fixture, or the edge of a mirror']},
+  prop:'In a room that is usually the walls, then the furniture, then the cushions.',
+  preview:'room'
+ },
+ design:{
+  label:'Design & screens',
+  example:'a brand colour you have been handed, a logo you are building around, or a photo the page has to sit with',
+  thing:'layout',
+  groups:{
+   dark:'These are for text, rules and icons. They keep things readable and give a layout its structure.',
+   safe:'These are hard to get wrong. Use them for secondary panels and quieter areas.',
+   bold:'Pick one of these for the button or the link you want people to press.',
+   neutral:'The quiet colours behind everything else.',
+   metal:'For foil printing and badges. Metals rarely look good on a screen.'},
+  use:{
+   dark:['Good for headings and body text',
+         'Good for text sitting on a light background',
+         'Good for a footer or a dark band across the page',
+         'Good for borders, dividing lines and icons'],
+   safe:['Good for a secondary panel or a card',
+         'Good for a hover state, or a button being pressed',
+         'Good for a tinted background behind one section',
+         'Good for a sidebar or a footer'],
+   bold:['Good for the main button, wherever you want the click',
+         'Good for a link, a badge or a tag',
+         'Good for a highlight or an unread dot',
+         'Good for one line on a chart, or an illustration'],
+   neutral:['Good for the page background',
+            'Good for cards and panels',
+            'Good for dividers and greyed out buttons',
+            'Good for a dark footer or a heavy header'],
+   metal:['Good for foil on print, or a premium badge',
+          'Good for an award or a certificate detail',
+          'Good for one small accent, and nothing more']},
+  prop:'In a layout that is usually the background, then the panels, then the button.',
+  preview:'poster'
+ }
+};
+let appCtx='clothing';
+const ctx=()=>CTX[appCtx];
 
 /* ═════ ADVISOR ═════ */
 let advMode='paint';
@@ -928,42 +1093,43 @@ const dedupe=a=>{const s=new Set();return a.filter(r=>s.has(r.hex)?false:(s.add(
 
 function advise(hex){
  const[h,s,l]=hexToHsl(hex);const warm=isWarm(h);
+ const U=ctx().use;
  const dark=dedupe([
   mk(hslToHex(h,clamp(s*.8,0,80),clamp(Math.min(l*.34,22),8,24)),
-   'A very dark version of your own colour. Defines and outlines without introducing a second hue — the single most reliable choice there is.','Lace / tie · outline · shoes · shadow'),
-  mk(warm?'#3E2A20':'#22201E',warm?'Warm near-black. Reads far softer than true black beside a warm colour.':'Cool near-black. Crisp and graphic without the flatness of pure black.','Tie · belt · footwear · contour'),
-  mk(R(h,180,s*.5,18),'The dark complement. Grounds the whole thing while quietly making your base colour look richer.','Trousers · base layer · deep shadow'),
-  mk(warm?'#5C3A26':'#2E3134',warm?'Chocolate brown — the warm alternative to black. It never fights a warm colour.':'Graphite. Neutral weight that stays out of the way.','Trim · hardware · structure')]);
+   'This is simply a much darker version of your own colour. It gives things an edge and a shape without bringing a second colour into the mix. If you are not sure what to choose, choose this one.',U.dark[0]),
+  mk(warm?'#3E2A20':'#22201E',warm?'A warm brown that is almost black. Next to a warm colour it looks much gentler than real black would.':'A cool grey that is almost black. It looks sharp and clean, and it has more life in it than pure black.',U.dark[1]),
+  mk(R(h,180,s*.5,18),'This is the dark version of your colour\'s opposite. It holds the whole thing down, and it quietly makes your main colour look richer.',U.dark[2]),
+  mk(warm?'#5C3A26':'#2E3134',warm?'Chocolate brown does the same job as black, but warm. It will never fight a warm colour.':'Graphite grey is heavy enough to hold a look together and quiet enough to stay out of the way.',U.dark[3])]);
  const safe=dedupe([
-  mk(R(h,-28,s*.85,l),'Sits right beside your colour on the wheel. Flows rather than competes.','Layering · second garment'),
-  mk(R(h,28,s*.8,l*.92),'Neighbouring hue, slightly deeper. Interest without any tension.','Trim · lining · second panel'),
-  mk(hslToHex(h,s*.55,clamp(l+16,0,92)),'Your own colour lightened and softened — a tonal partner.','Inner layer · dupatta · ground wash'),
-  mk(hslToHex(h,clamp(s*1.05,0,95),clamp(l-24,8,90)),'Your own colour deepened. Tonal dressing at its simplest.','Bottoms · shadow tones')]);
+  mk(R(h,-28,s*.85,l),'This sits right next to your colour on the wheel, so the two of them flow into each other instead of competing.',U.safe[0]),
+  mk(R(h,28,s*.8,l*.92),'Another neighbour on the wheel, just a little deeper. It adds some interest without creating any tension.',U.safe[1]),
+  mk(hslToHex(h,s*.55,clamp(l+16,0,92)),'Your own colour, made lighter and softer. An easy partner that will never argue with it.',U.safe[2]),
+  mk(hslToHex(h,clamp(s*1.05,0,95),clamp(l-24,8,90)),'Your own colour, made deeper. This is the simplest way to use a single colour on its own.',U.safe[3])]);
  const bold=dedupe([
-  mk(R(h,180,s*.62,l<50?clamp(l+14,0,80):clamp(l-22,12,90)),'Directly opposite yours. Maximum contrast — softened here so it reads rich rather than loud.','Statement accessory · focal point'),
-  mk(R(h,155,s*.7,clamp(l-14,12,88)),'Split-complement. Nearly the same punch, considerably easier to live with.','Bag · shoes · accent brushwork'),
-  mk(R(h,205,s*.7,clamp(l-14,12,88)),'The other split-complement — cooler or warmer depending on your base.','Scarf · stone · highlight'),
-  mk(R(h,118,s*.6,clamp(l-8,15,85)),'Triadic partner. Bold, but balanced rather than oppositional.','Print secondary · patterned piece')]);
+  mk(R(h,180,s*.62,l<50?clamp(l+14,0,80):clamp(l-22,12,90)),'This is the exact opposite of your colour, so the contrast is as strong as it gets. We have softened it a little so it looks rich instead of shouty.',U.bold[0]),
+  mk(R(h,155,s*.7,clamp(l-14,12,88)),'This sits just beside the opposite. Almost as much punch, and a good deal easier to live with.',U.bold[1]),
+  mk(R(h,205,s*.7,clamp(l-14,12,88)),'The same idea coming from the other side. It will feel a bit cooler or warmer depending on the colour you started with.',U.bold[2]),
+  mk(R(h,118,s*.6,clamp(l-8,15,85)),'This one sits a third of the way around the wheel. Still bold, but it feels balanced instead of confrontational.',U.bold[3])]);
  const nt=warm?['#F4EBD9','#D6CBB8','#C19A6B','#96897A']:['#F3F0E9','#E8E1D4','#8A8F94','#3B3E42'];
  const nwhy=warm
-  ?['Warm off-white. Lifts a warm colour without the glare of pure white.',
-    'Soft warm neutral — about the safest possible ground for your colour.',
-    'A warm mid-neutral that behaves almost like a colour. Very flattering with warm hues.',
-    'Muted warm grey. Grounds without darkening everything.']
-  :['Clean off-white. Sharpens a cool colour and keeps it crisp.',
-    'Soft cool neutral. Quiet, unobtrusive, endlessly usable.',
-    'Cool grey — the natural companion to cool hues.',
-    'Deep neutral for weight and structure.'];
- const nuse=['Base layer · ground','Background · wall · canvas ground','Second garment · mid-tone','Anchor · frame · base'];
+  ?['A warm off white. It lifts your colour without the harsh glare you get from pure white.',
+    'A soft warm neutral. This is about the safest background your colour could sit on.',
+    'A warm middle tone that almost reads as a colour in its own right. It looks lovely with warm shades.',
+    'A quiet warm grey. It steadies everything without making the whole thing dark.']
+  :['A clean off white. It sharpens a cool colour and keeps it looking fresh.',
+    'A soft cool neutral. Quiet, easy to ignore, and you can use it with almost anything.',
+    'A cool grey. This is the natural partner for cool colours.',
+    'A deep neutral that adds weight and holds the whole look together.'];
+ const nuse=U.neutral;
  const neutral=dedupe(nt.map((t,i)=>{const n=nearest(t,c=>c.fam==='Neutral'||c.fam==='Brown');
   return{hex:n.hex,name:n.name,why:nwhy[i],use:nuse[i]};}));
  const metals=warm
-  ?[mk('#C0A050','Warm gold echoes the warmth in your colour. The default festive choice.','Jewellery · buttons · embroidery'),
-    mk('#96703C','Antique bronze — subtler than bright gold, and more grown-up.','Hardware · thread · frame'),
-    mk('#C08874','Rose gold. Warm but softer than yellow gold; excellent with pinks and corals.','Jewellery · fine detail')]
-  :[mk('#B8BCC0','Silver matches the coolness in your colour and stays crisp.','Jewellery · hardware'),
-    mk('#4A4E54','Gunmetal — cool, matte, modern. Reads intentional rather than shiny.','Buckles · zips · structure'),
-    mk('#C08874','Rose gold — the one warm metal that works with cool hues without clashing.','Jewellery · accent detail')];
+  ?[mk('#C0A050','Warm gold picks up the warmth already in your colour. This is the usual choice for anything festive.',U.metal[0]),
+    mk('#96703C','Antique bronze is quieter than bright gold, and it looks more grown up.',U.metal[1]),
+    mk('#C08874','Rose gold is warm, but softer than yellow gold. It is very good with pinks and corals.',U.metal[2])]
+  :[mk('#B8BCC0','Silver matches the coolness in your colour and keeps everything looking clean.',U.metal[0]),
+    mk('#4A4E54','Gunmetal is cool and matte. It looks deliberate rather than flashy.',U.metal[1]),
+    mk('#C08874','Rose gold is the one warm metal that works with cool colours without clashing.',U.metal[2])];
  const avoidHex=hslToHex(rotate(h,32,advMode),clamp(s*1.05,0,100),clamp(l+2,0,100));
  return{dark,safe,bold,neutral,metals,avoidHex,avoidName:nearest(avoidHex).name,h,s,l,warm};
 }
@@ -986,16 +1152,16 @@ function runAdvisor(){
     <span class="pill">${valueWord(a.l)}</span><span class="pill">${satWord(a.s)}</span>
     <span class="pill">${moodOf(a.h,a.s,a.l)}</span></div></div>
   <button class="btn sm" onclick="addColour('${hex}');toast('Added to palette')">Add to palette</button></div>
- <div class="callout"><b>Handle ${a.avoidName} with care</b>
+ <div class="callout"><b>Be careful with ${a.avoidName}</b>
   <span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${a.avoidHex};vertical-align:-2px;border:1px solid var(--line)"></span>
-  — and anything close to it. It sits just far enough from your colour to look like a near-miss rather than a decision. Either move much closer (tonal) or much further (contrast); the middle distance is where palettes go wrong.</div>`;
+  and with anything close to it. It sits just far enough from your colour to look like a mistake instead of a choice. Go much closer to your colour, or go much further away. The middle ground is where things tend to fall apart.</div>`;
  document.getElementById('adv-out').innerHTML=
-  group('Grounding darks','For ties, laces, outlines, shoes and shadows — the colour that defines everything else',a.dark)+
-  group('Safe &amp; harmonious','Low risk, always works. These flow with your colour rather than challenging it',a.safe)+
-  group('Bold contrast','When you want the second colour to be noticed',a.bold)+
-  group('Neutral anchors','What to build the rest of the look or composition on',a.neutral)+
-  group('Metals','Jewellery, hardware, thread, frames',a.metals)+
-  (advMode==='paint'?`<div class="callout"><b>Painter's note.</b> Mixing your colour with its opposite (${nearest(hslToHex(rotate(a.h,180,'paint'),a.s,a.l)).name}) in small amounts doesn't give you mud — it gives you a living, slightly warm grey. That's how you dull a colour without reaching for black, which flattens luminosity.</div>`:'');
+  group('Dark colours to hold it together',ctx().groups.dark,a.dark)+
+  group('Safe choices',ctx().groups.safe,a.safe)+
+  group('Bold choices',ctx().groups.bold,a.bold)+
+  group('Neutrals to build on',ctx().groups.neutral,a.neutral)+
+  group('Metals',ctx().groups.metal,a.metals)+
+  (advMode==='paint'?`<div class="callout"><b>A note if you paint.</b> Mix a small amount of ${nearest(hslToHex(rotate(a.h,180,'paint'),a.s,a.l)).name} into your colour and you will not get mud. You get a soft grey with some life left in it. That is how you calm a colour down without using black, which just makes it look flat.</div>`:'');
 }
 document.getElementById('adv-out').addEventListener('click',e=>{
  const r=e.target.closest('.rec');if(!r)return;addColour(r.dataset.hex);
@@ -1005,7 +1171,7 @@ document.getElementById('adv-input').addEventListener('input',e=>{
 document.getElementById('adv-hex').addEventListener('change',e=>{
  let v=e.target.value.trim();if(!v.startsWith('#'))v='#'+v;
  if(/^#[0-9a-f]{6}$/i.test(v)){document.getElementById('adv-input').value=v;runAdvisor();}
- else toast('Enter a hex like #F79E8A');});
+ else toast('That is not a hex code. Try something like #F79E8A');});
 document.getElementById('adv-mode').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  document.querySelectorAll('#adv-mode button').forEach(x=>x.classList.remove('on'));
@@ -1029,7 +1195,7 @@ function renderSwatchGrid(){
  document.getElementById('swatchgrid').innerHTML=list.map(c=>
   `<div class="sg" data-hex="${c[1]}"><div class="sw" style="background:${c[1]}"></div>
    <div class="lb"><b>${c[0]}</b><span class="mono">${c[1].toUpperCase()}</span></div></div>`).join('')
-  ||'<p class="hint">No colour matches that search.</p>';
+  ||'<p class="hint">No colour matches what you typed.</p>';
 }
 document.getElementById('fams').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;curFam=b.dataset.f;renderFams();renderSwatchGrid();});
@@ -1043,78 +1209,78 @@ renderFams();renderSwatchGrid();runAdvisor();
 /* ═════ LIBRARY ═════ */
 const LIB=[
 {n:'Salmon & Slate',src:'Wada',cat:'Soft',c:['Ochraceous Salmon|#E3A183','Dark Medici Blue|#4C6672','Ivory Buff|#EFE2C4'],
- d:'A warm flesh-pink held down by dusty blue-grey. The buff stops it turning cold. Warmth grounded by an unsaturated cool is Wada\'s signature move.'},
+ d:'A warm pink held down by a dusty blue grey. The cream stops it going cold. Warm colours steadied by a quiet cool one is the move Wada came back to again and again.'},
 {n:'Vinaceous Dusk',src:'Wada',cat:'Soft',c:['Vinaceous Tawny|#C8825F','Hyssop Violet|#7E6E9E','Cream Buff|#F1DEB9'],
- d:'Tawny orange against muted violet. Almost complementary, but both desaturated — so it reads romantic instead of aggressive.'},
+ d:'A tawny orange against a soft violet. They are nearly opposites, but neither one is strong, so the pair feels romantic instead of loud.'},
 {n:'Pompeian Ground',src:'Wada',cat:'Earth',c:['Pompeian Red|#9E4436','Olive Ocher|#A4832F','Deep Slate Olive|#2F3A31'],
- d:'Three earth pigments that would have sat on any classical wall. The dark olive does the job of black with none of its flatness.'},
+ d:'Three earth colours that would have looked at home on any old Roman wall. The dark olive does the job of black without any of the flatness.'},
 {n:'Fawn & Vandyke',src:'Wada',cat:'Earth',c:['Fawn Color|#C4A484','Vandyke Red|#7C3B34','Cream Color|#F3E5C6'],
- d:'The neutral-plus-one-deep-red formula. Works on a canvas, a wall, or a camel coat with a burgundy lining.'},
+ d:'Quiet neutrals with one deep red. This works on a painting, on a wall, or on a camel coat with a burgundy lining.'},
 {n:'Turtle & Coral',src:'Wada',cat:'Bold',c:['Turtle Green|#6C7A4C','Coral Red|#E1604F','Light Buff|#EFDCB4'],
- d:'A muddy green with a bright coral. The green is dull enough that the coral does all the shouting — one dominant, two supporting.'},
+ d:'A muddy green with a bright coral. The green is dull enough that the coral gets to do all the talking.'},
 {n:'Cossack Bloom',src:'Wada',cat:'Bold',c:['Cossack Green|#4C5B3D','Begonia Rose|#D9607A','Cartridge Buff|#EFE6CC'],
- d:'Deep military green with soft pink. Unlikely, and it keeps returning in fashion because pink looks fresher against something drab.'},
+ d:'Deep army green with a soft pink. It sounds unlikely, but it keeps coming back into fashion, because pink looks fresher when you put it against something drab.'},
 {n:'Sulphine Nights',src:'Wada',cat:'Deep',c:['Sulphine Yellow|#A88B2A','Dark Medici Blue|#4C6672','Warm Blackish Brown|#332721'],
- d:'A dirty gold against slate. The near-black brown stops it becoming merely decorative and makes it serious.'},
+ d:'A dirty gold against slate grey. The almost black brown stops the pair looking merely pretty and gives them some weight.'},
 {n:'Grenadine Signal',src:'Wada',cat:'Bold',c:['Grenadine Pink|#E1786B','Cendre Green|#8FA187','Sepia|#463227'],
- d:'Warm pink, grey-green, dark brown. Wada\'s recurring three-step: bright, then muted, then almost-black.'},
+ d:'A warm pink, a grey green and a dark brown. Wada used this shape constantly. One bright colour, one quiet one, then something close to black.'},
 {n:'Naples & Nopal',src:'Wada',cat:'Bold',c:['Naples Yellow|#EED9A0','Nopal Red|#B03A3E','Andover Green|#54604B'],
- d:'A pale yellow doing the work of a neutral, a strong red for focus, olive to stop the whole thing looking like a flag.'},
+ d:'The pale yellow here behaves like a neutral. The strong red gives you somewhere to look. The olive is what stops the whole thing looking like a flag.'},
 {n:'Hermosa Morning',src:'Wada',cat:'Soft',c:['Hermosa Pink|#F2C4CE','Calamine Blue|#B7CBDB','Baryta Yellow|#F1EBA8'],
- d:'Three unrelated pastels at identical lightness. This is precisely why soft maximalism works — shared value holds unrelated hues together.'},
+ d:'Three pastels that have nothing to do with each other, all at the same lightness. That shared lightness is the only thing holding them together, and it turns out to be enough.'},
 {n:'Mikado & Medici',src:'Wada',cat:'Bold',c:['Mikado Orange|#E58B33','Dark Medici Blue|#4C6672','Ivory Buff|#EFE2C4'],
- d:'The clearest complementary pairing in the book. The orange is warmed and the blue is greyed — that adjustment is the entire trick.'},
+ d:'The clearest pair of opposites in the whole book. The orange has been warmed up and the blue has been greyed down. That small adjustment is the entire trick.'},
 {n:'Corinthian Rose',src:'Wada',cat:'Deep',c:['Corinthian Pink|#E0A9A2','Deep Slate Olive|#2F3A31','Old Gold|#B0913F'],
- d:'Muted rose against near-black olive, gold as the only bright note. Extremely wearable in Indian and Western dress alike.'},
+ d:'A soft rose against an almost black olive, with gold as the only bright note. It suits formal clothing almost anywhere in the world.'},
 {n:'Cendre Study',src:'Wada',cat:'Earth',c:['Light Cendre Green|#B4C3AC','Deep Slate Olive|#2F3A31','Chamois|#E9D9A8'],
- d:'A tonal green scheme, almost monochromatic, rescued from dullness by the warm chamois.'},
+ d:'Greens at different depths, very close to being a single colour scheme. The warm sandy tone is what saves it from feeling dull.'},
 {n:'Vanderpoel Depths',src:'Wada',cat:'Deep',c:["Vanderpoel's Blue|#2E5C86",'Apricot Yellow|#F0BE6E','Warm Blackish Brown|#332721'],
- d:'Blue and apricot are near-opposites; the dark brown acts as the outline holding them apart.'},
+ d:'Blue and apricot sit nearly opposite each other. The dark brown works like an outline, keeping the two apart so they never clash.'},
 {n:'Eugenia Field',src:'Wada',cat:'Earth',c:['Eugenia Red|#A83C4A','Cendre Green|#8FA187','Cream Buff|#F1DEB9'],
- d:'Dusty red with a sage-ish green. Nearly complementary, both muted — which is why it feels antique rather than loud.'},
+ d:'A dusty red with a sage green. They are close to opposites, but both are soft, and that is why the pair feels old and settled instead of loud.'},
 {n:'Argyle Evening',src:'Wada',cat:'Soft',c:['Argyle Purple|#8A6480','Sea-foam Yellow|#E7E4B8','Dark Greenish Glaucous|#7C9088'],
- d:'Dusty purple, pale yellow-green, grey-green. Nothing is saturated; the whole scheme lives in the muted middle.'},
+ d:'A dusty purple, a pale yellow green and a grey green. Nothing here is strong. The whole set lives in the quiet middle.'},
 {n:'Bittersweet Frame',src:'Wada',cat:'Bold',c:['Bittersweet Orange|#DE7440','Deep Slate Olive|#2F3A31','Light Buff|#EFDCB4'],
- d:'Bright orange against very dark olive. If you want one colour to glow, put it beside something almost black.'},
+ d:'A bright orange against a very dark olive. If you want one colour to glow, put it next to something almost black.'},
 {n:"Rood's Autumn",src:'Wada',cat:'Earth',c:["Rood's Brown|#8C5238",'Olive Ocher|#A4832F','Chartreuse Yellow|#CFCE72'],
- d:'A warm analogous run from brown through to yellow-green. Nature does exactly this every October.'},
+ d:'A warm run of neighbouring colours, going from brown through to yellow green. Nature does exactly this every autumn.'},
 {n:'Spinel & Glaucous',src:'Wada',cat:'Bold',c:['Spinel Red|#C1516F','Dark Greenish Glaucous|#7C9088','Ivory Buff|#EFE2C4'],
- d:'A cool-leaning red against grey-green. The ivory stops the two vibrating against each other.'},
+ d:'A cool red against a grey green. Left on their own those two would buzz against each other. The ivory keeps them calm.'},
 {n:'Veronia Twilight',src:'Wada',cat:'Deep',c:['Veronia Purple|#6C4A6E','Mauvette|#CDB6CC','Deep Slate Olive|#2F3A31'],
- d:'A monochromatic purple scheme closed with a near-black olive. Three values of essentially one idea.'},
+ d:'One purple used at three different depths, finished off with an almost black olive. Three versions of a single idea.'},
 {n:'Empire Contrast',src:'Wada',cat:'Bold',c:['Empire Yellow|#F0C93E','Dull Blue-Violet|#5E6389','Verona Brown|#6E4630'],
- d:'Bright yellow, dusty blue-violet, warm brown. The yellow is the accent — use it at ten percent, never thirty.'},
+ d:'A bright yellow, a dusty blue violet and a warm brown. The yellow is your accent, so keep it to about a tenth of the whole thing. Never a third.'},
 {n:'Old Rose Interior',src:'Wada',cat:'Soft',c:['Old Rose|#BE7F80','Andover Green|#54604B','Ivory Buff|#EFE2C4'],
- d:'This exact combination has been on the walls of good rooms for a century. Muted rose plus muted green is close to unfailable.'},
+ d:'This exact combination has been on the walls of good rooms for a hundred years. A soft rose with a soft green is about as safe as colour gets.'},
 {n:'Salvia Cool',src:'Wada',cat:'Soft',c:['Salvia Blue|#5A6E9E','Light Cendre Green|#B4C3AC','Cream Color|#F3E5C6'],
- d:'Cool and quiet, but still warm because of the cream. Good for anything that should look calm without looking cold.'},
+ d:'Cool and quiet, but the cream keeps a little warmth in it. Good for anything that should feel calm without feeling cold.'},
 {n:'Carmine Ceremony',src:'Wada',cat:'Deep',c:['Carmine|#9B2138','Old Gold|#B0913F','Warm Blackish Brown|#332721'],
- d:'Deep red, antique gold, near-black. The most reliable formula in festive Indian dress — arrived at independently by a Japanese painter in 1933.'},
+ d:'A deep red, an antique gold and something close to black. Celebration clothing all over the world lands on this same combination, and a Japanese painter arrived at it on his own in 1933.'},
 {n:'Lincoln Depths',src:'Wada',cat:'Deep',c:['Lincoln Green|#33452F','Apricot Yellow|#F0BE6E','Vinaceous Tawny|#C8825F'],
- d:'A very dark green with two warm lights. The green functions as background; the warms function as figures.'},
+ d:'A very dark green with two warm light colours. The green sits at the back. The warm colours come forward.'},
 {n:'Buff Architecture',src:'Wada',cat:'Earth',c:['Chamois|#E9D9A8','Verona Brown|#6E4630','Dark Medici Blue|#4C6672'],
- d:'Sand, brown, slate blue. A structural palette — most good buildings and most good coats are made of this.'},
+ d:'Sand, brown and slate blue. A solid, structural set. Most good buildings and most good coats are made of these three.'},
 /* reference sets */
 {n:'Tonal Dressing',src:'Reference',cat:'Soft',c:['Biscuit|#D3B48C','Camel|#C19A6B','Tan|#B08E62','Nutmeg|#7E5138'],
- d:'Head-to-toe in one family. Polished, elongating, hard to get wrong — but it flattens unless you vary texture: matte against shine, chunky against smooth.'},
+ d:'One colour family from top to bottom. It looks polished and it is hard to get wrong. The one risk is that it goes flat, so mix your textures. Put something matte next to something shiny, or something chunky next to something smooth.'},
 {n:'Power Contrast',src:'Reference',cat:'Bold',c:['Off-Black|#22201E','White|#FBFAF7','Chilli Red|#C1272D','Off-Black|#22201E'],
- d:'Dark base, light contrast, one saturated accent. The red lip, the red sole, the scarlet bag against all-black. The eye goes straight there, which is the entire point.'},
+ d:'A dark base, a light contrast, and one strong accent. Think of a red lip, a red shoe sole, or a scarlet bag against head to toe black. Your eye goes straight to the accent, and that is the whole point.'},
 {n:'Chiaroscuro',src:'Reference',cat:'Deep',c:['Black|#0D0D0D','Bark|#2C1A0E','Sienna|#7A4A20','Butter|#F0C080'],
- d:"Caravaggio's near-black ground with one dramatic light source. Almost no colour at all — just value carving form out of darkness."},
+ d:"Caravaggio painted on an almost black background and lit his subject from one direction only. There is barely any colour here. Light and dark do all the work."},
 {n:'Impressionist Light',src:'Reference',cat:'Soft',c:['Powder Blue|#A8C4E0','Biscuit|#D4B896','Willow|#8FB87A','Vanilla|#F5E6C8'],
- d:'Monet placed small strokes of different colours side by side rather than mixing them. The eye blends them at distance into something more luminous than mixed paint can be.'},
+ d:'Monet put small strokes of different colours side by side instead of mixing them on the palette. From a few steps back your eye blends them, and the result glows in a way that mixed paint never does.'},
 {n:'Earthy Grounding',src:'Reference',cat:'Earth',c:['Ochre|#8B6914','Camel|#C4A460','Oatmeal|#D9C4A0','Alabaster|#F0E8D8'],
- d:'Terracotta, sand, ochre, cream. Warm, muted and quiet. Natural materials live inside this palette, which is why these rooms feel like they belong.'},
+ d:'Terracotta, sand, ochre and cream. Warm, soft and quiet. Wood, stone and linen all sit inside this range, which is why rooms built on it feel settled.'},
 {n:'French Navy & Ivory',src:'Reference',cat:'Deep',c:['Navy|#1C2951','Cream|#F5F0E6','Old Gold|#C5A46E','Navy|#1C2951'],
- d:'Navy reads as authority without aggression; ivory softens without weakness. Hermès, Chanel and Ralph Lauren return here every season for a reason.'},
+ d:'Navy looks authoritative without looking aggressive. Ivory softens it without making it weak. The big fashion houses come back to this pair every single season.'},
 {n:'Fauvist Pure Hue',src:'Reference',cat:'Bold',c:['Vermilion|#E63030','Saffron|#F5A500','Grass|#2ECC71','Azure|#3498DB'],
- d:'Matisse and Derain painted how things felt, not how they looked. A face could be green. In fashion terms: choosing colour purely for emotional impact.'},
+ d:'Matisse and Derain painted how things felt instead of how they looked. A face could be green if that is what the picture needed. In clothing, this means choosing a colour purely for the feeling it gives you.'},
 {n:'Soft Maximalism',src:'Reference',cat:'Soft',c:['Lilac|#C9A0C8','Seafoam|#8BC4B8','Butter|#F5D08C','Peach|#F2B5A0'],
- d:'Several saturated hues held together only because they share one lightness level. That shared value is the sole thing stopping it becoming chaos.'},
+ d:'Several strong colours, held together only because they are all the same lightness. That one shared quality is the only thing keeping this from turning into a mess.'},
 {n:'Festive Indian',src:'Reference',cat:'Deep',c:['Cherry|#9B2138','Old Gold|#B0913F','Bottle Green|#1E3A2C','Cream|#F3E5C6'],
- d:'Deep red, antique gold, bottle green, cream. Warm with high value-contrast, built for lamplight rather than daylight — exactly why it reads as celebratory.'},
+ d:'A deep red, an antique gold, a bottle green and a cream. Warm, with a big gap between the lightest and the darkest. It was built for lamplight rather than daylight, and that is exactly why it feels like a celebration.'},
 {n:'Monsoon Muted',src:'Reference',cat:'Soft',c:['Slate Grey|#6E757A','Sage|#A3B18A','Ecru|#DDD2BC','Petrol|#1D5A63'],
- d:'Grey-green and slate with a warm neutral. A cool, damp, low-contrast scheme — restful, and unusually flattering in overcast light.'}
+ d:'A grey green and a slate, with one warm neutral. Cool, damp and low contrast. It is restful, and it looks unusually good on a grey day.'}
 ];
 const LIBFILTERS=['All','Soft','Bold','Earth','Deep','Wada','Reference'];
 let libF='All';
@@ -1138,7 +1304,7 @@ document.getElementById('libfilter').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;libF=b.dataset.f;renderLib();});
 document.getElementById('libgrid').addEventListener('click',e=>{
  const u=e.target.closest('.lib-use');
- if(u){palette=u.dataset.c.split(',');renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');return;}
+ if(u){palette=u.dataset.c.split(',');renderPalette();buildProp();toast('Loaded into the Palette Lab');goTo('lab');return;}
  const a=e.target.closest('.lib-adv');
  if(a){setAdvisor(a.dataset.hex);goTo('advisor');}});
 renderLib();
@@ -1159,8 +1325,8 @@ function drawWheel(){
  og.addColorStop(0,'transparent');og.addColorStop(1,'rgba(0,0,0,.18)');
  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=og;ctx.fill();
  document.getElementById('modenote').textContent=wheelMode==='paint'
-  ?'Red sits opposite green — the wheel that matches physical pigment.'
-  :'Red sits opposite cyan — correct for screens only.';
+  ?'Red sits opposite green. This is the wheel that matches real paint.'
+  :'Red sits opposite cyan. This is only right for screens.';
 }
 function showSample(hex){
  sampled=hex;const[h,s,l]=hexToHsl(hex);const n=nearest(hex);const[fam,temp]=familyOf(h);
@@ -1190,12 +1356,12 @@ document.getElementById('w-add').onclick=()=>{addColour(sampled);toast('Added to
 
 /* harmonies */
 const HARM={
- complementary:{n:'Complementary',d:'Two colours directly opposite. Maximum contrast and impact. Use one as the clear dominant and the other as a small accent — split evenly they fight each other.',off:[0,180]},
- analogous:{n:'Analogous',d:'Neighbouring hues. Harmonious and nature-like: this is what a forest, a sunset or a good tonal outfit is doing. Very hard to get wrong.',off:[-30,0,30,60]},
- triadic:{n:'Triadic',d:'Three colours evenly spaced. Vibrant but balanced. Bold and graphic in fashion; structurally useful in painting for keeping a composition alive.',off:[0,120,240]},
- split:{n:'Split-Complementary',d:'Your colour plus the two either side of its opposite. Nearly the punch of complementary and considerably easier to wear. The best place to start if you want contrast without drama.',off:[0,150,210]},
- tetradic:{n:'Tetradic / Square',d:'Four colours evenly spaced. Rich and complex — genuinely difficult unless one dominates and the rest sit at ten to fifteen percent.',off:[0,90,180,270]},
- monochromatic:{n:'Monochromatic',d:'One hue across different lightness and saturation. The basis of tonal dressing and of the Blue Period. Sophisticated, cohesive, impossible to clash with itself.',off:null}
+ complementary:{n:'Complementary',d:'Two colours from opposite sides of the wheel. This gives you the strongest contrast you can get. Let one of them lead and keep the other one small. If you use equal amounts they will fight each other.',off:[0,180]},
+ analogous:{n:'Analogous',d:'Colours that sit next to each other on the wheel. This is what a forest or a sunset is doing, and it is what a good one colour outfit is doing too. Very hard to get wrong.',off:[-30,0,30,60]},
+ triadic:{n:'Triadic',d:'Three colours spaced evenly around the wheel. Lively, but still balanced. In clothes it looks bold and graphic. In painting it keeps a picture from going flat.',off:[0,120,240]},
+ split:{n:'Split-Complementary',d:'Your colour, plus the two colours sitting either side of its opposite. You get almost as much punch as a straight opposite, and it is much easier to wear. This is the best place to start if you want contrast without any drama.',off:[0,150,210]},
+ tetradic:{n:'Tetradic / Square',d:'Four colours spaced evenly around the wheel. Rich and complicated, and genuinely hard to pull off. It only works if one colour clearly leads and the other three stay small.',off:[0,90,180,270]},
+ monochromatic:{n:'Monochromatic',d:'One colour used light, medium and dark. This is how people dress head to toe in one shade, and it is what Picasso did in his Blue Period. It looks considered, and it cannot clash with itself.',off:null}
 };
 function harmonySet(){
  const type=document.getElementById('h-type').value;
@@ -1225,7 +1391,7 @@ document.getElementById('h-row').addEventListener('click',e=>{
 document.getElementById('h-type').addEventListener('change',renderHarmony);
 document.getElementById('h-refine').addEventListener('change',renderHarmony);
 document.getElementById('h-send').onclick=()=>{palette=harmonySet();renderPalette();buildProp();
- toast('Sent to the Lab');goTo('lab');};
+ toast('Sent to the Palette Lab');goTo('lab');};
 drawWheel();showSample('#F79E8A');
 
 /* ═════ LAB ═════ */
@@ -1236,7 +1402,7 @@ function renderPalette(){
   return `<div class="psw"><div class="blk" style="background:${c}" data-hex="${c}"></div>
    <div class="lb"><b>${n.name}</b><span class="mono">${c.toUpperCase()}</span></div>
    <button class="rm" data-i="${i}">×</button></div>`;}).join('')
-  ||'<p class="hint">Palette is empty. Add colours from the Advisor, Library, Wheel or a photo.</p>';
+  ||'<p class="hint">Your palette is empty. Add some colours from the Advisor, the Library, the Wheel, or a photo.</p>';
  document.getElementById('exportbox').style.display='none';
  renderPreviews();renderMatrix();renderTray();
 }
@@ -1298,7 +1464,7 @@ function extractPalette(img,count){
 document.getElementById('extracted').addEventListener('click',e=>{
  const b=e.target.closest('.blk');if(b){setAdvisor(b.dataset.hex);goTo('advisor');}});
 document.getElementById('use-extracted').onclick=()=>{palette=extracted.slice();
- renderPalette();buildProp();toast('Palette set from photo');
+ renderPalette();buildProp();toast('Your palette now uses the colours from that photo');
  document.querySelector('#labnav button[data-p="build"]').click();};
 
 /* proportions */
@@ -1314,7 +1480,7 @@ function renderProp(){
    <div class="lbl">${nearest(p.hex).name}</div>
    <input type="range" min="1" max="100" value="${p.pct}" data-i="${i}">
    <div class="pct mono">${Math.round(p.pct/total*100)}%</div></div>`).join('')
-  ||'<p class="hint">Add colours to your palette first.</p>';
+  ||'<p class="hint">Add some colours to your palette first, then come back here.</p>';
  renderPreviews();
 }
 document.getElementById('proprows').addEventListener('input',e=>{
@@ -1362,11 +1528,41 @@ function renderPreviews(){
   <rect x="32" y="112" width="130" height="8" fill="${d}" opacity=".5"/>
   <circle cx="165" cy="36" r="12" fill="${d}"/>
  </svg>`;
+ const onA=readableOn(a),onE=readableOn(e),onB=readableOn(b);
+ document.getElementById('prev-poster').innerHTML=`
+ <svg width="170" height="215" viewBox="0 0 170 215">
+  <rect width="170" height="215" fill="${e}" rx="7"/>
+  <rect x="0" y="0" width="170" height="34" fill="${d}" rx="7"/><rect x="0" y="24" width="170" height="10" fill="${d}"/>
+  <circle cx="16" cy="17" r="6" fill="${a}"/>
+  <rect x="30" y="14" width="42" height="6" rx="3" fill="${e}" opacity=".8"/>
+  <rect x="14" y="46" width="112" height="9" rx="3" fill="${c}"/>
+  <rect x="14" y="61" width="86" height="9" rx="3" fill="${c}"/>
+  <rect x="14" y="82" width="142" height="5" rx="2.5" fill="${c}" opacity=".45"/>
+  <rect x="14" y="93" width="142" height="5" rx="2.5" fill="${c}" opacity=".45"/>
+  <rect x="14" y="104" width="96" height="5" rx="2.5" fill="${c}" opacity=".45"/>
+  <rect x="14" y="122" width="66" height="22" rx="11" fill="${a}"/>
+  <rect x="30" y="130" width="34" height="6" rx="3" fill="${onA}" opacity=".9"/>
+  <rect x="14" y="158" width="66" height="44" rx="6" fill="${b}"/>
+  <rect x="90" y="158" width="66" height="44" rx="6" fill="${c}" opacity=".85"/>
+  <rect x="22" y="168" width="30" height="5" rx="2.5" fill="${onB}" opacity=".75"/>
+  <rect x="98" y="168" width="30" height="5" rx="2.5" fill="${onE}" opacity=".55"/>
+ </svg>`;
+ orderPreviews();
+}
+/* put the preview that matches what you're working on first */
+function orderPreviews(){
+ const wrap=document.getElementById('prevwrap');if(!wrap)return;
+ const want=ctx().preview;
+ [...wrap.children].forEach(box=>{
+  const first=box.dataset.prev===want;
+  box.style.order=first?'-1':'0';
+  box.style.borderColor=first?'var(--accent)':'';
+ });
 }
 /* contrast matrix */
 function renderMatrix(){
  const t=document.getElementById('matrix');const p=palette.slice(0,8);
- if(p.length<2){t.innerHTML='<tr><td style="background:none;color:var(--muted);text-align:left">Add at least two colours to compare.</td></tr>';return;}
+ if(p.length<2){t.innerHTML='<tr><td style="background:none;color:var(--muted);text-align:left">Add at least two colours and we can compare them.</td></tr>';return;}
  let html='<tr><th></th>'+p.map(c=>`<th><span class="mx-sw" style="background:${c}"></span></th>`).join('')+'</tr>';
  p.forEach(r=>{
   html+=`<tr><th><span class="mx-sw" style="background:${r}"></span></th>`;
@@ -1382,17 +1578,17 @@ renderPalette();buildProp();
 
 /* ═════ PERSONAL COLOUR ═════ */
 const PCQ=[
- {q:'Look at the veins on the inside of your wrist in daylight. What colour do they appear?',
-  o:[['Green or olive','w'],['Blue or purple','c'],['A mix of both','n'],["Can't tell",'n']]},
- {q:'Which jewellery metal looks better against your skin?',o:[['Gold','w'],['Silver / platinum','c'],['Both look fine','n']]},
- {q:'When you spend time in the sun, what happens first?',
-  o:[['I tan fairly easily','w'],['I burn, then it fades','c'],['I burn first, then tan','n']]},
- {q:'Hold a pure white shirt and a cream one near your face. Which flatters more?',
-  o:[['Cream / off-white','w'],['Pure white','c'],['No real difference','n']]},
- {q:'How much contrast is there between your hair, skin and eyes?',
-  o:[['High — very distinct from each other','high'],['Medium','med'],['Low — all similar in depth','low']]},
- {q:'Which describes your overall colouring best?',
-  o:[['Light and clear','light'],['Deep and rich','deep'],['Soft and muted','soft']]}
+ {q:'Look at the veins on the inside of your wrist, in daylight. What colour do they look?',
+  o:[['Green or olive','w'],['Blue or purple','c'],['A bit of both','n'],["I can't tell",'n']]},
+ {q:'Which metal looks better against your skin?',o:[['Gold','w'],['Silver','c'],['Both look fine','n']]},
+ {q:'When you spend a day in the sun, what happens?',
+  o:[['I go brown fairly easily','w'],['I go red, then it fades','c'],['I go red first, then brown','n']]},
+ {q:'Hold a bright white shirt next to your face, then a cream one. Which looks better on you?',
+  o:[['The cream one','w'],['The bright white one','c'],['I cannot see a difference','n']]},
+ {q:'How different are your hair, your skin and your eyes from each other?',
+  o:[['Very different','high'],['Somewhere in between','med'],['All fairly similar','low']]},
+ {q:'Overall, which of these sounds most like you?',
+  o:[['Light and bright','light'],['Deep and rich','deep'],['Soft and gentle','soft']]}
 ];
 let pcAns={};
 function renderPC(){document.getElementById('pcq').innerHTML=PCQ.map((q,i)=>
@@ -1403,28 +1599,28 @@ document.getElementById('pcq').addEventListener('click',e=>{
  const b=e.target.closest('.pcbtn');if(!b)return;pcAns[+b.dataset.q]=b.dataset.v;renderPC();});
 const SEASONS={
  Spring:{sub:'Warm & Bright',
-  d:'Your colouring is warm-toned and relatively light or clear. You suit colours that are warm and fresh — a garden in April rather than autumn leaves. Clarity is the key: your colours should look clean, not dusty.',
+  d:'You are warm, and fairly light and clear with it. Your colours should be warm and fresh, more like a garden in spring than like autumn leaves. The important thing is that they stay clean looking. Dusty colours will not do you any favours.',
   best:['Coral','Peach','Apricot','Tangerine','Marigold','Chartreuse','Fern','Turquoise','Cornflower','Camel','Cream','Ivory'],
   avoid:'Black, charcoal, cool grey, aubergine and icy pastels',
   neutral:'Cream, Camel, Tan, Warm Grey',metal:'Gold and rose gold'},
  Autumn:{sub:'Warm & Deep',
-  d:'Warm-toned with real depth. You suit colours that look like they came out of the earth — spice, rust, moss, bronze. Muted and warm works far better on you than bright and cool.',
+  d:'You are warm, with real depth to you. Your colours should look like they came out of the ground. Spice, rust, moss and bronze. Soft and warm suits you far better than bright and cool.',
   best:['Terracotta','Rust','Burnt Orange','Mustard','Ochre','Olive','Moss','Forest','Teal','Cognac','Chocolate','Oxblood'],
   avoid:'Pure black, icy pink, cool pastels, fuchsia and pure white',
   neutral:'Cream, Camel, Chocolate, Espresso',metal:'Antique gold, bronze, copper'},
  Summer:{sub:'Cool & Soft',
-  d:'Cool-toned and relatively soft. You suit colours with grey in them — dusty, hazy, gentle. High-contrast brights tend to overwhelm you; muted cool tones make your skin look even.',
+  d:'You are cool, and fairly soft with it. Your colours should have a little grey in them, so they look dusty and gentle. Bright, high contrast colours tend to take over. Soft cool ones make your skin look even.',
   best:['Dusty Rose','Mauve','Lavender','Powder Blue','Sky Blue','Slate Blue','Sage','Celadon','Denim','Plum','Cool Grey','Bone'],
   avoid:'Orange, rust, mustard, warm brown and pure black',
   neutral:'Bone, Cool Grey, Taupe, Navy',metal:'Silver, white gold, pewter'},
  Winter:{sub:'Cool & Bright',
-  d:'Cool-toned with strong contrast. You are one of relatively few people who genuinely suits pure black and pure white. Your colours should be clear and saturated — muted tones can wash you out.',
+  d:'You are cool, with strong contrast. You are one of the few people who genuinely suits pure black and pure white. Your colours should be clear and strong. Soft, dusty ones will wash you out.',
   best:['Crimson','Raspberry','Emerald','Cobalt','French Blue','Amethyst','Violet','Aubergine','Navy','Midnight Blue','White','Black'],
   avoid:'Mustard, camel, beige, orange and muted olive',
   neutral:'White, Black, Charcoal, Navy',metal:'Silver, platinum, gunmetal'}
 };
 document.getElementById('pcrun').onclick=()=>{
- if(Object.keys(pcAns).length<PCQ.length){toast('Answer all six questions first');return;}
+ if(Object.keys(pcAns).length<PCQ.length){toast('Answer all six questions first, then try again');return;}
  let w=0,c=0;for(let i=0;i<4;i++){if(pcAns[i]==='w')w++;if(pcAns[i]==='c')c++;}
  const warm=w>c,depth=pcAns[5],con=pcAns[4];
  let season;
@@ -1443,12 +1639,12 @@ document.getElementById('pcrun').onclick=()=>{
   <div class="pswatches">${cols.map(c=>
    `<div class="psw"><div class="blk" style="background:${c.h}" data-hex="${c.h}"></div>
     <div class="lb"><b>${c.n}</b><span class="mono">${c.h.toUpperCase()}</span></div></div>`).join('')}</div>
-  <h3 class="block">Neutrals &amp; metals</h3>
-  <p class="lede">Build on <strong>${S.neutral}</strong>. For metal: <strong>${S.metal}</strong>.</p>
-  <div class="callout"><b>Handle with care:</b> ${S.avoid}. These don't become forbidden — but they'll usually want to sit away from your face, or be broken up with a scarf or collar in one of your own colours.</div>
+  <h3 class="block">Your neutrals and your metals</h3>
+  <p class="lede">Build everything on <strong>${S.neutral}</strong>. When it comes to metal, go for <strong>${S.metal}</strong>.</p>
+  <div class="callout"><b>Be careful with these:</b> ${S.avoid}. None of them are banned. They just work better away from your face, or broken up with a scarf or a collar in one of your own colours.</div>
   <button class="btn primary" id="pc-load">Load these into the Lab</button>`;
  document.getElementById('pc-load').onclick=()=>{palette=cols.slice(0,6).map(c=>c.h);
-  renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');};
+  renderPalette();buildProp();toast('Loaded into the Palette Lab');goTo('lab');};
  el.querySelectorAll('.blk').forEach(b=>b.onclick=()=>{setAdvisor(b.dataset.hex);goTo('advisor');});
  el.scrollIntoView({behavior:'smooth',block:'start'});
 };
@@ -1458,33 +1654,33 @@ renderPC();
 
 /* ═════ GLOSSARY ═════ */
 const TERMS=[
-['Hue','The actual colour — red, yellow, blue. Its name before you do anything to it. In everyday use "hue" and "colour" mean the same thing.'],
-['Saturation','How vivid or washed-out a colour is. Fire-engine red is high saturation; dusty rose is low. Take it to zero and you get grey.'],
-['Value','How light or dark a colour is. Light blue and navy are the same hue at different values. Painters usually care about this more than hue.'],
-['Tint','A colour mixed with white. Blush is a tint of red, baby blue a tint of blue. Tints read soft and gentle.'],
-['Shade','A colour mixed with black. Burgundy is a shade of red, navy a shade of blue. Shades read serious and deep.'],
-['Tone','A colour mixed with grey — neither lighter nor darker, just muted. Almost all "expensive-looking" palettes are made of tones.'],
-['Warm colours','Reds, oranges, yellows. They advance toward the viewer and pull the eye. Use them for energy and focus.'],
-['Cool colours','Blues, greens, violets. They recede. Use them for space, distance and calm.'],
-['Undertone','The colour sitting beneath your skin\'s surface — warm (golden/olive), cool (pink/blue) or neutral. It doesn\'t change with a tan.'],
-['RYB vs RGB','Two colour models. RYB is pigment: red\'s opposite is green. RGB is light: red\'s opposite is cyan. Use RYB for anything physical.'],
-['Complementary','Two colours opposite each other on the wheel. Highest possible contrast. Mixed together in paint, they neutralise into grey.'],
-['Analogous','Colours next to each other on the wheel. Naturally harmonious — this is what most landscapes are doing.'],
-['Neutral','White, black, grey and the earthy beiges and browns. They don\'t compete. Most wardrobes are built on them.'],
-['Accent colour','A small pop of contrast in an otherwise restrained scheme — usually about ten percent. The eye goes there first.'],
-['Colour harmony','A set of colours that work together because of their geometric relationship on the wheel. Not random, but not automatic either.'],
-['Contrast','How different two colours are. High contrast is dramatic and readable; low contrast is subtle and calm. Both are useful deliberately.'],
-['Simultaneous contrast','The same colour looks different depending on what surrounds it. Grey looks lighter on black than on white. This is why fabric looks different in the shop.'],
-['Local colour','The "real" colour of an object — a red apple. Impressionists abandoned it entirely and painted light instead.'],
-['Colorway','One specific colour combination applied to a design. A jacket might sell in three colorways; the cut never changes.'],
-['60 / 30 / 10','A proportion guideline: one dominant colour, one supporting, one accent. Most failed palettes use the right colours in the wrong amounts.'],
-['Chroma','Close to saturation, but measured against a neutral of the same lightness. Used in more technical colour systems like Munsell.'],
-['Colour temperature','Every colour has a warm or cool bias, even within one hue. A yellow-red behaves differently from a blue-red when you mix or match it.']
+['Hue','The colour itself. Red, yellow, blue. It is the name of a colour before you make it lighter, darker or duller. In everyday speech, hue and colour mean the same thing.'],
+['Saturation','How strong or how washed out a colour is. A fire engine red is very strong. A dusty rose is not. Take all the strength out and you are left with grey.'],
+['Value','How light or dark a colour is. Light blue and navy are the same colour at different values. Painters tend to worry about this more than they worry about the colour itself.'],
+['Tint','A colour with white mixed into it. Blush is a tint of red. Baby blue is a tint of blue. Tints look soft and gentle.'],
+['Shade','A colour with black mixed into it. Burgundy is a shade of red. Navy is a shade of blue. Shades look serious and deep.'],
+['Tone','A colour with grey mixed into it. It does not get lighter or darker, just quieter. Nearly every colour scheme that looks expensive is built from tones.'],
+['Warm colours','Reds, oranges and yellows. They seem to come towards you and they pull your eye. Use them when you want energy, or when you want people to look at something.'],
+['Cool colours','Blues, greens and violets. They seem to move away from you. Use them when you want space, distance or calm.'],
+['Undertone','The colour sitting just under the surface of your skin. It is either warm, which looks golden or olive, or cool, which looks pink or blue. Some people are in between. A tan does not change it.'],
+['RYB vs RGB','Two different ways of describing colour. RYB is about paint, and in paint the opposite of red is green. RGB is about light, and in light the opposite of red is cyan. If you are working with real materials, use RYB.'],
+['Complementary','Two colours sitting opposite each other on the wheel. This gives you the strongest contrast there is. Mix them together in paint and they cancel each other out into grey.'],
+['Analogous','Colours that sit next to each other on the wheel. They go together without any effort. This is what most landscapes are doing.'],
+['Neutral','White, black, grey, and the earthy beiges and browns. They never compete with anything. Most wardrobes are built on them.'],
+['Accent colour','A small amount of a contrasting colour in an otherwise quiet scheme. Usually about a tenth of the whole thing. It is the first place your eye lands.'],
+['Colour harmony','A set of colours that work together because of where they sit on the wheel. There is a pattern to it, but following the pattern does not guarantee a good result.'],
+['Contrast','How different two colours are from each other. High contrast is dramatic and easy to read. Low contrast is gentle and calm. Both are useful, as long as you choose on purpose.'],
+['Simultaneous contrast','The same colour looks different depending on what is around it. A grey square looks lighter on black than it does on white. This is why fabric never looks quite the same at home as it did in the shop.'],
+['Local colour','The real colour of an object, like the red of an apple. The Impressionists gave up on this completely and painted the light falling on things instead.'],
+['Colorway','One particular colour combination used on a design. A jacket might be sold in three colorways. The shape of the jacket never changes, only the colours.'],
+['60 / 30 / 10','A rule of thumb about amounts. One colour leads, a second supports it, and a third appears in small doses. Most palettes that fail had the right colours in the wrong amounts.'],
+['Chroma','Close to saturation, but measured against a grey of the same lightness. You will meet this word in more technical colour systems.'],
+['Colour temperature','Every colour leans slightly warm or slightly cool, even two versions of the same colour. A red that leans yellow behaves very differently from a red that leans blue, both when you mix it and when you match it.']
 ];
 function renderGl(q=''){
  const list=TERMS.filter(([t,d])=>t.toLowerCase().includes(q)||d.toLowerCase().includes(q));
  document.getElementById('glgrid').innerHTML=list.map(([t,d])=>
-  `<div class="gl"><h4>${t}</h4><p>${d}</p></div>`).join('')||'<p class="hint">No term matches that search.</p>';
+  `<div class="gl"><h4>${t}</h4><p>${d}</p></div>`).join('')||'<p class="hint">Nothing matches what you typed.</p>';
 }
 document.getElementById('glsearch').addEventListener('input',e=>renderGl(e.target.value.toLowerCase().trim()));
 renderGl();
@@ -1493,17 +1689,17 @@ renderGl();
 let qTot=0,qOk=0;
 const LESSONS=[
 {t:'Why does colour even matter?',s:'The two-minute case for caring',b:`
-<p>Here's something worth noticing: <strong>you already have colour instincts.</strong> You know all-black to a funeral makes sense. You know a bright yellow ambulance would look strange. You know some people's outfits just work, without being able to say why.</p>
-<p>Colour theory is simply the name for the system behind those instincts. Learn it and you move from <strong>hoping something looks good</strong> to <strong>knowing it will.</strong></p>
-<div class="callout"><b>The big idea.</b> Colour isn't decoration. It signals mood, controls where the eye goes, creates distance and tells a story — all before a single word. Designers use this deliberately. Now you can too.</div>`},
+<p>Start with something you already know. <strong>You have good colour instincts already.</strong> You know that wearing all black to a funeral makes sense. You know a bright yellow ambulance would look odd. You have seen outfits that just work, even if you could not explain why.</p>
+<p>Colour theory is only the name for the system sitting behind those instincts. Once you know it, you stop <strong>hoping</strong> something will look good and start <strong>knowing</strong> it will.</p>
+<div class="callout"><b>The main idea.</b> Colour does a job. It sets a mood, it decides where your eye goes, and it makes things feel near or far away. All of that happens before anyone reads a single word. Designers use this on purpose, and so can you.</div>`},
 
 {t:'The three families of colour',s:'Primary, secondary, tertiary',b:`
-<p>Colour works like a family tree. At the top sit three that can't be mixed from anything else — the <strong>primaries</strong>:</p>
+<p>Colour works a bit like a family tree. At the top are three colours you cannot make by mixing anything else. These are called the <strong>primaries</strong>.</p>
 <div class="cdemo">
 <div class="cs"><div class="cb" style="width:72px;height:72px;background:#E34234"></div><span class="cl">Red<br>Primary</span></div>
 <div class="cs"><div class="cb" style="width:72px;height:72px;background:#F0DE55"></div><span class="cl">Yellow<br>Primary</span></div>
 <div class="cs"><div class="cb" style="width:72px;height:72px;background:#2A4F9E"></div><span class="cl">Blue<br>Primary</span></div></div>
-<p>Mix any two primaries and you get a <strong>secondary</strong>:</p>
+<p>Mix any two primaries together and you get a <strong>secondary</strong> colour.</p>
 <div class="mixrow"><div class="cs"><div class="mixsw" style="background:#E34234"></div><span class="cl">Red</span></div><span class="mixop">+</span>
 <div class="cs"><div class="mixsw" style="background:#F0DE55"></div><span class="cl">Yellow</span></div><span class="mixop">=</span>
 <div class="cs"><div class="mixsw" style="background:#E8952A"></div><span class="cl">Orange</span></div></div>
@@ -1513,58 +1709,60 @@ const LESSONS=[
 <div class="mixrow"><div class="cs"><div class="mixsw" style="background:#2A4F9E"></div><span class="cl">Blue</span></div><span class="mixop">+</span>
 <div class="cs"><div class="mixsw" style="background:#E34234"></div><span class="cl">Red</span></div><span class="mixop">=</span>
 <div class="cs"><div class="mixsw" style="background:#6B4A9C"></div><span class="cl">Violet</span></div></div>
-<p>Mix a primary with a neighbouring secondary and you get a <strong>tertiary</strong> — red-orange, blue-green, and so on. Twelve colours in total. Everything else is one of those twelve made lighter, darker or duller.</p>
+<p>Now mix a primary with the secondary sitting next to it. That gives you a <strong>tertiary</strong> colour, like red orange or blue green. Twelve colours in total. Every other colour you have ever seen is one of those twelve, made lighter, darker or duller.</p>
 <div class="quiz"><div class="q">What do you get when you mix red and blue?</div><div class="qopts">
-<button class="qbtn" data-ok="0" data-fb="Orange is red + yellow.">Orange</button>
-<button class="qbtn" data-ok="1" data-fb="Correct. Red + blue = violet, a secondary colour.">Violet</button>
-<button class="qbtn" data-ok="0" data-fb="Green is yellow + blue.">Green</button></div><div class="qfb"></div></div>`},
+<button class="qbtn" data-ok="0" data-fb="Orange comes from red and yellow.">Orange</button>
+<button class="qbtn" data-ok="1" data-fb="That's right. Red and blue make violet, which is a secondary colour.">Violet</button>
+<button class="qbtn" data-ok="0" data-fb="Green comes from yellow and blue.">Green</button></div><div class="qfb"></div></div>`},
 
-{t:'There are two colour wheels',s:'And most online tools use the wrong one',b:`
-<p>This trips up almost everyone, and it's the single most common error in colour tools.</p>
-<p><strong>The paint wheel (RYB)</strong> uses red, yellow and blue as primaries. On it, red sits opposite <strong>green</strong>. This is the wheel artists have used for centuries because it matches how physical pigment behaves when you actually mix it.</p>
-<p><strong>The light wheel (RGB)</strong> uses red, green and blue. On it, red sits opposite <strong>cyan</strong>. Correct for screens, where colour is emitted light rather than reflected pigment.</p>
+{t:'There are two colour wheels',s:'And most tools online pick the wrong one',b:`
+<p>This one catches nearly everybody out, and it is the most common mistake in colour tools online.</p>
+<p><strong>The paint wheel</strong> starts from red, yellow and blue. On this wheel the opposite of red is <strong>green</strong>. Artists have used it for hundreds of years, because it matches what real paint does when you actually mix it.</p>
+<p><strong>The light wheel</strong> starts from red, green and blue. On this one the opposite of red is <strong>cyan</strong>. That is correct for screens, where colour is made of light being sent out rather than paint reflecting it back.</p>
 <div class="cdemo">
 <div class="cs"><div style="display:flex;width:130px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:1;background:#E34234"></div><div style="flex:1;background:#3E8E4F"></div></div><span class="cl">Paint wheel<br>Red ↔ Green</span></div>
 <div class="cs"><div style="display:flex;width:130px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:1;background:#E34234"></div><div style="flex:1;background:#35BFD0"></div></div><span class="cl">Light wheel<br>Red ↔ Cyan</span></div></div>
-<p>Practically: painting, dyeing, choosing fabric, arranging flowers → use <strong>Paint / RYB</strong>. Designing something that will only ever be seen on a screen → use <strong>Screen / RGB</strong>. Every tool here lets you switch.</p>
+<p>So here is the practical rule. If you are painting, dyeing, choosing fabric or arranging flowers, use <strong>Paint</strong>. If the thing you are making will only ever be seen on a screen, use <strong>Screen</strong>. Every tool in this app lets you switch between the two.</p>
 <div class="quiz"><div class="q">You're mixing oil paint and want the opposite of red. What do you reach for?</div><div class="qopts">
-<button class="qbtn" data-ok="0" data-fb="Cyan is red's opposite in light, not pigment. On canvas it won't behave as you expect.">Cyan</button>
-<button class="qbtn" data-ok="1" data-fb="Correct. In pigment red's complement is green — which is also why mixing the two gives you a neutral grey rather than a colour.">Green</button>
-<button class="qbtn" data-ok="0" data-fb="Blue is a primary, not red's opposite.">Blue</button></div><div class="qfb"></div></div>`},
+<button class="qbtn" data-ok="0" data-fb="Cyan is the opposite of red in light, not in paint. On a canvas it will not behave the way you expect.">Cyan</button>
+<button class="qbtn" data-ok="1" data-fb="That's right. In paint the opposite of red is green. That is also why mixing the two together gives you a grey rather than a new colour.">Green</button>
+<button class="qbtn" data-ok="0" data-fb="Blue is a primary colour. It is not the opposite of red.">Blue</button></div><div class="qfb"></div></div>`},
 
-{t:'Warm versus cool',s:'The most useful idea here',b:`
-<p>Every colour carries a temperature, and it's the most practical single idea in both fashion and painting.</p>
+{t:'Warm versus cool',s:'The most useful idea in the app',b:`
+<p>Every colour has a temperature. This is probably the most useful single idea in the whole app.</p>
 <div class="tempbar"><div style="background:#E34234"></div><div style="background:#E8952A"></div><div style="background:#F0DE55"></div>
 <div style="background:#C4CE3C"></div><div style="background:#3E8E4F"></div><div style="background:#45B5AC"></div>
 <div style="background:#2A4F9E"></div><div style="background:#5B4A96"></div><div style="background:#6B4A9C"></div></div>
 <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">← Warm · · · · · · · · · · · · · · · Cool →</p>
-<p><strong>Warm colours</strong> feel like fire and sunlight. They <strong>advance</strong> — they seem to come toward you and they pull the eye. Wear red and people look at you.</p>
-<p><strong>Cool colours</strong> feel like water and sky. They <strong>recede</strong> — calmer, more distant, more spacious.</p>
-<div class="callout"><b>Fashion.</b> Want attention on your face? A warm colour near the neck. Want a lower half to read smaller? Cool and dark.</div>
-<div class="callout"><b>Painting.</b> Warm foreground, cool background. Objects will feel nearer or further with no change of size at all. It's the cheapest depth trick there is.</div>
+<p><strong>Warm colours</strong> feel like fire and sunlight. They come <strong>towards</strong> you and they pull your eye. Wear red and people will look at you.</p>
+<p><strong>Cool colours</strong> feel like water and sky. They <strong>move away</strong> from you. They are calmer, and they make a space feel bigger.</p>
+<div class="callout ctx-note" data-ctx="clothing"><b>For clothing.</b> Want people to look at your face? Put a warm colour near your neck. Want your lower half to look smaller? Go cool and dark.</div>
+<div class="callout ctx-note" data-ctx="art"><b>For painting.</b> Keep the front of the picture warm and the back of it cool. Things will feel nearer or further away without you changing their size at all. It is the cheapest way to create depth.</div>
+<div class="callout ctx-note" data-ctx="interiors"><b>For a room.</b> Cool walls make a small room feel bigger. A warm colour on the far wall pulls it towards you and makes a long room feel shorter.</div>
+<div class="callout ctx-note" data-ctx="design"><b>For a screen.</b> Warm colours jump forward, which is why buttons are so often warm. Keep backgrounds cool so the things you want pressed sit on top of them.</div>
 <div class="quiz"><div class="q">You want a sky in your painting to feel far away. What temperature?</div><div class="qopts">
-<button class="qbtn" data-ok="0" data-fb="Warm colours advance — they'd pull the sky forward.">Warm</button>
-<button class="qbtn" data-ok="1" data-fb="Correct. Cool colours recede. A cool sky reads as distant with no other cues needed.">Cool</button>
-<button class="qbtn" data-ok="0" data-fb="Temperature is one of the strongest depth tools available — it always matters.">Doesn't matter</button></div><div class="qfb"></div></div>`},
+<button class="qbtn" data-ok="0" data-fb="Warm colours come towards you, so a warm sky would be pulled to the front of the picture.">Warm</button>
+<button class="qbtn" data-ok="1" data-fb="That's right. Cool colours move away from you. A cool sky looks far away without you having to do anything else.">Cool</button>
+<button class="qbtn" data-ok="0" data-fb="Temperature is one of the strongest ways to create depth, so it always matters.">Doesn't matter</button></div><div class="qfb"></div></div>`},
 
 {t:'One colour, four different moods',s:'Tints, shades and tones',b:`
-<p>Take red. Now look at four versions. All red — all feeling entirely different:</p>
+<p>Take red. Here are four versions of it. All of them are red, and all four feel completely different.</p>
 <div class="cdemo">
 <div class="cs"><div class="cb" style="width:76px;height:92px;background:#F2D4D7"></div><span class="cl">Powder Pink<br>+ White<br><em>Tint</em></span></div>
 <div class="cs"><div class="cb" style="width:76px;height:92px;background:#E34234"></div><span class="cl">Vermilion<br>unmixed<br><em>Pure hue</em></span></div>
 <div class="cs"><div class="cb" style="width:76px;height:92px;background:#6E1E28"></div><span class="cl">Burgundy<br>+ Black<br><em>Shade</em></span></div>
 <div class="cs"><div class="cb" style="width:76px;height:92px;background:#BE7F80"></div><span class="cl">Old Rose<br>+ Grey<br><em>Tone</em></span></div></div>
-<p><strong>Tint</strong> (+ white) → soft, romantic, airy.<br><strong>Shade</strong> (+ black) → deep, serious, formal.<br><strong>Tone</strong> (+ grey) → muted, complex, sophisticated. Almost every "expensive-looking" palette lives here.</p>
-<div class="callout"><b>Why this matters.</b> A pure red dress shouts. The same red toned to a dusty brick whispers. Identical hue, opposite effect. If a colour feels like too much, you usually don't need a different colour — you need a different tone of it.</div>
+<p>Add white and you get a <strong>tint</strong>, which feels soft and light. Add black and you get a <strong>shade</strong>, which feels deep and serious. Add grey and you get a <strong>tone</strong>, which feels quiet and considered. Nearly every colour scheme that looks expensive is built from tones.</p>
+<div class="callout"><b>Why this matters.</b> A pure red shouts at you. Take that same red and mix a little grey into it and it whispers instead. Same colour, opposite effect. So when something feels like too much, you usually do not need a different colour. You need a quieter version of the one you already have.</div>
 <div class="quiz"><div class="q">Navy is a shade of blue. What was added?</div><div class="qopts">
-<button class="qbtn" data-ok="0" data-fb="White makes tints — lighter, like powder blue.">White</button>
-<button class="qbtn" data-ok="0" data-fb="Grey makes tones — duller, not darker. Navy is genuinely darker.">Grey</button>
-<button class="qbtn" data-ok="1" data-fb="Correct. Shades come from adding black, which deepens a colour into something more serious.">Black</button></div><div class="qfb"></div></div>`},
+<button class="qbtn" data-ok="0" data-fb="White makes tints, which are lighter. Powder blue is a tint of blue.">White</button>
+<button class="qbtn" data-ok="0" data-fb="Grey makes tones, which are duller but not darker. Navy really is darker than blue.">Grey</button>
+<button class="qbtn" data-ok="1" data-fb="That's right. Adding black gives you a shade, which makes a colour deeper and more serious.">Black</button></div><div class="qfb"></div></div>`},
 
-{t:'Why some combinations work',s:'Harmony, without the jargon',b:`
-<p>Some combinations look great and others look wrong, and <strong>it isn't random</strong> — it comes down to where the colours sit relative to each other on the wheel.</p>
+{t:'Why some combinations work',s:'Which colours go together, without the jargon',b:`
+<p>Some combinations look great and others look wrong. There is a reason for it. It comes down to where the colours sit in relation to each other on the wheel.</p>
 <div class="cdemo">
 <div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:1;background:#C1272D"></div><div style="flex:1;background:#3E8E4F"></div></div><span class="cl">Complementary<br>Opposites. Maximum drama.</span></div>
@@ -1574,12 +1772,12 @@ const LESSONS=[
 <div style="flex:1;background:#C1272D"></div><div style="flex:1;background:#F0DE55"></div><div style="flex:1;background:#2A4F9E"></div></div><span class="cl">Triadic<br>Three. Bold, balanced.</span></div>
 <div class="cs"><div style="display:flex;width:124px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:1;background:#7E5138"></div><div style="flex:1;background:#B08E62"></div><div style="flex:1;background:#D3B48C"></div></div><span class="cl">Monochromatic<br>One hue. Always elegant.</span></div></div>
-<div class="callout"><b>The honest caveat.</b> These rules produce combinations that are <em>valid</em>, not automatically <em>beautiful</em>. A perfect complementary pair at full saturation often looks cheap. What makes real palettes sing is breaking the symmetry — one dominant, the others muted and supporting. That's exactly what Sanzo Wada did, and it's why the Palette Library looks better than anything the Harmony generator produces.</div>
-<div class="callout"><b>Easiest place to start.</b> Monochromatic. Pick one colour you love and use it light, mid and dark. It will always look intentional.</div>`},
+<div class="callout"><b>An honest warning.</b> These rules give you combinations that are <em>correct</em>. They do not give you combinations that are automatically <em>beautiful</em>. Two perfect opposites at full strength often look cheap. Good colour schemes break the symmetry on purpose, so one colour leads and the rest sit back and support it. That is exactly what Sanzo Wada did, and it is why the Palette Library looks better than anything the harmony generator can produce.</div>
+<div class="callout"><b>The easiest place to start.</b> Pick one colour you love and use it light, medium and dark. That always looks deliberate, and it is almost impossible to get wrong.</div>`},
 
 {t:'Proportion matters more than the colours',s:'The 60 / 30 / 10 rule',b:`
-<p>Here's the mistake nearly everyone makes: they pick three lovely colours, use equal amounts of each, decide it looks wrong, and blame the colours.</p>
-<p>The colours were fine. The <strong>proportions</strong> were wrong.</p>
+<p>Here is the mistake nearly everybody makes. They pick three lovely colours, use the same amount of each one, decide the result looks wrong, and blame the colours.</p>
+<p>The colours were almost certainly fine. It was the <strong>amounts</strong> that were wrong.</p>
 <div class="cdemo">
 <div class="cs"><div style="display:flex;width:170px;height:62px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:1;background:#1E3A2C"></div><div style="flex:1;background:#C1654A"></div><div style="flex:1;background:#E4CE9E"></div></div>
@@ -1587,27 +1785,27 @@ const LESSONS=[
 <div class="cs"><div style="display:flex;width:170px;height:62px;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
 <div style="flex:6;background:#1E3A2C"></div><div style="flex:3;background:#E4CE9E"></div><div style="flex:1;background:#C1654A"></div></div>
 <span class="cl">60 / 30 / 10<br>Resolved, intentional</span></div></div>
-<p>Same three colours. The second works because there's a clear hierarchy — one colour is obviously in charge, one supports, one is a small accent. In an outfit: coat, trousers, bag. In a painting: ground, mass, focal point. In a room: walls, furniture, cushions.</p>
-<div class="callout"><b>Try it.</b> The Palette Lab has a Proportions panel with sliders. Take any palette, set everything equal, then drag it toward 60/30/10 and watch it resolve.</div>`},
+<p>Those are the same three colours in both strips. The second one works because there is a clear pecking order. One colour is obviously in charge, one supports it, and one appears in small amounts. In an outfit that is the coat, then the trousers, then the bag. In a painting it is the background, then the main shape, then the focal point. In a room it is the walls, then the furniture, then the cushions.</p>
+<div class="callout"><b>Go and try it.</b> The Palette Lab has a Proportions panel with sliders on it. Take any palette, make all the amounts equal, then drag them towards 60 / 30 / 10 and watch the whole thing settle down.</div>`},
 
-{t:"Colour changes depending on what's beside it",s:'Simultaneous contrast',b:`
-<p>Colour doesn't exist alone. The identical grey looks lighter on black and darker on white:</p>
+{t:'A colour changes depending on what is next to it',s:'Simultaneous contrast',b:`
+<p>No colour exists on its own. Here is the same grey twice. It looks lighter against black and darker against white, even though nothing about it has changed.</p>
 <div class="cdemo">
 <div class="cs"><div style="width:104px;height:76px;background:#808080;border-radius:8px 8px 0 0;border:1px solid var(--line)"></div>
 <div style="width:104px;height:20px;background:#111;border-radius:0 0 8px 8px"></div><span class="cl">Looks lighter</span></div>
 <div class="cs"><div style="width:104px;height:76px;background:#808080;border-radius:8px 8px 0 0;border:1px solid var(--line)"></div>
 <div style="width:104px;height:20px;background:#EEE;border-radius:0 0 8px 8px;border:1px solid var(--line)"></div><span class="cl">Looks darker</span></div></div>
-<p>This is why fabric looks different in the shop than at home, why colour-matching under artificial light is unreliable, and why something you loved on screen can disappoint in person.</p>
-<div class="callout"><b>Practical rule.</b> Never judge a colour alone. Always look at it beside the colours it will actually live with, in the light it will actually be seen in. Colours perform — they don't simply exist.</div>
+<p>This is why fabric looks different in the shop than it does at home. It is why matching colours under a lamp goes wrong so often. And it is why something you loved on a screen can be a let down in real life.</p>
+<div class="callout"><b>The practical rule.</b> Never judge a colour on its own. Always look at it next to the colours it will actually sit beside, in the light it will actually be seen in.</div>
 <div class="quiz"><div class="q">You're styling a camel coat. Which background makes it look richest?</div><div class="qopts">
-<button class="qbtn" data-ok="0" data-fb="Similar values blend — beige and camel flatten each other.">A beige wall</button>
-<button class="qbtn" data-ok="1" data-fb="Correct. The dark ground creates the contrast that lets the warm camel glow.">A dark background</button>
-<button class="qbtn" data-ok="0" data-fb="White works, but contrast is weaker and it competes with the coat's lighter areas.">A white background</button></div><div class="qfb"></div></div>`},
+<button class="qbtn" data-ok="0" data-fb="Those two are too close in lightness. Beige and camel just flatten each other out.">A beige wall</button>
+<button class="qbtn" data-ok="1" data-fb="That's right. The dark background gives you the contrast that lets the warm camel glow.">A dark background</button>
+<button class="qbtn" data-ok="0" data-fb="White does work, but the contrast is weaker, and it competes with the lighter parts of the coat.">A white background</button></div><div class="qfb"></div></div>`},
 
-{t:'Where to go from here',s:'You now know more than most people',b:`
-<p>You've got the foundations: the three colour families, the two wheels and when each applies, temperature, tints and shades and tones, harmony, proportion, and context. That's more than most people ever consciously consider.</p>
-<p>Now put it to work. <strong>Pairing Advisor</strong> is the tab for real decisions — give it the colour of something you own and it names what goes beside it. <strong>Palette Library</strong> is for inspiration rather than logic. <strong>Palette Lab</strong> is where you test whether it holds up. <strong>Personal Colour</strong> tells you which of all this suits you specifically.</p>
-<div class="callout"><b>One thing to do today.</b> Photograph something you own in a colour you love, drop it into the Lab's photo panel, and see what it's actually made of. Almost everything is more complicated than it looks.</div>`}
+{t:'Where to go from here',s:'You know more than most people now',b:`
+<p>You have the basics now. The three families of colour, the two wheels and when to use each one, warm against cool, tints and shades and tones, which combinations work, why the amounts matter, and how the colours around a colour change it. That is more than most people ever stop to think about.</p>
+<p>Now go and use it. The <strong>Pairing Advisor</strong> is where you make real decisions. Give it the colour of something you already own and it will tell you what goes next to it. The <strong>Palette Library</strong> is for when you want ideas rather than logic. The <strong>Palette Lab</strong> is where you check whether your idea holds up. And <strong>Personal Colour</strong> tells you which of all this actually suits you.</p>
+<div class="callout"><b>One thing to try today.</b> Take a photo of something you own in a colour you love. Drop it into the photo panel in the Lab and see what it is really made of. Almost everything turns out to be more complicated than it looks.</div>`}
 ];
 const lessonsEl=document.getElementById('lessons'),progEl=document.getElementById('progress');
 LESSONS.forEach((L,i)=>{
@@ -1717,7 +1915,7 @@ document.getElementById('ios-dismiss').onclick=()=>{hide(iosBanner);S.iosNudged=
 const chip=document.getElementById('offline-chip');
 const netState=()=>{chip.hidden=navigator.onLine;};
 addEventListener('online',()=>{netState();toast('Back online');});
-addEventListener('offline',()=>{netState();toast('Offline — everything still works');});
+addEventListener('offline',()=>{netState();toast('You are offline, but everything still works');});
 netState();
 
 function offerUpdate(worker){
@@ -1742,6 +1940,27 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
    setInterval(()=>reg.update().catch(()=>{}),3600000);
   }).catch(err=>console.warn('[pwa] service worker registration failed:',err));
  });
+}
+
+/* ═════ 2b · WHAT ARE YOU WORKING ON ═════ */
+const ctxSel=document.getElementById('ctx-select');
+function applyCtx(key,announce){
+ if(!CTX[key])key='clothing';
+ appCtx=key;
+ ctxSel.value=key;
+ S.ctx=key;save();
+ document.getElementById('adv-example').textContent=CTX[key].example;
+ document.getElementById('prop-example').textContent=CTX[key].prop;
+ document.querySelectorAll('.ctx-note').forEach(n=>n.classList.toggle('on',n.dataset.ctx===key));
+ runAdvisor();          // re-renders every suggestion with the new examples
+ renderPreviews();      // re-orders and highlights the matching preview
+ if(announce)toast('Now showing advice for '+CTX[key].label.toLowerCase());
+}
+ctxSel.addEventListener('change',e=>applyCtx(e.target.value,true));
+applyCtx(S.ctx||'clothing',false);
+if(!S.ctxSeen){
+ S.ctxSeen=1;save();
+ setTimeout(()=>toast('Tip: set what you are working on, up at the top'),1400);
 }
 
 /* keep the sticky nav directly under the topbar whatever height it takes */
@@ -1844,9 +2063,9 @@ freeze.addEventListener('click',e=>{
  const x=Math.round((e.clientX-rc.left)*(CW/rc.width));
  const y=Math.round((e.clientY-rc.top)*(CH/rc.height));
  const res=gainsFromWhite(fctx.getImageData(0,0,CW,CH),x,y);
- if(!res||res.err){toast(res&&res.err?'That patch is '+res.err:'Could not sample there');return;}
+ if(!res||res.err){toast(res&&res.err?'That spot is '+res.err:'We could not read that spot');return;}
  whiteRef=res;armWhite(false);
- toast('White reference set — re-analysing');
+ toast('Got it. Measuring again with the new light');
  runAnalysis();
 });
 function stopCam(){
@@ -1856,7 +2075,7 @@ function stopCam(){
 }
 bStart.onclick=async()=>{
  if(!navigator.mediaDevices?.getUserMedia){
-  toast('This browser needs HTTPS for camera access — use Upload a photo');return;}
+  toast('This browser will not open the camera here. Upload a photo instead');return;}
  bStart.disabled=true;
  try{
   stream=await navigator.mediaDevices.getUserMedia({
@@ -1864,8 +2083,8 @@ bStart.onclick=async()=>{
  }catch(err){
   bStart.disabled=false;
   toast(err&&err.name==='NotAllowedError'
-   ?'Camera blocked — allow access, or upload a photo'
-   :'No camera found — upload a photo instead');
+   ?'The camera is blocked. Allow it in your browser, or upload a photo instead'
+   :'We could not find a camera. Upload a photo instead');
   return;
  }
  bStart.disabled=false;
@@ -1884,13 +2103,13 @@ fileIn.onchange=e=>{
  rd.onload=ev=>{const img=new Image();
   img.onload=()=>{stopCam();whiteRef=null;drawCover(img,img.naturalWidth,img.naturalHeight,false);
    setPhase('frozen');runAnalysis();};
-  img.onerror=()=>toast('Could not read that image');
+  img.onerror=()=>toast('We could not open that picture. Try another one');
   img.src=ev.target.result;};
  rd.readAsDataURL(f);
  e.target.value='';
 };
 bShoot.onclick=()=>{
- if(!video.videoWidth){toast('Camera still warming up');return;}
+ if(!video.videoWidth){toast('The camera is still warming up. Give it a second');return;}
  if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
  whiteRef=null;
  drawCover(video,video.videoWidth,video.videoHeight,true);
@@ -1964,8 +2183,8 @@ function gainsFromWhite(img,cx,cy){
    const i=(y*CW+x)*4;r+=img.data[i];g+=img.data[i+1];b+=img.data[i+2];n++;}
  if(!n)return null;
  r/=n;g/=n;b/=n;
- if(Math.max(r,g,b)<40)return{err:'too dark — pick something brighter'};
- if(Math.max(r,g,b)>250)return{err:'blown out — pick something less bright'};
+ if(Math.max(r,g,b)<40)return{err:'too dark. Try somewhere brighter'};
+ if(Math.max(r,g,b)>250)return{err:'too bright. Try somewhere less bright'};
  const m=(r+g+b)/3;
  const gain=[m/(r||1),m/(g||1),m/(b||1)];
  return{gain,cast:Math.max(...gain)/Math.min(...gain)-1,ok:true,src:'manual'};
@@ -2085,18 +2304,18 @@ function rankNamed(P){
 }
 
 const SEASONS12={
- 'Light Spring':'Warm but delicate. Your colouring is light and clear, so your colours should be too — warm pastels and fresh mid-tones rather than anything heavy. Depth overwhelms you faster than brightness does.',
- 'True Spring':'Warm and clear at a medium depth. Fresh, sunlit colour is your territory: coral, turquoise, marigold, apple green. Nothing dusty, nothing icy.',
- 'Bright Spring':'Warm-leaning but with real punch. You carry saturated colour that would flatten most people. Keep it clean and vivid; muted tones are what drain you.',
- 'Soft Autumn':'Warm and gently muted. Your best colours look like they have a fine layer of dust over them — sage, terracotta, camel, dusty gold. Pure saturation is what fights you.',
- 'True Autumn':'Warm and rich at medium depth. Spice, rust, moss, bronze, olive. Everything you wear should feel like it came out of the ground rather than off a screen.',
- 'Deep Autumn':'Warm and deep. You can carry weight that lighter colourings cannot — bottle green, oxblood, espresso, deep teal — as long as it stays warm-based.',
- 'Light Summer':'Cool and light. Soft, watery, slightly hazy colour: powder blue, dusty rose, celadon. High contrast and heavy darks tend to swamp you.',
- 'True Summer':'Cool and softly muted. Your colours have grey in them — slate blue, mauve, sage, plum. Warmth is what makes your skin look uneven.',
- 'Soft Summer':'Cool and very muted, with low natural contrast. The gentlest palette of the twelve. Anything clear or bright reads as louder than you are.',
- 'Deep Winter':'Cool and deep with strong contrast. Jewel tones on a dark base: emerald, sapphire, aubergine, true black. You can wear the colours nobody else can.',
- 'True Winter':'Cool and clear. Pure, saturated, icy colour — crimson, cobalt, stark white, true black. Muted and earthy tones are what dull you.',
- 'Bright Winter':'Cool with maximum clarity and contrast. Your colours should be as vivid as they come. Beige, camel and dusty tones are the ones that fail you.'
+ 'Light Spring':'You are warm, but delicate with it. Your own colouring is light and clear, so your colours should be as well. Think warm pastels and fresh middle tones. Heavy, dark colours will swamp you long before bright ones do.',
+ 'True Spring':'Warm and clear, sitting in the middle for depth. Fresh, sunlit colour is where you belong. Coral, turquoise, marigold and apple green all work. Avoid anything dusty, and avoid anything icy.',
+ 'Bright Spring':'You lean warm, but you can take real strength. You carry bright colour that would flatten most people. Keep everything clean and vivid. Soft, dusty colours are the ones that drain you.',
+ 'Soft Autumn':'Warm, and gently muted. Your best colours look as though they have a fine layer of dust over them. Sage, terracotta, camel and dusty gold. Very strong, pure colour is what fights you.',
+ 'True Autumn':'Warm and rich, sitting in the middle for depth. Spice, rust, moss, bronze and olive. Everything you wear should look like it came out of the ground rather than off a screen.',
+ 'Deep Autumn':'Warm and deep. You can carry heavy colours that would bury a lighter person. Bottle green, oxblood, espresso and deep teal all work, as long as they stay on the warm side.',
+ 'Light Summer':'Cool and light. Your colours are soft and slightly hazy, like powder blue, dusty rose and pale green. Strong contrast and heavy dark colours will swamp you.',
+ 'True Summer':'Cool, and softly muted. Your colours all have a little grey in them. Slate blue, mauve, sage and plum. Warm colours are what make your skin look uneven.',
+ 'Soft Summer':'Cool and very muted, with very little natural contrast between your hair, skin and eyes. This is the gentlest of the twelve. Anything clear or bright will look louder than you are.',
+ 'Deep Winter':'Cool and deep, with strong contrast. Jewel colours on a dark base. Emerald, sapphire, aubergine and true black. You can wear the colours most people cannot.',
+ 'True Winter':'Cool and clear. Pure, strong, icy colour. Crimson, cobalt, stark white and true black. Soft and earthy colours are the ones that dull you down.',
+ 'Bright Winter':'Cool, with the most clarity and contrast of anyone. Your colours should be as vivid as they come. Beige, camel and dusty colours are the ones that let you down.'
 };
 /* Each season is a point in (warmth, depth, clarity, contrast) space. The axis a
    season is *named for* is its dominant one, so it gets the heavier weight — that
@@ -2155,8 +2374,8 @@ function runAnalysis(){
  const m=measure();
  qualityEl.style.display='block';
  if(!m.ok){
-  qualityEl.innerHTML=qline('bad','Could not find enough skin in the sample patches','—');
-  resultEl.innerHTML=`<div class="callout" style="margin-top:18px"><b>No reading.</b> Move closer so your face fills the oval, turn to face your light source, and make sure the four dashed boxes land on bare skin rather than hair, glasses or background.</div>`;
+  qualityEl.innerHTML=qline('bad','We could not find enough skin in the four patches','no reading');
+  resultEl.innerHTML=`<div class="callout" style="margin-top:18px"><b>Nothing to measure.</b> Try again, and this time move closer so your face fills the oval. Turn so the light is in front of you. Check that the four dotted boxes are sitting on bare skin, not on your hair, your glasses or the wall behind you.</div>`;
   return;
  }
  const focusState=m.focus>120?'good':m.focus>40?'mid':'bad';
@@ -2170,13 +2389,13 @@ function runAnalysis(){
   0.25*(castState==='good'?1:castState==='mid'?.5:.15)+
   0.2*(evenState==='good'?1:evenState==='mid'?.55:.2)));
  qualityEl.innerHTML=
-  qline(focusState,'Focus',m.focus.toFixed(0))+
-  qline(expState,'Exposure — blown pixels',(m.clipped*100).toFixed(1)+'%')+
-  qline(castState,manual?'White balance — pinned to your reference':'Light neutrality (auto, half-corrected)',
+  qline(focusState,'Is the photo sharp?',m.focus.toFixed(0))+
+  qline(expState,'Any parts too bright?',(m.clipped*100).toFixed(1)+'% too bright')+
+  qline(castState,manual?'Light corrected using the spot you picked':'Is the light a normal colour?',
    (m.ill.cast*100).toFixed(0)+'% cast')+
-  (!manual&&m.ill.cast>=0.25?`<div class="qline bad"><span class="dot"></span><span>Strong colour cast — the reading will be off. Tap <b>Set white reference</b>, then tap anything white or grey in the shot.</span></div>`:'')+
-  qline(evenState,'Agreement across patches','ΔE '+m.spread.toFixed(1))+
-  qline(conf>75?'good':conf>50?'mid':'bad','Overall confidence',conf+' / 100');
+  (!manual&&m.ill.cast>=0.25?`<div class="qline bad"><span class="dot"></span><span>The light in this photo has a strong colour to it, so the reading will be wrong. Tap <b>Set white reference</b> below, then tap anything white or grey in the picture.</span></div>`:'')+
+  qline(evenState,'Do the four patches agree?','off by '+m.spread.toFixed(1))+
+  qline(conf>75?'good':conf>50?'mid':'bad','How sure we are',conf+' out of 100');
 
  LAST={m,contrastOverride:null,conf};
  paint();
@@ -2191,9 +2410,9 @@ function paint(){
     high-contrast reading returns nothing but darks — no colour can sit 42 L*
     points *above* L*63 — and you get a palette of six near-identical burgundies. */
  const BANDS=[
-  {k:'Lights',  t:'Tops, layers near the face, anything you want to look open',    f:c=>c.L>66},
-  {k:'Mid-tones',t:'The body of an outfit — the piece you wear the most of',       f:c=>c.L>=40&&c.L<=66},
-  {k:'Darks',   t:'Bottoms, outerwear, the colour that grounds everything else',   f:c=>c.L<40}];
+  {k:'Lights',  t:'Best near your face, and for anything you want to feel open and airy',  f:c=>c.L>66},
+  {k:'Mid-tones',t:'The main body of a look. This is the colour you use the most of',        f:c=>c.L>=40&&c.L<=66},
+  {k:'Darks',   t:'The colour that holds everything else down and gives it weight',          f:c=>c.L<40}];
  /* Pure score-ranking inside a band returns five near-identical yellows, because
     whatever hue family wins on tone fit sweeps the whole band. Space the picks out. */
  const spread=(list,n,minGap)=>{
@@ -2221,7 +2440,7 @@ function paint(){
  S.tone={skin:m.skin,profile:{...P},season,conf};save();
 
  resultEl.innerHTML=`
- <h3 class="block">What was measured</h3>
+ <h3 class="block">What we measured</h3>
  <div class="tonecard">
   <div class="swatchstack">${m.good.map(p=>`<div style="background:${labToRgb(...p.lab).hex}" title="${p.k}"></div>`).join('')}</div>
   <div class="info" style="flex:1;min-width:220px">
@@ -2229,9 +2448,9 @@ function paint(){
    <div class="mono" style="font-size:.8rem;color:var(--muted)">
     L* ${P.L.toFixed(1)} · a* ${P.a.toFixed(1)} · b* ${P.b.toFixed(1)} · C* ${P.C.toFixed(1)} · h ${P.h.toFixed(0)}° · ITA ${P.ita.toFixed(1)}°</div>
    <div class="idmeta">
-    <span class="pill">Averaged over ${m.good.length} patches</span>
-    <span class="pill">${conf}/100 confidence</span>
-    <span class="pill">${m.ill.src==='manual'?'White reference pinned':m.ill.ok?'Auto white balance':'No balance reference'}</span></div>
+    <span class="pill">Averaged across ${m.good.length} patches of skin</span>
+    <span class="pill">${conf} out of 100 confidence</span>
+    <span class="pill">${m.ill.src==='manual'?'Light corrected by you':m.ill.ok?'Light corrected automatically':'Light not corrected'}</span></div>
   </div>
   <div><div style="width:74px;height:74px;border-radius:10px;border:1px solid var(--line);background:${skinHex}"></div>
    <div class="mono" style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:5px">${skinHex.toUpperCase()}</div></div>
@@ -2241,10 +2460,10 @@ function paint(){
   <div class="metric"><div class="k">Depth</div><div class="v">${P.band}</div><div class="n">ITA ${P.ita.toFixed(1)}°</div></div>
   <div class="metric"><div class="k">Undertone</div><div class="v">${P.undertone}</div><div class="n">hue ${P.h.toFixed(0)}°</div></div>
   <div class="metric"><div class="k">Clarity</div><div class="v">${P.clarity}</div><div class="n">chroma ${P.C.toFixed(1)}</div></div>
-  <div class="metric"><div class="k">Contrast</div><div class="v">${P.contrast}</div><div class="n">${m.hair?'ΔL '+Math.abs(m.hair[0]-P.L).toFixed(0):'not detected'}</div></div>
+  <div class="metric"><div class="k">Contrast</div><div class="v">${P.contrast}</div><div class="n">${m.hair?'hair vs skin '+Math.abs(m.hair[0]-P.L).toFixed(0):'hair not found'}</div></div>
  </div>
  <div class="row" style="margin-top:14px;align-items:center">
-  <span style="font-size:.82rem;color:var(--muted)">Hair-to-skin contrast wrong? Set it:</span>
+  <span style="font-size:.82rem;color:var(--muted)">If the contrast between your hair and your skin looks wrong, set it yourself:</span>
   <div class="fams" id="conover" style="margin:0">
    ${['Low','Medium','High'].map(c=>`<button class="chipbtn ${P.contrast===c?'on':''}" data-c="${c}">${c}</button>`).join('')}
   </div>
@@ -2252,10 +2471,10 @@ function paint(){
 
  <h3 class="block">You read as <em style="font-style:italic;color:var(--accent)">${season}</em></h3>
  <p class="lede">${SEASONS12[season]}</p>
- <div class="callout"><b>How this was derived.</b> Undertone comes from the hue angle of your skin in CIELAB (${P.h.toFixed(0)}° — under 46° reads cool, over 56° warm). Depth comes from ITA°, the measure dermatologists use. Every colour below was then scored against those numbers: how well its warmth matches your undertone, how close its lightness sits to the ${P.dLideal}-point gap your contrast level wants, and how close its chroma sits to your clarity level. No lookup table decided this.</div>
+ <div class="callout"><b>Where this answer came from.</b> We measured the exact colour of your skin and worked out its angle on the colour wheel, which came to ${P.h.toFixed(0)} degrees. Below 46 counts as cool and above 56 counts as warm. Your depth comes from a measurement that skin doctors use. Every colour further down was then given a score against those numbers. We checked whether its warmth suits your undertone, whether it is the right distance in lightness from your skin, and whether it is the right strength for you. Nobody looked your answer up in a table.</div>
 
  <h3 class="block">Your colours</h3>
- <div class="sub" style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Scored against your own measurements and split by lightness, so you can build a whole outfit rather than a pile of one value. Tap any colour for full pairing advice.</div>
+ <div class="sub" style="font-size:.83rem;color:var(--muted);margin-bottom:16px">These are scored against your own measurements, then split up by how light or dark they are. That way you get enough range to put a whole look together instead of five colours that all do the same job. Tap any colour to get full pairing advice for it.</div>
  ${bands.map(b=>`
   <h4 style="font-size:1.1rem;margin:18px 0 2px">${b.k}</h4>
   <div class="sub" style="font-size:.8rem;color:var(--muted);margin-bottom:10px">${b.t}</div>
@@ -2263,21 +2482,21 @@ function paint(){
    `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
     <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>`).join('')}
 
- <h3 class="block">Your neutrals and metals</h3>
+ <h3 class="block">Your neutrals and your metals</h3>
  <div class="pswatches">${[light,mid,dark].filter(Boolean).concat(metals).map(c=>
   `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
    <div class="lb"><b>${c.name}</b><span class="mono">${c.fam}</span></div></div>`).join('')}</div>
- <p class="hint">Your white is <strong>${light?light.name:'—'}</strong> rather than any white; your black is <strong>${dark?dark.name:'—'}</strong>. Those two choices change an outfit more than the accent colour does.</p>
+ <p class="hint">Not every white suits everybody, and neither does every black. Yours are <strong>${light?light.name:'not found'}</strong> and <strong>${dark?dark.name:'not found'}</strong>. Getting those two right will change how you look more than the bright accent colour ever will.</p>
 
  <h3 class="block">Drape test</h3>
- <p class="lede">This is the actual test a colour analyst does — your face against the colour, nothing else changed. Compare the first two with the last two.</p>
+ <p class="lede">This is the same test a colour analyst does in person. Your face is held against each colour and nothing else is changed. Look at the first two, then look at the last two, and see whether you can spot the difference.</p>
  <div class="drapewrap" id="drapewrap"></div>
 
- <h3 class="block">Handle with care</h3>
+ <h3 class="block">Colours to be careful with</h3>
  <div class="pswatches">${worst.map(c=>
   `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
    <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>
- <p class="hint">Not forbidden — just keep them away from your face, or break them up with a collar or scarf in one of your own colours.</p>
+ <p class="hint">These are not banned. Just keep them away from your face, or break them up with a collar or a scarf in one of your own colours.</p>
 
  <div class="row" style="margin-top:26px">
   <button class="btn primary" id="tone-load">Load my colours into the Lab</button>
@@ -2293,7 +2512,7 @@ function paint(){
   box.insertAdjacentHTML('beforeend',
    `<div class="cap"><b>${c.name}</b><span>${c.hex.toUpperCase()}</span>
     <div class="verdict ${up?'up':down?'down':''}">${
-     up?'↑ lifts you':down?'↓ drains you':'· neutral'} · ${(c.score*100).toFixed(0)}%</div></div>`);
+     up?'↑ lifts you':down?'↓ drains you':'makes no real difference'} · ${(c.score*100).toFixed(0)}%</div></div>`);
   dw.appendChild(box);
  });
 
@@ -2307,20 +2526,20 @@ function paint(){
   /* one from each lightness band plus your two neutrals — a usable 60/30/10 set */
   palette=bands.map(b=>b.cols[0].hex).concat([light,mid,dark].filter(Boolean).map(c=>c.hex))
    .filter((v,i,arr)=>arr.indexOf(v)===i);
-  renderPalette();buildProp();toast('Loaded into the Lab');goTo('lab');};
+  renderPalette();buildProp();toast('Loaded into the Palette Lab');goTo('lab');};
  document.getElementById('tone-pair').onclick=()=>{setAdvisor(best[0].hex);goTo('advisor');};
  document.getElementById('tone-forget').onclick=()=>{
   delete S.tone;save();stopCam();fctx.clearRect(0,0,CW,CH);
   resultEl.innerHTML='';qualityEl.style.display='none';setPhase('idle');
-  toast('Scan and photo discarded');};
+  toast('Your scan and photo have been deleted');};
 }
 
 /* restore a previous reading (numbers only — the photo is never stored) */
 if(S.tone&&S.tone.profile){
  const t=S.tone;
  document.getElementById('scanhint').innerHTML=
-  `Last reading: <strong>${t.profile.undertone} undertone · ${t.profile.band} · ${t.season}</strong>
-   (confidence ${t.conf}/100). Only these numbers were kept — the photo was discarded. Scan again to update.`;
+  `Last time we measured you, you came out as <strong>${t.profile.undertone} undertone, ${t.profile.band}, ${t.season}</strong>,
+   and we were ${t.conf} out of 100 sure about it. Only those words were kept. The photo was deleted. Scan again whenever you want to update it.`;
 }
 
 /* ═════ 10 · DEEP LINKS ═════ */
