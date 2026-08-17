@@ -248,9 +248,38 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;height:4px}
 #propbar{display:flex;height:76px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);margin-bottom:18px}
 #propbar div{transition:flex .28s}
 
-.prevwrap{display:flex;gap:22px;flex-wrap:wrap}
+.prevwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:18px;
+ align-items:start}
 .prevbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:center}
 .prevbox h5{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600;font-family:'Hanken Grotesk',sans-serif}
+.prevart svg{max-width:100%;height:auto}
+
+/* which colour goes where */
+.slots{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);text-align:left;
+ display:flex;flex-direction:column;gap:6px}
+.slot{display:flex;align-items:center;gap:9px}
+.slot-sw{width:30px;height:30px;border-radius:7px;border:1px solid var(--line2);cursor:pointer;
+ padding:0;flex-shrink:0;transition:.14s}
+.slot-sw:hover{transform:scale(1.08);border-color:var(--ink2)}
+.slot-name{flex:1;font-size:.78rem;color:var(--ink2);line-height:1.35}
+.slot-lock{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);cursor:pointer;
+ background:var(--surface2);flex-shrink:0;position:relative;transition:.14s}
+.slot-lock::after{content:'';position:absolute;inset:7px;border-radius:2px;
+ background:var(--line2);transition:.14s}
+.slot-lock:hover{border-color:var(--line2)}
+.slot-lock.on{background:var(--accent-soft);border-color:var(--accent)}
+.slot-lock.on::after{background:var(--accent);inset:5px;border-radius:3px}
+.slot-foot{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.slot-foot .btn.sm{padding:5px 9px;font-size:.72rem;min-height:32px}
+.slot-count{font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;width:100%}
+/* fingers need more room than a mouse pointer does */
+@media (pointer:coarse){
+  .slot{gap:11px}
+  .slot-sw{width:42px;height:42px;border-radius:9px}
+  .slot-lock{width:38px;height:38px}
+  .slot-name{font-size:.84rem}
+  .slot-foot .btn.sm{min-height:40px;padding:8px 13px;font-size:.78rem}
+}
 
 .dropzone{border:2px dashed var(--line2);border-radius:var(--r);padding:44px 24px;text-align:center;cursor:pointer;transition:.2s;max-width:560px;background:var(--surface)}
 .dropzone:hover{border-color:var(--accent);background:var(--surface2)}
@@ -853,11 +882,16 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
       <span style="font-size:.82rem;color:var(--muted)">Show the outfit on:</span>
       <div class="fams" id="figpick" style="margin:0"></div>
     </div>
+    <p class="lede">Tap any colour below a picture to move it to the next one in your palette. Hold Shift to go back. Lock the ones you like with the square on the right, then press Shuffle to try the rest against them.</p>
     <div class="prevwrap" id="prevwrap">
-      <div class="prevbox" data-prev="outfit"><h5>As an outfit</h5><div id="prev-outfit"></div></div>
-      <div class="prevbox" data-prev="canvas"><h5>As a painting</h5><div id="prev-canvas"></div></div>
-      <div class="prevbox" data-prev="room"><h5>As a room</h5><div id="prev-room"></div></div>
-      <div class="prevbox" data-prev="poster"><h5>As a page</h5><div id="prev-poster"></div></div>
+      <div class="prevbox" data-prev="outfit"><h5>As an outfit</h5>
+        <div class="prevart" id="prev-outfit"></div><div class="slots" data-k="outfit"></div></div>
+      <div class="prevbox" data-prev="canvas"><h5>As a painting</h5>
+        <div class="prevart" id="prev-canvas"></div><div class="slots" data-k="canvas"></div></div>
+      <div class="prevbox" data-prev="room"><h5>As a room</h5>
+        <div class="prevart" id="prev-room"></div><div class="slots" data-k="room"></div></div>
+      <div class="prevbox" data-prev="poster"><h5>As a page</h5>
+        <div class="prevart" id="prev-poster"></div><div class="slots" data-k="poster"></div></div>
     </div>
   </div>
 
@@ -2160,10 +2194,10 @@ function figureSVG(kind,a,b,c,d,e){
    ${hands}
    <rect x="74" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
    <rect x="87" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
-   <path d="M69 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-   <path d="M82 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-   <path d="M97 88 L124 170" stroke="${d}" stroke-width="3" fill="none" opacity=".85"/>
-   <rect x="112" y="168" width="26" height="20" rx="5" fill="${d}"/>
+   <path d="M69 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${b}"/>
+   <path d="M82 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${b}"/>
+   <path d="M97 88 L124 170" stroke="${b}" stroke-width="3" fill="none" opacity=".85"/>
+   <rect x="112" y="168" width="26" height="20" rx="5" fill="${b}"/>
   </svg>`;
  }
  if(kind==='skirt'){
@@ -2201,9 +2235,98 @@ function figureSVG(kind,a,b,c,d,e){
   <rect x="120" y="163" width="14" height="5" rx="2.5" fill="${d}" opacity=".7"/>
  </svg>`;
 }
+/* ═════ WHICH COLOUR GOES WHERE ═════
+   The previews used to show one fixed arrangement: first colour on the top,
+   second on the trousers, and no way to swap them. That answers "do these go
+   together" but not "which one should be my top", which is the actual question.
+   Every preview now has named parts you can assign independently. */
+const SLOT_NAMES={
+ outfit:{
+  trousers:['Top','Trousers','Jacket','Shoes and bag','Background'],
+  dress:['Dress','Shoes and bag','Cardigan','Belt','Background'],
+  skirt:['Top','Skirt','Knitted detail','Shoes and belt','Background']},
+ canvas:['Sun and tree','Sky','Ground','Hills and frame','Canvas edge'],
+ room:['Sofa','Walls','Floor','Woodwork and lamp','Picture and cushion'],
+ poster:['Buttons and logo','First card','Text and second card','Header bar','Page background']
+};
+const PREV_KINDS=['outfit','canvas','room','poster'];
+const slotNames=k=>k==='outfit'?SLOT_NAMES.outfit[figKind]||SLOT_NAMES.outfit.trousers:SLOT_NAMES[k];
+const FALLBACK=['#C1654A','#E4CE9E','#54604B','#2F3A31','#EFE2C4'];
+
+APP.slots=APP.slots||{};APP.slotLocks=APP.slotLocks||{};
+PREV_KINDS.forEach(k=>{
+ if(!Array.isArray(APP.slots[k])||APP.slots[k].length!==5)APP.slots[k]=[0,1,2,3,4];
+ if(!Array.isArray(APP.slotLocks[k])||APP.slotLocks[k].length!==5)APP.slotLocks[k]=[0,0,0,0,0];
+});
+const slotColour=(kind,i)=>{
+ if(!palette.length)return FALLBACK[i];
+ return palette[APP.slots[kind][i]%palette.length];
+};
+const slotLocked=(kind,i)=>!!APP.slotLocks[kind][i];
+
+function cycleSlot(kind,i,dir){
+ const n=palette.length;if(!n)return;
+ APP.slots[kind][i]=(APP.slots[kind][i]+(dir||1)+n)%n;
+ saveApp();renderPreviews();
+}
+function shuffleSlots(kind){
+ const n=palette.length;if(!n)return;
+ for(let i=0;i<5;i++)if(!slotLocked(kind,i))
+  APP.slots[kind][i]=Math.floor(Math.random()*n);
+ saveApp();renderPreviews();
+}
+/* treat the five slots as an odometer, so "next" walks every combination in turn */
+function stepSlots(kind){
+ const n=palette.length;if(!n)return;
+ const a=APP.slots[kind];
+ for(let i=4;i>=0;i--){
+  if(slotLocked(kind,i))continue;
+  a[i]=(a[i]+1)%n;
+  if(a[i]!==0)break;
+ }
+ saveApp();renderPreviews();
+}
+function resetSlots(kind){
+ APP.slots[kind]=[0,1,2,3,4];APP.slotLocks[kind]=[0,0,0,0,0];
+ saveApp();renderPreviews();
+}
+function renderSlots(kind){
+ const host=document.querySelector(`.slots[data-k="${kind}"]`);if(!host)return;
+ const names=slotNames(kind);
+ const n=palette.length;
+ host.innerHTML=names.map((nm,i)=>{
+  const hex=slotColour(kind,i),lock=slotLocked(kind,i);
+  return `<div class="slot">
+   <button class="slot-sw" style="background:${show(hex)}" data-k="${kind}" data-i="${i}"
+     aria-label="${nm} is ${nearest(hex).name}. Press to try the next colour"
+     title="${nearest(hex).name} ${hex.toUpperCase()} — tap for the next one"></button>
+   <span class="slot-name">${nm}</span>
+   <button class="slot-lock ${lock?'on':''}" data-lock="${kind}" data-i="${i}"
+     aria-pressed="${lock}" aria-label="Keep ${nm} the same when shuffling"></button>
+  </div>`;}).join('')+
+  `<div class="slot-foot">
+    <button class="btn sm" data-shuffle="${kind}">Shuffle</button>
+    <button class="btn sm" data-step="${kind}">Next one</button>
+    <button class="btn sm" data-reset="${kind}">Reset</button>
+    <span class="slot-count">${n?Math.pow(n,5).toLocaleString()+' combinations':'add colours first'}</span>
+   </div>`;
+}
+document.getElementById('prevwrap').addEventListener('click',e=>{
+ const sw=e.target.closest('.slot-sw');
+ if(sw){cycleSlot(sw.dataset.k,+sw.dataset.i,e.shiftKey?-1:1);return;}
+ const lk=e.target.closest('.slot-lock');
+ if(lk){const k=lk.dataset.lock,i=+lk.dataset.i;
+  APP.slotLocks[k][i]=APP.slotLocks[k][i]?0:1;saveApp();renderSlots(k);return;}
+ const sh=e.target.closest('[data-shuffle]');if(sh){shuffleSlots(sh.dataset.shuffle);return;}
+ const st=e.target.closest('[data-step]');if(st){stepSlots(st.dataset.step);return;}
+ const rs=e.target.closest('[data-reset]');if(rs){resetSlots(rs.dataset.reset);return;}
+});
+
 function renderPreviews(){
- const a=pc(0,'#C1654A'),b=pc(1,'#E4CE9E'),c=pc(2,'#54604B'),d=pc(3,'#2F3A31'),e=pc(4,'#EFE2C4');
+ const S1=k=>[0,1,2,3,4].map(i=>show(slotColour(k,i)));
+ let[a,b,c,d,e]=S1('outfit');
  document.getElementById('prev-outfit').innerHTML=figureSVG(figKind,a,b,c,d,e);
+ [a,b,c,d,e]=S1('canvas');
  document.getElementById('prev-canvas').innerHTML=`
  <svg width="195" height="150" viewBox="0 0 195 150">
   <rect width="195" height="150" fill="${e}"/>
@@ -2214,6 +2337,7 @@ function renderPreviews(){
   <rect x="28" y="64" width="14" height="52" fill="${a}"/><rect x="28" y="55" width="14" height="11" fill="${d}"/>
   <rect width="195" height="150" fill="none" stroke="${d}" stroke-width="6"/>
  </svg>`;
+ [a,b,c,d,e]=S1('room');
  document.getElementById('prev-room').innerHTML=`
  <svg width="195" height="150" viewBox="0 0 195 150">
   <rect width="195" height="150" fill="${b}"/>
@@ -2226,6 +2350,7 @@ function renderPreviews(){
   <rect x="32" y="112" width="130" height="8" fill="${d}" opacity=".5"/>
   <circle cx="165" cy="36" r="12" fill="${d}"/>
  </svg>`;
+ [a,b,c,d,e]=S1('poster');
  const onA=readableOn(a),onE=readableOn(e),onB=readableOn(b);
  document.getElementById('prev-poster').innerHTML=`
  <svg width="170" height="215" viewBox="0 0 170 215">
@@ -2245,6 +2370,7 @@ function renderPreviews(){
   <rect x="22" y="168" width="30" height="5" rx="2.5" fill="${onB}" opacity=".75"/>
   <rect x="98" y="168" width="30" height="5" rx="2.5" fill="${onE}" opacity=".55"/>
  </svg>`;
+ PREV_KINDS.forEach(renderSlots);
  orderPreviews();
 }
 function renderFigPick(){
