@@ -360,6 +360,71 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 /* lesson callouts that only apply to what you're working on */
 .ctx-note{display:none}
 .ctx-note.on{display:block}
+
+/* ═══════════════════════════════════════════════
+   COLOUR PICKER — replaces the OS colour dialog
+   ═══════════════════════════════════════════════ */
+.swatch-btn{width:42px;height:36px;border-radius:9px;border:1px solid var(--line2);cursor:pointer;
+ padding:0;position:relative;overflow:hidden;transition:.16s;flex-shrink:0}
+.swatch-btn:hover{border-color:var(--ink2);transform:translateY(-1px)}
+.swatch-btn::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.09);
+ border-radius:8px}
+
+.cp-back{position:fixed;inset:0;z-index:200;background:rgba(8,10,14,.4);backdrop-filter:blur(2px);
+ opacity:0;pointer-events:none;transition:opacity .18s}
+.cp-back.on{opacity:1;pointer-events:auto}
+
+.cp{position:fixed;z-index:201;width:312px;max-width:calc(100vw - 24px);background:var(--surface);
+ border:1px solid var(--line2);border-radius:16px;box-shadow:0 20px 56px rgba(0,0,0,.30);padding:15px;
+ opacity:0;transform:translateY(8px) scale(.985);pointer-events:none;transition:.18s cubic-bezier(.2,.8,.2,1)}
+.cp.on{opacity:1;transform:none;pointer-events:auto}
+
+.cp-sv{position:relative;height:148px;border-radius:11px;cursor:crosshair;touch-action:none;
+ border:1px solid var(--line);overflow:hidden}
+.cp-thumb{position:absolute;width:17px;height:17px;border-radius:50%;border:2.5px solid #fff;
+ box-shadow:0 0 0 1px rgba(0,0,0,.45),0 1px 4px rgba(0,0,0,.4);transform:translate(-50%,-50%);
+ pointer-events:none}
+.cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:13px;border-radius:99px;
+ margin:14px 0 12px;cursor:pointer;touch-action:none;border:1px solid var(--line);
+ background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.cp-hue::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;
+ background:#fff;border:2px solid rgba(0,0,0,.28);box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.cp-hue::-moz-range-thumb{width:19px;height:19px;border-radius:50%;background:#fff;
+ border:2px solid rgba(0,0,0,.28);box-shadow:0 1px 4px rgba(0,0,0,.35)}
+
+.cp-row{display:flex;gap:9px;align-items:center}
+.cp-chip{width:40px;height:40px;border-radius:9px;border:1px solid var(--line);flex-shrink:0}
+.cp-meta{flex:1;min-width:0}
+.cp-meta b{display:block;font-size:.88rem;font-weight:600;line-height:1.3;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis}
+.cp-hex{width:100%;font-family:'IBM Plex Mono',monospace;font-size:.8rem;padding:5px 8px;
+ border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--ink);
+ text-transform:uppercase;margin-top:3px}
+.cp-hex:focus{border-color:var(--accent);outline:none}
+
+.cp-find{margin-top:13px;border-top:1px solid var(--line);padding-top:12px}
+.cp-find input{width:100%;font-size:.83rem;padding:8px 11px}
+.cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:6px;
+ max-height:132px;overflow-y:auto;margin-top:9px}
+.cp-sw{cursor:pointer;border-radius:7px;overflow:hidden;border:1px solid var(--line);
+ background:var(--surface2);transition:.14s}
+.cp-sw:hover{transform:translateY(-2px);border-color:var(--accent)}
+.cp-sw i{display:block;height:26px}
+.cp-sw span{display:block;font-size:.6rem;line-height:1.25;padding:3px 4px 4px;color:var(--ink2);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:normal}
+.cp-none{font-size:.78rem;color:var(--muted);padding:8px 2px;grid-column:1/-1}
+.cp-acts{display:flex;gap:8px;margin-top:13px}
+.cp-acts .btn{flex:1;justify-content:center;text-align:center}
+
+/* on a phone it becomes a bottom sheet, which is far easier to reach */
+@media(max-width:560px){
+  .cp{left:0!important;right:0;bottom:0!important;top:auto!important;width:100%;max-width:100%;
+   border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+   transform:translateY(100%)}
+  .cp.on{transform:translateY(0)}
+  .cp-sv{height:170px}
+  .cp-grid{max-height:150px}
+}
 .icon-btn{background:var(--surface2);border:1px solid var(--line);color:var(--ink2);border-radius:99px;
  padding:7px 13px;font:500 .76rem 'Hanken Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;
  gap:7px;transition:.18s;white-space:nowrap}
@@ -420,6 +485,20 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
  margin-bottom:5px}
 .metric .v{font-size:1.18rem;font-family:'Fraunces',serif;color:var(--ink);line-height:1.2}
 .metric .n{font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+
+/* worked 60/30/10 combinations */
+.recipe{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+ margin-bottom:12px;cursor:pointer;transition:.18s;max-width:660px}
+.recipe:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-2px)}
+.rc-strip{display:flex;height:56px}
+.rc-body{padding:14px 17px 16px}
+.rc-body h4{font-size:1.08rem;font-weight:600;margin-bottom:4px}
+.rc-body p{font-size:.86rem;color:var(--ink2);line-height:1.6;margin-bottom:11px}
+.rc-parts{list-style:none;display:flex;flex-direction:column;gap:7px}
+.rc-parts li{display:flex;align-items:center;gap:9px;font-size:.83rem;color:var(--ink2);line-height:1.45}
+.rc-parts i{width:15px;height:15px;border-radius:4px;border:1px solid var(--line);flex-shrink:0}
+.rc-parts b{color:var(--ink);font-weight:600;min-width:34px;font-family:'IBM Plex Mono',monospace;
+ font-size:.78rem}
 
 /* drape test */
 .drapewrap{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:8px}
@@ -522,7 +601,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   </div>
 
   <div class="row">
-    <div class="ctl"><label>Colour</label><input type="color" id="adv-input" value="#F79E8A"></div>
+    <div class="ctl"><label>Colour</label>
+      <input type="hidden" id="adv-input" value="#F79E8A">
+      <button class="swatch-btn" id="adv-swatch" style="background:#F79E8A" aria-label="Pick a colour"></button>
+    </div>
     <input type="text" id="adv-hex" value="#F79E8A" size="9" maxlength="7" class="mono" style="width:112px">
     <div class="seg" id="adv-mode"><button class="on" data-m="paint">Paint / RYB</button><button data-m="screen">Screen / RGB</button></div>
     <button class="btn sm" id="toggle-picker">Browse named colours ▾</button>
@@ -640,7 +722,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 
   <div class="panel active" id="p-build">
     <div class="row">
-      <div class="ctl"><label>Add</label><input type="color" id="lab-add" value="#4A6D96"></div>
+      <div class="ctl"><label>Add</label>
+        <input type="hidden" id="lab-add" value="#4A6D96">
+        <button class="swatch-btn" id="lab-swatch" style="background:#4A6D96" aria-label="Pick a colour"></button>
+      </div>
+      <input type="text" id="lab-hex" value="#4A6D96" size="9" maxlength="7" class="mono" style="width:112px" aria-label="Hex code">
       <button class="btn primary" id="lab-add-btn">Add colour</button>
       <button class="btn" id="lab-clear">Clear all</button>
       <button class="btn" id="lab-export">Export</button>
@@ -674,6 +760,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 
   <div class="panel" id="p-preview">
     <p class="lede">A row of squares will mislead you. A colour behaves differently depending on its shape, how much of it there is, and what sits next to it. These little drawings are rough, but they are a lot more honest than squares, and they update as you change your palette.</p>
+    <div class="row" id="figrow">
+      <span style="font-size:.82rem;color:var(--muted)">Show the outfit on:</span>
+      <div class="fams" id="figpick" style="margin:0"></div>
+    </div>
     <div class="prevwrap" id="prevwrap">
       <div class="prevbox" data-prev="outfit"><h5>As an outfit</h5><div id="prev-outfit"></div></div>
       <div class="prevbox" data-prev="canvas"><h5>As a painting</h5><div id="prev-canvas"></div></div>
@@ -734,11 +824,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
         <div class="scanacts">
           <button class="btn primary" id="scan-start">Start camera</button>
           <button class="btn" id="scan-upload">Upload a photo</button>
-          <button class="btn primary" id="scan-shoot" style="display:none">Capture &amp; analyse</button>
-          <button class="btn" id="scan-again" style="display:none">Retake</button>
+          <button class="btn primary" id="scan-shoot" style="display:none">Take the picture</button>
+          <button class="btn primary" id="scan-analyse" style="display:none">Analyse this</button>
+          <button class="btn" id="scan-again" style="display:none">Start again</button>
           <button class="btn" id="scan-white" style="display:none">Set white reference</button>
         </div>
         <input type="file" id="scanfile" accept="image/*" style="display:none">
+
+        <div id="adjustbar" style="display:none">
+          <p class="hint" style="margin:14px 0 8px"><b>Line your face up with the guides.</b> Drag the picture to move it, and use the slider to zoom. The important part is that the top box sits on your hair and the other four sit on bare skin.</p>
+          <div class="proprow" style="max-width:340px">
+            <span class="lbl" style="min-width:auto">Zoom</span>
+            <input type="range" id="scan-zoom" min="100" max="320" value="100">
+            <button class="btn sm" id="scan-reset">Reset</button>
+          </div>
+        </div>
 
         <div class="quality" id="scanquality" style="display:none"></div>
         <p class="hint" id="scanhint">This works on any device with a camera. Your browser will ask for permission the first time. If you would rather not use the camera, uploading a photo gives you exactly the same result, as long as the light in the photo is even.</p>
@@ -789,6 +889,27 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   </div>
   <div class="tray-body" id="traybody"></div>
 </div></div>
+
+<div class="cp-back" id="cp-back"></div>
+<div class="cp" id="cp" role="dialog" aria-label="Pick a colour">
+  <div class="cp-sv" id="cp-sv"><div class="cp-thumb" id="cp-thumb"></div></div>
+  <input type="range" class="cp-hue" id="cp-hue" min="0" max="359" value="0" aria-label="Hue">
+  <div class="cp-row">
+    <div class="cp-chip" id="cp-chip"></div>
+    <div class="cp-meta">
+      <b id="cp-name">Salmon Pink</b>
+      <input type="text" class="cp-hex" id="cp-hex" maxlength="7" spellcheck="false" aria-label="Hex code">
+    </div>
+  </div>
+  <div class="cp-find">
+    <input type="search" id="cp-search" placeholder="Search 190 colours by name…">
+    <div class="cp-grid" id="cp-grid"></div>
+  </div>
+  <div class="cp-acts">
+    <button class="btn sm" id="cp-cancel">Cancel</button>
+    <button class="btn sm primary" id="cp-ok">Use this colour</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -980,6 +1101,7 @@ const CTX={
           'Good for a buckle, a chain or stitching',
           'Good for earrings, a ring or one small detail']},
   prop:'In an outfit that is usually a coat, then trousers, then a bag.',
+  roles:['the main piece, like a coat, a dress or trousers','a second piece, like a top, a shirt or a cardigan','a small accent, like a scarf, a bag or your shoes'],
   preview:'outfit'
  },
  art:{
@@ -1013,6 +1135,7 @@ const CTX={
           'Good for a frame, or an aged detail',
           'Good for one small glint of light']},
   prop:'In a painting that is usually the background, then the main mass, then the focal point.',
+  roles:['the background and the biggest areas','the main shapes sitting on top of it','the focal point, and any small highlights'],
   preview:'canvas'
  },
  interiors:{
@@ -1046,6 +1169,7 @@ const CTX={
           'Good for a lamp base, a picture frame or a hinge',
           'Good for one small fixture, or the edge of a mirror']},
   prop:'In a room that is usually the walls, then the furniture, then the cushions.',
+  roles:['the walls and the floor','the big furniture, like a sofa or a bed','cushions, art, lamps and the other small things'],
   preview:'room'
  },
  design:{
@@ -1079,6 +1203,7 @@ const CTX={
           'Good for an award or a certificate detail',
           'Good for one small accent, and nothing more']},
   prop:'In a layout that is usually the background, then the panels, then the button.',
+  roles:['the page background','cards, panels and blocks of text','buttons, links and anything you want pressed'],
   preview:'poster'
  }
 };
@@ -1489,23 +1614,101 @@ document.getElementById('prop-reset').onclick=buildProp;
 
 /* previews */
 const pc=(i,f)=>palette[i]||f;
+
+/* ── the figure the outfit is drawn on ──
+   Three garment shapes rather than one, and the skin tone comes from your own
+   scan when you have done one, so the preview is a fair test instead of a
+   picture of somebody else wearing your colours. */
+const FIGS=[['trousers','Trousers & jacket'],['dress','Dress & cardigan'],['skirt','Skirt & knit']];
+let figKind='trousers';
+function skinOfUser(){
+ try{
+  const t=JSON.parse(localStorage.getItem('chromatic.v1')||'{}').tone;
+  if(t&&t.profile&&t.profile.skinHex)return t.profile.skinHex;
+ }catch(_){}
+ return '#C99A73';
+}
+function hairOfUser(skin){
+ try{
+  const t=JSON.parse(localStorage.getItem('chromatic.v1')||'{}').tone;
+  if(t&&t.hair)return t.hair;
+ }catch(_){}
+ const[h,s,l]=hexToHsl(skin);
+ return hslToHex(h,clamp(s*.55,0,45),clamp(l*.22,6,20));   // a plausible dark hair
+}
+function figureSVG(kind,a,b,c,d,e){
+ const skin=skinOfUser(), hair=hairOfUser(skin);
+ const shade=hslToHex(...(x=>[x[0],x[1],clamp(x[2]-7,0,100)])(hexToHsl(skin)));
+ /* neck first, then the hair mass, then the face on top of it — the hair reads as
+    hair because it shows as a rim around the face rather than as a little cap */
+ const head=`
+  <path d="M77 64 h16 v13 a8 5 0 0 1 -16 0 Z" fill="${shade}"/>
+  <ellipse cx="85" cy="44" rx="23.5" ry="25.5" fill="${hair}"/>
+  <path d="M62 46 C60 58 61 66 63 70 L68 68 C66 62 65 54 66 46 Z" fill="${hair}"/>
+  <path d="M108 46 C110 58 109 66 107 70 L102 68 C104 62 105 54 104 46 Z" fill="${hair}"/>
+  <ellipse cx="64.8" cy="52" rx="3.3" ry="5" fill="${skin}"/>
+  <ellipse cx="105.2" cy="52" rx="3.3" ry="5" fill="${skin}"/>
+  <ellipse cx="85" cy="50" rx="20" ry="22.5" fill="${skin}"/>`;
+ const floor=`<ellipse cx="85" cy="286" rx="44" ry="6" fill="#000" opacity=".10"/>`;
+ const frame=`<rect width="170" height="300" rx="11" fill="${e}"/>`;
+ const hands=`<circle cx="47" cy="150" r="5.5" fill="${skin}"/><circle cx="123" cy="150" r="5.5" fill="${skin}"/>`;
+
+ if(kind==='dress'){
+  return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="A dress and cardigan in your palette">
+   ${frame}${floor}${head}
+   <path d="M85 76 C72 76 63 80 58 85 L44 214 L126 214 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
+   <path d="M58 85 L46 100 L42 146 L52 149 L57 108 Z" fill="${c}"/>
+   <path d="M112 85 L124 100 L128 146 L118 149 L113 108 Z" fill="${c}"/>
+   <path d="M58 85 L52 214 L70 214 L74 88 Z" fill="${c}"/>
+   <path d="M112 85 L118 214 L100 214 L96 88 Z" fill="${c}"/>
+   <rect x="66" y="132" width="38" height="8" rx="4" fill="${d}"/>
+   ${hands}
+   <rect x="74" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
+   <rect x="87" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
+   <path d="M69 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+   <path d="M82 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+   <path d="M97 88 L124 170" stroke="${d}" stroke-width="3" fill="none" opacity=".85"/>
+   <rect x="112" y="168" width="26" height="20" rx="5" fill="${d}"/>
+  </svg>`;
+ }
+ if(kind==='skirt'){
+  return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="A skirt and knitted top in your palette">
+   ${frame}${floor}${head}
+   <path d="M85 76 C72 76 63 80 58 85 L56 158 L114 158 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
+   <path d="M58 85 L45 101 L41 147 L51 150 L57 109 Z" fill="${a}"/>
+   <path d="M112 85 L125 101 L129 147 L119 150 L113 109 Z" fill="${a}"/>
+   <path d="M56 156 L114 156 L128 224 L42 224 Z" fill="${b}"/>
+   <rect x="56" y="152" width="58" height="9" rx="4" fill="${d}"/>
+   ${hands}
+   <rect x="74" y="222" width="9.5" height="44" rx="4.5" fill="${skin}"/>
+   <rect x="87" y="222" width="9.5" height="44" rx="4.5" fill="${skin}"/>
+   <path d="M69 264 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+   <path d="M82 264 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+   <path d="M74 79 L85 100 L96 79 C92 77 78 77 74 79 Z" fill="${c}"/>
+   <path d="M58 100 h54 M57 116 h56 M56 132 h58" stroke="${c}" stroke-width="2" opacity=".35" fill="none"/>
+  </svg>`;
+ }
+ /* trousers and jacket */
+ return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="Trousers and a jacket in your palette">
+  ${frame}${floor}${head}
+  <path d="M85 76 C72 76 63 80 58 85 L56 168 L114 168 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
+  <path d="M58 85 L45 101 L41 147 L51 150 L57 109 Z" fill="${c}"/>
+  <path d="M112 85 L125 101 L129 147 L119 150 L113 109 Z" fill="${c}"/>
+  <path d="M58 85 L55 168 L73 168 L77 89 Z" fill="${c}"/>
+  <path d="M112 85 L115 168 L97 168 L93 89 Z" fill="${c}"/>
+  ${hands}
+  <path d="M56 166 L114 166 L110 262 L92 262 L85 194 L78 262 L60 262 Z" fill="${b}"/>
+  <rect x="56" y="162" width="58" height="9" rx="4" fill="${d}"/>
+  <path d="M58 260 h22 a4 4 0 0 1 4 4 v7 h-30 v-7 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+  <path d="M90 260 h22 a4 4 0 0 1 4 4 v7 h-30 v-7 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
+  <path d="M96 88 L126 168" stroke="${d}" stroke-width="3" fill="none" opacity=".85"/>
+  <rect x="114" y="166" width="26" height="21" rx="5" fill="${d}"/>
+  <rect x="120" y="163" width="14" height="5" rx="2.5" fill="${d}" opacity=".7"/>
+ </svg>`;
+}
 function renderPreviews(){
  const a=pc(0,'#C1654A'),b=pc(1,'#E4CE9E'),c=pc(2,'#54604B'),d=pc(3,'#2F3A31'),e=pc(4,'#EFE2C4');
- document.getElementById('prev-outfit').innerHTML=`
- <svg width="160" height="245" viewBox="0 0 160 245">
-  <rect width="160" height="245" fill="${e}" rx="8"/>
-  <circle cx="80" cy="37" r="20" fill="#D9AE86"/>
-  <path d="M60 27 Q80 9 100 27 Q100 13 80 11 Q60 13 60 27Z" fill="#2b1d16"/>
-  <rect x="75" y="54" width="10" height="10" fill="#D9AE86"/>
-  <path d="M49 64 Q80 56 111 64 L118 138 L42 138 Z" fill="${a}"/>
-  <path d="M49 64 L33 126 L48 130 L56 79 Z" fill="${a}"/>
-  <path d="M111 64 L127 126 L112 130 L104 79 Z" fill="${a}"/>
-  <rect x="46" y="136" width="68" height="66" fill="${b}" rx="3"/>
-  <rect x="46" y="136" width="68" height="8" fill="${c}"/>
-  <rect x="50" y="202" width="25" height="15" fill="${d}" rx="3"/>
-  <rect x="85" y="202" width="25" height="15" fill="${d}" rx="3"/>
-  <circle cx="128" cy="136" r="13" fill="${c}"/><rect x="126" y="118" width="4" height="18" fill="${d}"/>
- </svg>`;
+ document.getElementById('prev-outfit').innerHTML=figureSVG(figKind,a,b,c,d,e);
  document.getElementById('prev-canvas').innerHTML=`
  <svg width="195" height="150" viewBox="0 0 195 150">
   <rect width="195" height="150" fill="${e}"/>
@@ -1549,6 +1752,16 @@ function renderPreviews(){
  </svg>`;
  orderPreviews();
 }
+function renderFigPick(){
+ document.getElementById('figpick').innerHTML=FIGS.map(([k,l])=>
+  `<button class="chipbtn ${k===figKind?'on':''}" data-k="${k}">${l}</button>`).join('');
+}
+document.getElementById('figpick').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ figKind=b.dataset.k;renderFigPick();renderPreviews();
+});
+renderFigPick();
+
 /* put the preview that matches what you're working on first */
 function orderPreviews(){
  const wrap=document.getElementById('prevwrap');if(!wrap)return;
@@ -1942,6 +2155,123 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
  });
 }
 
+/* ═════ 2a · COLOUR PICKER ═════
+   The native <input type="color"> opens the operating system dialog, which is
+   ancient on Windows and gives you no way to find a colour you know by name.
+   This replaces it: saturation square, hue slider, hex field, and a search over
+   all 190 named colours so "I want Cantaloupe" is one keystroke away. */
+const cpEl=document.getElementById('cp'),cpBack=document.getElementById('cp-back'),
+      cpSV=document.getElementById('cp-sv'),cpThumb=document.getElementById('cp-thumb'),
+      cpHue=document.getElementById('cp-hue'),cpChip=document.getElementById('cp-chip'),
+      cpName=document.getElementById('cp-name'),cpHex=document.getElementById('cp-hex'),
+      cpSearch=document.getElementById('cp-search'),cpGrid=document.getElementById('cp-grid');
+let cpH=0,cpS=100,cpV=100,cpDone=null,cpLive=null;
+
+function hsvToHex(h,s,v){
+ h=((h%360)+360)%360;s/=100;v/=100;
+ const c=v*s,x=c*(1-Math.abs(((h/60)%2)-1)),m=v-c;
+ const t=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+ return rgbToHex((t[0]+m)*255,(t[1]+m)*255,(t[2]+m)*255);
+}
+function hexToHsv(hex){
+ const[r,g,b]=hexToRgb(hex).map(v=>v/255);
+ const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+ let h=0;
+ if(d){h=mx===r?60*(((g-b)/d)%6):mx===g?60*(((b-r)/d)+2):60*(((r-g)/d)+4);}
+ return[((h%360)+360)%360,mx?d/mx*100:0,mx*100];
+}
+function cpPaint(){
+ const hex=hsvToHex(cpH,cpS,cpV);
+ cpSV.style.background=
+  `linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,hsl(${cpH},100%,50%))`;
+ cpThumb.style.left=cpS+'%';
+ cpThumb.style.top=(100-cpV)+'%';
+ cpThumb.style.background=hex;
+ cpChip.style.background=hex;
+ cpName.textContent=nearest(hex).name;
+ if(document.activeElement!==cpHex)cpHex.value=hex.toUpperCase();
+ if(cpLive)cpLive(hex);
+ return hex;
+}
+function cpSet(hex){const[h,s,v]=hexToHsv(hex);cpH=h;cpS=s;cpV=v;cpHue.value=Math.round(h);cpPaint();}
+
+/* dragging the saturation / brightness square, mouse and touch alike */
+let cpDrag=false;
+function cpFromEvent(e){
+ const r=cpSV.getBoundingClientRect();
+ cpS=clamp((e.clientX-r.left)/r.width*100,0,100);
+ cpV=clamp(100-(e.clientY-r.top)/r.height*100,0,100);
+ cpPaint();
+}
+cpSV.addEventListener('pointerdown',e=>{cpDrag=true;cpSV.setPointerCapture(e.pointerId);cpFromEvent(e);});
+cpSV.addEventListener('pointermove',e=>{if(cpDrag)cpFromEvent(e);});
+cpSV.addEventListener('pointerup',()=>cpDrag=false);
+cpSV.addEventListener('pointercancel',()=>cpDrag=false);
+cpHue.addEventListener('input',e=>{cpH=+e.target.value;cpPaint();});
+cpHex.addEventListener('input',e=>{
+ let v=e.target.value.trim();if(!v.startsWith('#'))v='#'+v;
+ if(/^#[0-9a-f]{6}$/i.test(v)){const[h,s,vv]=hexToHsv(v);cpH=h;cpS=s;cpV=vv;cpHue.value=Math.round(h);cpPaint();}
+});
+
+function cpRenderGrid(q){
+ q=(q||'').toLowerCase().trim();
+ const list=NAMED.filter(c=>!q||c[0].toLowerCase().includes(q)).slice(0,120);
+ cpGrid.innerHTML=list.length
+  ?list.map(c=>`<div class="cp-sw" data-hex="${c[1]}" title="${c[0]} ${c[1].toUpperCase()}">
+     <i style="background:${c[1]}"></i><span>${c[0]}</span></div>`).join('')
+  :'<p class="cp-none">No colour has that name. Try part of a word, like "coral".</p>';
+}
+cpSearch.addEventListener('input',e=>cpRenderGrid(e.target.value));
+cpGrid.addEventListener('click',e=>{
+ const s=e.target.closest('.cp-sw');if(!s)return;cpSet(s.dataset.hex);
+});
+
+function cpClose(){
+ cpEl.classList.remove('on');cpBack.classList.remove('on');
+ cpDone=null;cpLive=null;
+}
+/* anchor under the trigger on a large screen; CSS turns it into a sheet on a phone */
+function cpOpen(anchor,current,onDone,onLive){
+ cpDone=onDone||null;cpLive=onLive||null;
+ cpSearch.value='';cpRenderGrid('');
+ cpSet(current||'#F79E8A');
+ cpEl.classList.add('on');cpBack.classList.add('on');
+ if(matchMedia('(max-width:560px)').matches)return;
+ const r=anchor.getBoundingClientRect(),w=cpEl.offsetWidth,h=cpEl.offsetHeight;
+ let left=clamp(r.left,10,innerWidth-w-10);
+ let top=r.bottom+8;
+ if(top+h>innerHeight-10)top=Math.max(10,r.top-h-8);
+ cpEl.style.left=left+'px';cpEl.style.top=top+'px';
+}
+cpBack.addEventListener('click',cpClose);
+document.getElementById('cp-cancel').onclick=cpClose;
+document.getElementById('cp-ok').onclick=()=>{
+ const hex=hsvToHex(cpH,cpS,cpV);
+ if(cpDone)cpDone(hex);
+ cpClose();
+};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&cpEl.classList.contains('on'))cpClose();});
+
+/* wire it to the Advisor and the Lab */
+const advSwatch=document.getElementById('adv-swatch'),advInput=document.getElementById('adv-input');
+advSwatch.onclick=()=>cpOpen(advSwatch,advInput.value,hex=>setAdvisor(hex),hex=>{
+ advSwatch.style.background=hex;});
+const labSwatch=document.getElementById('lab-swatch'),labInput=document.getElementById('lab-add'),
+      labHex=document.getElementById('lab-hex');
+function labSetColour(hex){
+ labInput.value=hex;labSwatch.style.background=hex;labHex.value=hex.toUpperCase();
+}
+labSwatch.onclick=()=>cpOpen(labSwatch,labInput.value,labSetColour,hex=>{labSwatch.style.background=hex;});
+labHex.addEventListener('change',e=>{
+ let v=e.target.value.trim();if(!v.startsWith('#'))v='#'+v;
+ if(/^#[0-9a-f]{6}$/i.test(v))labSetColour(v);
+ else{labHex.value=labInput.value.toUpperCase();toast('That is not a hex code. Try something like #EFA971');}
+});
+/* the hex field writes straight to the hidden input and calls runAdvisor, so sync
+   the visible swatch there rather than in setAdvisor, which it never goes through */
+const _runAdvisor=runAdvisor;
+runAdvisor=function(){advSwatch.style.background=advInput.value;_runAdvisor();};
+
 /* ═════ 2b · WHAT ARE YOU WORKING ON ═════ */
 const ctxSel=document.getElementById('ctx-select');
 function applyCtx(key,announce){
@@ -2033,20 +2363,78 @@ function drawCover(src,sw,sh,mirror){
  fctx.restore();
 }
 
-let stream=null,liveTimer=null,phase='idle';   // idle | live | frozen
+const bAnalyse=document.getElementById('scan-analyse'),
+      adjustBar=document.getElementById('adjustbar'),
+      zoomIn=document.getElementById('scan-zoom');
+let stream=null,liveTimer=null,phase='idle';   // idle | live | adjust | frozen
 function setPhase(p){
  phase=p;
+ const showCanvas = p==='adjust'||p==='frozen';
  placeholder.style.display = p==='idle'?'block':'none';
  video.style.display       = p==='live'?'block':'none';
- freeze.style.display      = p==='frozen'?'block':'none';
+ freeze.style.display      = showCanvas?'block':'none';
  guide.style.display       = p==='idle'?'none':'block';
  bStart.style.display      = p==='idle'?'':'none';
- bUpload.style.display     = p==='frozen'?'none':'';
+ bUpload.style.display     = (p==='idle'||p==='live')?'':'none';
  bShoot.style.display      = p==='live'?'':'none';
- bAgain.style.display      = p==='frozen'?'':'none';
+ bAnalyse.style.display    = p==='adjust'?'':'none';
+ bAgain.style.display      = (p==='adjust'||p==='frozen')?'':'none';
  bWhite.style.display      = p==='frozen'?'':'none';
+ adjustBar.style.display   = p==='adjust'?'block':'none';
+ stage.style.cursor        = p==='adjust'?'grab':'';
  if(p!=='frozen')armWhite(false);
 }
+
+/* ── position and zoom the picture before measuring ──
+   Without this the four sample boxes land wherever the photo happens to put
+   them. On an upload that is pot luck, and a forehead box that lands on hair
+   makes the hair-to-skin contrast read as Low when it isn't. */
+let srcImg=null,srcW=0,srcH=0,mirrorSrc=false;
+let view={scale:1,tx:0,ty:0};
+function drawTransformed(){
+ if(!srcImg)return;
+ const base=Math.max(CW/srcW,CH/srcH),s=base*view.scale;
+ const w=srcW*s,h=srcH*s;
+ const x=(CW-w)/2+view.tx,y=(CH-h)/2+view.ty;
+ fctx.save();
+ fctx.fillStyle='#101010';fctx.fillRect(0,0,CW,CH);
+ if(mirrorSrc){fctx.translate(CW,0);fctx.scale(-1,1);}
+ fctx.drawImage(srcImg,mirrorSrc?CW-x-w:x,y,w,h);
+ fctx.restore();
+}
+function beginAdjust(src,w,h,mirror){
+ srcImg=src;srcW=w;srcH=h;mirrorSrc=!!mirror;
+ view={scale:1,tx:0,ty:0};zoomIn.value=100;
+ whiteRef=null;
+ resultEl.innerHTML='';qualityEl.style.display='none';
+ drawTransformed();setPhase('adjust');
+}
+zoomIn.addEventListener('input',e=>{view.scale=+e.target.value/100;drawTransformed();});
+document.getElementById('scan-reset').onclick=()=>{
+ view={scale:1,tx:0,ty:0};zoomIn.value=100;drawTransformed();};
+let vDrag=null;
+freeze.addEventListener('pointerdown',e=>{
+ if(phase!=='adjust')return;
+ vDrag={x:e.clientX,y:e.clientY,tx:view.tx,ty:view.ty};
+ freeze.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';
+});
+freeze.addEventListener('pointermove',e=>{
+ if(!vDrag||phase!=='adjust')return;
+ const r=freeze.getBoundingClientRect();
+ view.tx=vDrag.tx+(e.clientX-vDrag.x)*(CW/r.width);
+ view.ty=vDrag.ty+(e.clientY-vDrag.y)*(CH/r.height);
+ drawTransformed();
+});
+const endDrag=()=>{vDrag=null;if(phase==='adjust')stage.style.cursor='grab';};
+freeze.addEventListener('pointerup',endDrag);
+freeze.addEventListener('pointercancel',endDrag);
+freeze.addEventListener('wheel',e=>{
+ if(phase!=='adjust')return;
+ e.preventDefault();
+ view.scale=clamp(view.scale*(e.deltaY<0?1.08:0.926),1,3.2);
+ zoomIn.value=Math.round(view.scale*100);drawTransformed();
+},{passive:false});
+bAnalyse.onclick=()=>{setPhase('frozen');runAnalysis();};
 
 /* ── white reference: tap something you know is neutral ── */
 let armed=false;
@@ -2093,16 +2481,15 @@ bStart.onclick=async()=>{
  setPhase('live');
  liveTimer=setInterval(liveCheck,280);
 };
-bAgain.onclick=()=>{resultEl.innerHTML='';qualityEl.style.display='none';whiteRef=null;
- if(stream)setPhase('live');else setPhase('idle');
- if(stream&&!liveTimer)liveTimer=setInterval(liveCheck,280);};
+bAgain.onclick=()=>{resultEl.innerHTML='';qualityEl.style.display='none';whiteRef=null;srcImg=null;
+ if(stream){setPhase('live');if(!liveTimer)liveTimer=setInterval(liveCheck,280);}
+ else setPhase('idle');};
 bUpload.onclick=()=>fileIn.click();
 fileIn.onchange=e=>{
  const f=e.target.files&&e.target.files[0];if(!f)return;
  const rd=new FileReader();
  rd.onload=ev=>{const img=new Image();
-  img.onload=()=>{stopCam();whiteRef=null;drawCover(img,img.naturalWidth,img.naturalHeight,false);
-   setPhase('frozen');runAnalysis();};
+  img.onload=()=>{stopCam();beginAdjust(img,img.naturalWidth,img.naturalHeight,false);};
   img.onerror=()=>toast('We could not open that picture. Try another one');
   img.src=ev.target.result;};
  rd.readAsDataURL(f);
@@ -2111,10 +2498,11 @@ fileIn.onchange=e=>{
 bShoot.onclick=()=>{
  if(!video.videoWidth){toast('The camera is still warming up. Give it a second');return;}
  if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
- whiteRef=null;
- drawCover(video,video.videoWidth,video.videoHeight,true);
- setPhase('frozen');
- runAnalysis();
+ /* freeze the frame into its own canvas so it can still be dragged and zoomed */
+ const shot=document.createElement('canvas');
+ shot.width=video.videoWidth;shot.height=video.videoHeight;
+ shot.getContext('2d').drawImage(video,0,0);
+ beginAdjust(shot,shot.width,shot.height,true);
 };
 /* live alignment feedback — turns each patch green once it reads as skin */
 function liveCheck(){
@@ -2350,18 +2738,38 @@ function seasonOf(P){
 
 /* ═════ 8 · DRAPE TEST ═════ */
 function drapeCanvas(hex){
- const w=190,h=210,cv=document.createElement('canvas');
+ const w=190,h=212,cv=document.createElement('canvas');
  cv.width=w*2;cv.height=h*2;cv.style.width='100%';
  const c=cv.getContext('2d');c.scale(2,2);
+
  c.fillStyle=hex;c.fillRect(0,0,w,h);
+
+ /* shoulders in a slightly deeper version of the same colour, so it reads as a
+    garment being held up rather than a flat band across the picture */
  const[hh,ss,ll]=hexToHsl(hex);
- c.fillStyle=hslToHex(hh,ss*.6,clamp(ll-9,4,94));
- c.fillRect(0,h*0.72,w,h*0.28);                 // the "garment" under the chin
- c.save();
- c.beginPath();c.ellipse(w/2,h*0.42,w*0.36,h*0.40,0,0,Math.PI*2);c.clip();
- const sx=.22*CW,sy=.05*CH,sw=.56*CW,sh=.74*CH;
- c.drawImage(freeze,sx,sy,sw,sh,w/2-w*0.36,h*0.42-h*0.40,w*0.72,h*0.80);
- c.restore();
+ c.fillStyle=hslToHex(hh,ss,clamp(ll-9,3,95));
+ c.beginPath();
+ c.moveTo(0,h);c.lineTo(0,h-40);
+ c.bezierCurveTo(w*0.24,h-72,w*0.76,h-72,w,h-40);
+ c.lineTo(w,h);c.closePath();c.fill();
+
+ /* the face, feathered into the colour. A hard clipped ellipse cuts a slice of
+    background and shirt out with it, which is what made this look like a sticker. */
+ const off=document.createElement('canvas');
+ off.width=w*2;off.height=h*2;
+ const o=off.getContext('2d');o.scale(2,2);
+ const sx=.255*CW,sy=.085*CH,sw=.49*CW,sh=.60*CH;
+ o.drawImage(freeze,sx,sy,sw,sh,w/2-64,10,128,157);
+ o.globalCompositeOperation='destination-in';
+ o.save();
+ o.translate(w/2,88);o.scale(1,1.16);
+ const g=o.createRadialGradient(0,0,30,0,0,68);
+ g.addColorStop(0,'rgba(0,0,0,1)');
+ g.addColorStop(.70,'rgba(0,0,0,1)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ o.fillStyle=g;o.fillRect(-w,-h,w*2,h*2);
+ o.restore();
+ c.drawImage(off,0,0,w,h);
  return cv;
 }
 
@@ -2437,7 +2845,8 @@ function paint(){
  const skinHex=labToRgb(P.L,P.a,P.b).hex;
  const drapes=[best[0],best[1],worst[0],worst[1]].filter(Boolean);
 
- S.tone={skin:m.skin,profile:{...P},season,conf};save();
+ S.tone={skin:m.skin,profile:{...P},season,conf,
+  hair:m.hair?labToRgb(m.hair[0],m.hair[1],m.hair[2]).hex:null};save();
 
  resultEl.innerHTML=`
  <h3 class="block">What we measured</h3>
@@ -2480,12 +2889,16 @@ function paint(){
   <div class="sub" style="font-size:.8rem;color:var(--muted);margin-bottom:10px">${b.t}</div>
   <div class="pswatches">${b.cols.map(c=>
    `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
-    <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>`).join('')}
+    <div class="lb"><b>${c.name}</b><span class="mono">${c.hex.toUpperCase()}</span></div></div>`).join('')}</div>`).join('')}
+
+ <h3 class="block">How to actually put these together</h3>
+ <p class="lede">Lights, mid-tones and darks are not three separate wardrobes. They are the three jobs inside one look. Use roughly <strong>60%</strong> of one colour, <strong>30%</strong> of a second and <strong>10%</strong> of a third. Here are three combinations that work, built from your own colours. Tap any one to load it into the Palette Lab.</p>
+ <div id="recipes"></div>
 
  <h3 class="block">Your neutrals and your metals</h3>
  <div class="pswatches">${[light,mid,dark].filter(Boolean).concat(metals).map(c=>
   `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
-   <div class="lb"><b>${c.name}</b><span class="mono">${c.fam}</span></div></div>`).join('')}</div>
+   <div class="lb"><b>${c.name}</b><span class="mono">${c.hex.toUpperCase()}</span></div></div>`).join('')}</div>
  <p class="hint">Not every white suits everybody, and neither does every black. Yours are <strong>${light?light.name:'not found'}</strong> and <strong>${dark?dark.name:'not found'}</strong>. Getting those two right will change how you look more than the bright accent colour ever will.</p>
 
  <h3 class="block">Drape test</h3>
@@ -2495,7 +2908,7 @@ function paint(){
  <h3 class="block">Colours to be careful with</h3>
  <div class="pswatches">${worst.map(c=>
   `<div class="psw"><div class="blk" style="background:${c.hex}" data-hex="${c.hex}"></div>
-   <div class="lb"><b>${c.name}</b><span class="mono">${(c.score*100).toFixed(0)}% fit</span></div></div>`).join('')}</div>
+   <div class="lb"><b>${c.name}</b><span class="mono">${c.hex.toUpperCase()}</span></div></div>`).join('')}</div>
  <p class="hint">These are not banned. Just keep them away from your face, or break them up with a collar or a scarf in one of your own colours.</p>
 
  <div class="row" style="margin-top:26px">
@@ -2503,6 +2916,46 @@ function paint(){
   <button class="btn" id="tone-pair">Pair my best colour</button>
   <button class="btn" id="tone-forget">Forget my scan</button>
  </div>`;
+
+ /* three worked combinations, so the bands turn into something you can wear */
+ const pick=(band,i)=>{const b=bands.find(x=>x.k===band);return b&&b.cols[i||0];};
+ const L=pick('Lights'),M=pick('Mid-tones'),D=pick('Darks'),
+       L2=pick('Lights',1),M2=pick('Mid-tones',1);
+ const pop=hues.slice(0,6).sort((x,y)=>y.C-x.C)[0];
+ const RECIPES=[
+  {n:'Easy and safe',
+   why:'A dark base with something light near your face. This is the combination that works on the most days, and it is very hard to get wrong.',
+   parts:[D||dark,L||light,pop]},
+  {n:'Soft and quiet',
+   why:'Everything stays close in strength, so nothing shouts. Good when you want to look considered rather than noticed.',
+   parts:[L||light,M||mid,D||dark]},
+  {n:'With some punch',
+   why:'A neutral doing most of the work, so your brightest colour can be small and still be the thing people see first.',
+   parts:[light||L,M2||M,pop||L2]}
+ ].filter(r=>r.parts.every(Boolean));
+ const roles=ctx().roles;
+ document.getElementById('recipes').innerHTML=RECIPES.map((r,i)=>`
+  <div class="recipe" data-i="${i}">
+   <div class="rc-strip">
+    <div style="flex:6;background:${r.parts[0].hex}"></div>
+    <div style="flex:3;background:${r.parts[1].hex}"></div>
+    <div style="flex:1;background:${r.parts[2].hex}"></div>
+   </div>
+   <div class="rc-body">
+    <h4>${r.n}</h4>
+    <p>${r.why}</p>
+    <ul class="rc-parts">
+     <li><i style="background:${r.parts[0].hex}"></i><b>60%</b> ${r.parts[0].name} — ${roles[0]}</li>
+     <li><i style="background:${r.parts[1].hex}"></i><b>30%</b> ${r.parts[1].name} — ${roles[1]}</li>
+     <li><i style="background:${r.parts[2].hex}"></i><b>10%</b> ${r.parts[2].name} — ${roles[2]}</li>
+    </ul>
+   </div>
+  </div>`).join('');
+ document.getElementById('recipes').onclick=e=>{
+  const r=e.target.closest('.recipe');if(!r)return;
+  palette=RECIPES[+r.dataset.i].parts.map(p=>p.hex);
+  renderPalette();buildProp();toast('Loaded into the Palette Lab');goTo('lab');
+ };
 
  const dw=document.getElementById('drapewrap');
  drapes.forEach(c=>{
