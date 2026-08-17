@@ -604,8 +604,6 @@ footer .byline b{color:var(--ink2);font-weight:600}
    ACCESSIBILITY BASELINE
    ═══════════════════════════════════════════════ */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
- clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .skip{position:fixed;left:12px;top:-60px;z-index:300;background:var(--accent);color:#fff;
  padding:10px 16px;border-radius:8px;font:600 .85rem 'Hanken Grotesk',sans-serif;
  text-decoration:none;transition:top .18s}
@@ -656,7 +654,6 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
 .drape .cap span{font-size:.68rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
 .drape .verdict{font-size:.72rem;font-weight:600;margin-top:3px}
 .drape .verdict.up{color:var(--ok)}.drape .verdict.down{color:var(--bad)}
-.drapepicks{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
 
 .privacy{display:flex;gap:11px;align-items:flex-start;background:var(--accent-soft);
  border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;margin:18px 0;max-width:660px}
@@ -682,14 +679,7 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
     <div class="appbar">
       <label class="ctx-pick" for="ctx-select">
         <span class="ctx-lead">I'm working on</span>
-        <select id="ctx-select">
-          <option value="clothing">Clothing &amp; style</option>
-          <option value="art">Art &amp; painting</option>
-          <option value="interiors">Interiors &amp; home</option>
-          <option value="design">Screens &amp; interfaces</option>
-          <option value="print">Print &amp; branding</option>
-          <option value="dataviz">Charts &amp; data</option>
-        </select>
+        <select id="ctx-select"></select>
       </label>
       <span class="icon-btn" id="offline-chip" hidden><span class="offline-dot"></span>Offline</span>
       <button class="icon-btn cta" id="install-btn" hidden><span>⤓</span><span>Install</span></button>
@@ -919,7 +909,9 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
   <div class="panel" id="p-preview">
     <p class="lede">A row of squares will mislead you. A colour behaves differently depending on its shape, how much of it there is, and what sits next to it. These little drawings are rough, but they are a lot more honest than squares, and they update as you change your palette.</p>
     <div class="row" id="figrow">
-      <span style="font-size:.82rem;color:var(--muted)">Show the outfit on:</span>
+      <span style="font-size:.82rem;color:var(--muted)">Body:</span>
+      <div class="fams" id="bodypick" style="margin:0"></div>
+      <span style="font-size:.82rem;color:var(--muted);margin-left:8px">Wearing:</span>
       <div class="fams" id="figpick" style="margin:0"></div>
     </div>
     <p class="lede">Tap any colour below a picture to move it to the next one in your palette. Hold Shift to go back. Lock the ones you like with the square on the right, then press Shuffle to try the rest against them.</p>
@@ -1000,7 +992,8 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
         <input type="file" id="scanfile" accept="image/*" style="display:none">
 
         <div id="adjustbar" style="display:none">
-          <p class="hint" style="margin:14px 0 8px"><b>Line your face up with the guides.</b> Drag the picture to move it, and use the slider to zoom. The important part is that the top box sits on your hair and the other four sit on bare skin.</p>
+          <p class="hint" style="margin:14px 0 6px"><b>Line your face up with the guides.</b> Drag the picture to move it, and use the slider to zoom. The four lower boxes need to sit on bare skin, and the top one needs to sit on your hair.</p>
+          <p class="hint" id="zonetip" style="margin:0 0 8px;color:var(--accent)"></p>
           <div class="proprow" style="max-width:340px">
             <span class="lbl" style="min-width:auto">Zoom</span>
             <input type="range" id="scan-zoom" min="100" max="320" value="100">
@@ -1367,9 +1360,6 @@ const hexToOklch=hex=>{const[L,a,b]=rgbToOklab(...hexToRgb(hex));
  return{L,C:Math.hypot(a,b),h:(Math.atan2(b,a)*180/Math.PI+360)%360};};
 const oklchToHex=(L,C,h)=>{const r=h*Math.PI/180;
  return rgbToHex(...oklabToRgb(clamp(L,0,1),C*Math.cos(r),C*Math.sin(r)));};
-/* lighten or darken by a perceptually even amount */
-const okShift=(hex,dL,dC)=>{const o=hexToOklch(hex);
- return oklchToHex(clamp(o.L+dL,0,1),Math.max(0,o.C*(dC==null?1:dC)),o.h);};
 
 /* ── CIEDE2000 ──
    Plain Euclidean distance in Lab mis-ranks saturated blues and near neutrals,
@@ -2252,6 +2242,15 @@ const pc=(i,f)=>palette[i]||f;
    Three garment shapes rather than one, and the skin tone comes from your own
    scan when you have done one, so the preview is a fair test instead of a
    picture of somebody else wearing your colours. */
+/* Bodies are drawn from measurements rather than hard-coded paths, so the shape
+   can change without redrawing every garment. Anyone can wear any of the
+   garments; the body and the clothes are separate choices. */
+const BODIES={
+ masc:{label:'Masculine',sh:33,waist:26,hip:25,jaw:1.06,hair:'short'},
+ fem:{label:'Feminine',sh:25,waist:19,hip:30,jaw:.92,hair:'long'},
+ neu:{label:'Neutral',sh:29,waist:23,hip:27,jaw:1,hair:'mid'}
+};
+let bodyKind=APP.body||'neu';
 const FIGS=[['trousers','Trousers & jacket'],['dress','Dress & cardigan'],['skirt','Skirt & knit']];
 let figKind=APP.fig||'trousers';
 /* read from the in-memory store, not from disk. These two used to parse the whole
@@ -2261,78 +2260,120 @@ function skinOfUser(){
  return (t&&t.profile&&t.profile.skinHex)||'#C99A73';
 }
 function hairOfUser(skin){
- if(APP.tone&&APP.tone.hair)return APP.tone.hair;
- const[h,s,l]=hexToHsl(skin);
- return hslToHex(h,clamp(s*.55,0,45),clamp(l*.22,6,20));   // a plausible dark hair
+ const derived=(()=>{const[h,s,l]=hexToHsl(skin);
+  return hslToHex(h,clamp(s*.55,0,45),clamp(l*.22,6,20));})();
+ const measured=APP.tone&&APP.tone.hair;
+ if(!measured)return derived;
+ /* If the hair patch landed on a bright wall rather than on hair, the figure
+    ends up in a grey wig. Trust the measurement only when it is plausibly hair,
+    which means not markedly lighter than the face. */
+ if(lightOf(measured)>lightOf(skin)+10)return derived;
+ return measured;
 }
 function figureSVG(kind,a,b,c,d,e){
  const skin=skinOfUser(), hair=hairOfUser(skin);
  const shade=hslToHex(...(x=>[x[0],x[1],clamp(x[2]-7,0,100)])(hexToHsl(skin)));
- /* neck first, then the hair mass, then the face on top of it — the hair reads as
-    hair because it shows as a rim around the face rather than as a little cap */
+ const B=BODIES[bodyKind]||BODIES.neu;
+ const cx=85, SH=B.sh, WA=B.waist, HP=B.hip;
+ const shY=80, waistY=140, hipY=170, kneeY=214, ankY=262;
+ const n=v=>Math.round(v*10)/10;
+
+ /* head: neck, then the hair mass, then the face on top, so the hair reads as a
+    rim around the face instead of a cap sitting on a bald head */
+ const hrx=n(21.5*B.jaw), frx=n(18.2*B.jaw);
+ const longHair = B.hair==='long'
+   ? `<path d="M${n(cx-hrx)} 44 C${n(cx-hrx-3)} 70 ${n(cx-hrx-1)} 92 ${n(cx-hrx+3)} 104
+        L${n(cx-hrx+13)} 101 C${n(cx-hrx+9)} 88 ${n(cx-hrx+8)} 66 ${n(cx-hrx+10)} 46 Z" fill="${hair}"/>
+      <path d="M${n(cx+hrx)} 44 C${n(cx+hrx+3)} 70 ${n(cx+hrx+1)} 92 ${n(cx+hrx-3)} 104
+        L${n(cx+hrx-13)} 101 C${n(cx+hrx-9)} 88 ${n(cx+hrx-8)} 66 ${n(cx+hrx-10)} 46 Z" fill="${hair}"/>`
+   : B.hair==='mid'
+   ? `<path d="M${n(cx-hrx)} 46 C${n(cx-hrx-2)} 60 ${n(cx-hrx-1)} 70 ${n(cx-hrx+2)} 76
+        L${n(cx-hrx+11)} 73 C${n(cx-hrx+8)} 64 ${n(cx-hrx+7)} 54 ${n(cx-hrx+8)} 46 Z" fill="${hair}"/>
+      <path d="M${n(cx+hrx)} 46 C${n(cx+hrx+2)} 60 ${n(cx+hrx+1)} 70 ${n(cx+hrx-2)} 76
+        L${n(cx+hrx-11)} 73 C${n(cx+hrx-8)} 64 ${n(cx+hrx-7)} 54 ${n(cx+hrx-8)} 46 Z" fill="${hair}"/>`
+   : '';
  const head=`
-  <path d="M77 64 h16 v13 a8 5 0 0 1 -16 0 Z" fill="${shade}"/>
-  <ellipse cx="85" cy="44" rx="23.5" ry="25.5" fill="${hair}"/>
-  <path d="M62 46 C60 58 61 66 63 70 L68 68 C66 62 65 54 66 46 Z" fill="${hair}"/>
-  <path d="M108 46 C110 58 109 66 107 70 L102 68 C104 62 105 54 104 46 Z" fill="${hair}"/>
-  <ellipse cx="64.8" cy="52" rx="3.3" ry="5" fill="${skin}"/>
-  <ellipse cx="105.2" cy="52" rx="3.3" ry="5" fill="${skin}"/>
-  <ellipse cx="85" cy="50" rx="20" ry="22.5" fill="${skin}"/>`;
- const floor=`<ellipse cx="85" cy="286" rx="44" ry="6" fill="#000" opacity=".10"/>`;
+  <path d="M${cx-8} 62 h16 v16 a8 5 0 0 1 -16 0 Z" fill="${shade}"/>
+  <ellipse cx="${cx}" cy="43" rx="${hrx}" ry="23.5" fill="${hair}"/>
+  ${longHair}
+  <ellipse cx="${n(cx-frx-1)}" cy="50" rx="3.3" ry="5" fill="${skin}"/>
+  <ellipse cx="${n(cx+frx+1)}" cy="50" rx="3.3" ry="5" fill="${skin}"/>
+  <ellipse cx="${cx}" cy="48" rx="${frx}" ry="20.5" fill="${skin}"/>`;
+ const floor=`<ellipse cx="${cx}" cy="284" rx="${n(SH+11)}" ry="6" fill="#000" opacity=".10"/>`;
  const frame=`<rect width="170" height="300" rx="11" fill="${e}"/>`;
- const hands=`<circle cx="47" cy="150" r="5.5" fill="${skin}"/><circle cx="123" cy="150" r="5.5" fill="${skin}"/>`;
+
+ /* shoulders curve in to the waist, then out again to the hips */
+ const torso=(hemY,fill)=>`<path d="M${n(cx-SH)} ${shY}
+   C${n(cx-SH)} ${shY-7} ${n(cx-SH*0.5)} ${shY-9} ${cx} ${shY-9}
+   C${n(cx+SH*0.5)} ${shY-9} ${n(cx+SH)} ${shY-7} ${n(cx+SH)} ${shY}
+   L${n(cx+WA+2)} ${waistY} L${n(cx+WA+3)} ${hemY} L${n(cx-WA-3)} ${hemY}
+   L${n(cx-WA-2)} ${waistY} Z" fill="${fill}"/>`;
+ const sleeve=(side,fill)=>{const s=side<0?-1:1;
+  return `<path d="M${n(cx+s*SH)} ${shY}
+   L${n(cx+s*(SH+10))} ${shY+20} L${n(cx+s*(SH+12))} ${shY+64}
+   L${n(cx+s*(SH+2))} ${shY+67} L${n(cx+s*(SH-4))} ${shY+26} Z" fill="${fill}"/>`;};
+ const hands=`<circle cx="${n(cx-SH-7)}" cy="${shY+72}" r="6" fill="${skin}"/>
+  <circle cx="${n(cx+SH+7)}" cy="${shY+72}" r="6" fill="${skin}"/>`;
+ const legs=(topY,botY)=>`
+  <rect x="${n(cx-11)}" y="${topY}" width="9.5" height="${botY-topY}" rx="4.5" fill="${skin}"/>
+  <rect x="${n(cx+1.5)}" y="${topY}" width="9.5" height="${botY-topY}" rx="4.5" fill="${skin}"/>`;
+ const shoes=(y,fill)=>`
+  <path d="M${n(cx-16)} ${y} h20 a4 4 0 0 1 4 4 v7 h-28 v-7 a4 4 0 0 1 4 -4 Z" fill="${fill}"/>
+  <path d="M${n(cx-3)} ${y} h20 a4 4 0 0 1 4 4 v7 h-28 v-7 a4 4 0 0 1 4 -4 Z" fill="${fill}"/>`;
+ const bag=(fill,fromY)=>`
+  <path d="M${n(cx+11)} ${shY+8} L${n(cx+SH+8)} ${fromY}" stroke="${fill}" stroke-width="3"
+    fill="none" opacity=".85"/>
+  <rect x="${n(cx+SH-4)}" y="${fromY}" width="26" height="21" rx="5" fill="${fill}"/>`;
 
  if(kind==='dress'){
-  return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="A dress and cardigan in your palette">
+  const hem=214;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="170" height="300" viewBox="0 0 170 300" role="img"
+    aria-label="A dress and cardigan in your palette, on a ${B.label.toLowerCase()} figure">
    ${frame}${floor}${head}
-   <path d="M85 76 C72 76 63 80 58 85 L44 214 L126 214 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
-   <path d="M58 85 L46 100 L42 146 L52 149 L57 108 Z" fill="${c}"/>
-   <path d="M112 85 L124 100 L128 146 L118 149 L113 108 Z" fill="${c}"/>
-   <path d="M58 85 L52 214 L70 214 L74 88 Z" fill="${c}"/>
-   <path d="M112 85 L118 214 L100 214 L96 88 Z" fill="${c}"/>
-   <rect x="66" y="132" width="38" height="8" rx="4" fill="${d}"/>
-   ${hands}
-   <rect x="74" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
-   <rect x="87" y="212" width="9.5" height="52" rx="4.5" fill="${skin}"/>
-   <path d="M69 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${b}"/>
-   <path d="M82 262 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${b}"/>
-   <path d="M97 88 L124 170" stroke="${b}" stroke-width="3" fill="none" opacity=".85"/>
-   <rect x="112" y="168" width="26" height="20" rx="5" fill="${b}"/>
+   <path d="M${n(cx-SH)} ${shY}
+     C${n(cx-SH)} ${shY-7} ${n(cx-SH*0.5)} ${shY-9} ${cx} ${shY-9}
+     C${n(cx+SH*0.5)} ${shY-9} ${n(cx+SH)} ${shY-7} ${n(cx+SH)} ${shY}
+     L${n(cx+WA+1)} ${waistY} L${n(cx+HP+13)} ${hem} L${n(cx-HP-13)} ${hem}
+     L${n(cx-WA-1)} ${waistY} Z" fill="${a}"/>
+   ${sleeve(-1,c)}${sleeve(1,c)}
+   <path d="M${n(cx-SH)} ${shY} L${n(cx-WA-6)} ${hem} L${n(cx-WA+3)} ${hem}
+     L${n(cx-SH+10)} ${shY+6} Z" fill="${c}"/>
+   <path d="M${n(cx+SH)} ${shY} L${n(cx+WA+6)} ${hem} L${n(cx+WA-3)} ${hem}
+     L${n(cx+SH-10)} ${shY+6} Z" fill="${c}"/>
+   <rect x="${n(cx-WA-2)}" y="${waistY-6}" width="${n((WA+2)*2)}" height="8" rx="4" fill="${d}"/>
+   ${hands}${legs(hem,262)}${shoes(262,b)}${bag(b,168)}
   </svg>`;
  }
  if(kind==='skirt'){
-  return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="A skirt and knitted top in your palette">
+  const hem=224;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="170" height="300" viewBox="0 0 170 300" role="img"
+    aria-label="A skirt and knitted top in your palette, on a ${B.label.toLowerCase()} figure">
    ${frame}${floor}${head}
-   <path d="M85 76 C72 76 63 80 58 85 L56 158 L114 158 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
-   <path d="M58 85 L45 101 L41 147 L51 150 L57 109 Z" fill="${a}"/>
-   <path d="M112 85 L125 101 L129 147 L119 150 L113 109 Z" fill="${a}"/>
-   <path d="M56 156 L114 156 L128 224 L42 224 Z" fill="${b}"/>
-   <rect x="56" y="152" width="58" height="9" rx="4" fill="${d}"/>
-   ${hands}
-   <rect x="74" y="222" width="9.5" height="44" rx="4.5" fill="${skin}"/>
-   <rect x="87" y="222" width="9.5" height="44" rx="4.5" fill="${skin}"/>
-   <path d="M69 264 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-   <path d="M82 264 h20 a4 4 0 0 1 4 4 v6 h-28 v-6 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-   <path d="M74 79 L85 100 L96 79 C92 77 78 77 74 79 Z" fill="${c}"/>
-   <path d="M58 100 h54 M57 116 h56 M56 132 h58" stroke="${c}" stroke-width="2" opacity=".35" fill="none"/>
+   ${torso(158,a)}${sleeve(-1,a)}${sleeve(1,a)}
+   <path d="M${n(cx-WA-4)} 156 L${n(cx+WA+4)} 156 L${n(cx+HP+14)} ${hem} L${n(cx-HP-14)} ${hem} Z" fill="${b}"/>
+   <rect x="${n(cx-WA-5)}" y="152" width="${n((WA+5)*2)}" height="9" rx="4" fill="${d}"/>
+   <path d="M${n(cx-7)} ${shY-2} L${cx} ${shY+12} L${n(cx+7)} ${shY-2}
+     C${n(cx+3)} ${shY-4} ${n(cx-3)} ${shY-4} ${n(cx-7)} ${shY-2} Z" fill="${c}"/>
+   <path d="M${n(cx-WA-1)} 104 h${n((WA+1)*2)} M${n(cx-WA-1)} 120 h${n((WA+1)*2)}
+     M${n(cx-WA-1)} 136 h${n((WA+1)*2)}" stroke="${c}" stroke-width="2" opacity=".35" fill="none"/>
+   ${hands}${legs(hem,264)}${shoes(264,d)}
   </svg>`;
  }
  /* trousers and jacket */
- return `<svg width="170" height="300" viewBox="0 0 170 300" role="img" aria-label="Trousers and a jacket in your palette">
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="170" height="300" viewBox="0 0 170 300" role="img"
+   aria-label="Trousers and a jacket in your palette, on a ${B.label.toLowerCase()} figure">
   ${frame}${floor}${head}
-  <path d="M85 76 C72 76 63 80 58 85 L56 168 L114 168 L112 85 C107 80 98 76 85 76 Z" fill="${a}"/>
-  <path d="M58 85 L45 101 L41 147 L51 150 L57 109 Z" fill="${c}"/>
-  <path d="M112 85 L125 101 L129 147 L119 150 L113 109 Z" fill="${c}"/>
-  <path d="M58 85 L55 168 L73 168 L77 89 Z" fill="${c}"/>
-  <path d="M112 85 L115 168 L97 168 L93 89 Z" fill="${c}"/>
+  ${torso(hipY,a)}${sleeve(-1,c)}${sleeve(1,c)}
+  <path d="M${n(cx-SH)} ${shY} L${n(cx-WA-4)} ${hipY} L${n(cx-WA+6)} ${hipY}
+    L${n(cx-SH+12)} ${shY+7} Z" fill="${c}"/>
+  <path d="M${n(cx+SH)} ${shY} L${n(cx+WA+4)} ${hipY} L${n(cx+WA-6)} ${hipY}
+    L${n(cx+SH-12)} ${shY+7} Z" fill="${c}"/>
   ${hands}
-  <path d="M56 166 L114 166 L110 262 L92 262 L85 194 L78 262 L60 262 Z" fill="${b}"/>
-  <rect x="56" y="162" width="58" height="9" rx="4" fill="${d}"/>
-  <path d="M58 260 h22 a4 4 0 0 1 4 4 v7 h-30 v-7 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-  <path d="M90 260 h22 a4 4 0 0 1 4 4 v7 h-30 v-7 a4 4 0 0 1 4 -4 Z" fill="${d}"/>
-  <path d="M96 88 L126 168" stroke="${d}" stroke-width="3" fill="none" opacity=".85"/>
-  <rect x="114" y="166" width="26" height="21" rx="5" fill="${d}"/>
-  <rect x="120" y="163" width="14" height="5" rx="2.5" fill="${d}" opacity=".7"/>
+  <path d="M${n(cx-WA-3)} ${hipY-4} L${n(cx+WA+3)} ${hipY-4}
+    L${n(cx+HP-2)} ${ankY} L${n(cx+5)} ${ankY} L${cx} ${kneeY-18}
+    L${n(cx-5)} ${ankY} L${n(cx-HP+2)} ${ankY} Z" fill="${b}"/>
+  <rect x="${n(cx-WA-4)}" y="${hipY-9}" width="${n((WA+4)*2)}" height="9" rx="4" fill="${d}"/>
+  ${shoes(ankY-2,d)}${bag(d,hipY-2)}
  </svg>`;
 }
 /* ═════ WHICH COLOUR GOES WHERE ═════
@@ -2582,7 +2623,7 @@ function renderPreviews(){
  document.getElementById('prev-outfit').innerHTML=figureSVG(figKind,a,b,c,d,e);
  [a,b,c,d,e]=S1('canvas');
  document.getElementById('prev-canvas').innerHTML=`
- <svg width="195" height="150" viewBox="0 0 195 150">
+ <svg xmlns="http://www.w3.org/2000/svg" width="195" height="150" viewBox="0 0 195 150">
   <rect width="195" height="150" fill="${e}"/>
   <rect y="0" width="195" height="78" fill="${b}"/>
   <rect y="78" width="195" height="72" fill="${c}"/>
@@ -2593,7 +2634,7 @@ function renderPreviews(){
  </svg>`;
  [a,b,c,d,e]=S1('room');
  document.getElementById('prev-room').innerHTML=`
- <svg width="195" height="150" viewBox="0 0 195 150">
+ <svg xmlns="http://www.w3.org/2000/svg" width="195" height="150" viewBox="0 0 195 150">
   <rect width="195" height="150" fill="${b}"/>
   <rect y="112" width="195" height="38" fill="${c}"/>
   <rect x="18" y="48" width="56" height="46" fill="${e}" stroke="${d}" stroke-width="3"/>
@@ -2607,7 +2648,7 @@ function renderPreviews(){
  [a,b,c,d,e]=S1('poster');
  const onA=readableOn(a),onE=readableOn(e),onB=readableOn(b);
  document.getElementById('prev-poster').innerHTML=`
- <svg width="170" height="215" viewBox="0 0 170 215">
+ <svg xmlns="http://www.w3.org/2000/svg" width="170" height="215" viewBox="0 0 170 215">
   <rect width="170" height="215" fill="${e}" rx="7"/>
   <rect x="0" y="0" width="170" height="34" fill="${d}" rx="7"/><rect x="0" y="24" width="170" height="10" fill="${d}"/>
   <circle cx="16" cy="17" r="6" fill="${a}"/>
@@ -2635,7 +2676,15 @@ document.getElementById('figpick').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  figKind=b.dataset.k;APP.fig=figKind;saveApp();renderFigPick();renderPreviews();
 });
-renderFigPick();
+function renderBodyPick(){
+ document.getElementById('bodypick').innerHTML=Object.entries(BODIES).map(([k,v])=>
+  `<button class="chipbtn ${k===bodyKind?'on':''}" data-k="${k}">${v.label}</button>`).join('');
+}
+document.getElementById('bodypick').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ bodyKind=b.dataset.k;APP.body=bodyKind;saveApp();renderBodyPick();renderPreviews();
+});
+renderFigPick();renderBodyPick();
 
 /* put the preview that matches what you're working on first */
 function orderPreviews(){
@@ -3183,7 +3232,8 @@ const standalone=matchMedia('(display-mode: standalone)').matches||navigator.sta
 const installBtn=document.getElementById('install-btn');
 const updBanner=document.getElementById('update-banner');
 const iosBanner=document.getElementById('ios-banner');
-const show=el=>el.classList.add('show'), hide=el=>el.classList.remove('show');
+const showBanner=el=>el.classList.add('show'),
+      hideBanner=el=>el.classList.remove('show');
 let deferredPrompt=null;
 
 addEventListener('beforeinstallprompt',e=>{
@@ -3203,8 +3253,8 @@ addEventListener('appinstalled',()=>{installBtn.hidden=true;toast('Chromatic ins
 
 const iOS=/iP(hone|ad|od)/.test(navigator.userAgent)||
  (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-if(iOS&&!standalone&&!S.iosNudged)setTimeout(()=>show(iosBanner),2800);
-document.getElementById('ios-dismiss').onclick=()=>{hide(iosBanner);S.iosNudged=1;save();};
+if(iOS&&!standalone&&!S.iosNudged)setTimeout(()=>showBanner(iosBanner),2800);
+document.getElementById('ios-dismiss').onclick=()=>{hideBanner(iosBanner);S.iosNudged=1;save();};
 
 const chip=document.getElementById('offline-chip');
 const netState=()=>{chip.hidden=navigator.onLine;};
@@ -3213,9 +3263,9 @@ addEventListener('offline',()=>{netState();toast('You are offline, but everythin
 netState();
 
 function offerUpdate(worker){
- show(updBanner);
- document.getElementById('update-now').onclick=()=>{hide(updBanner);worker.postMessage('SKIP_WAITING');};
- document.getElementById('update-later').onclick=()=>hide(updBanner);
+ showBanner(updBanner);
+ document.getElementById('update-now').onclick=()=>{hideBanner(updBanner);worker.postMessage('SKIP_WAITING');};
+ document.getElementById('update-later').onclick=()=>hideBanner(updBanner);
 }
 if('serviceWorker' in navigator&&location.protocol!=='file:'){
  let hadController=!!navigator.serviceWorker.controller,reloading=false;
@@ -3385,6 +3435,10 @@ runAdvisor=function(){advSwatch.style.background=advInput.value;_runAdvisor();};
 
 /* ═════ 2b · WHAT ARE YOU WORKING ON ═════ */
 const ctxSel=document.getElementById('ctx-select');
+/* one source of truth for the mode names, so the picker and the welcome card
+   can never drift apart again */
+ctxSel.innerHTML=Object.entries(CTX).map(([k,v])=>
+ `<option value="${k}">${v.label}</option>`).join('');
 function applyCtx(key,announce){
  if(!CTX[key])key='clothing';
  const C=CTX[key];
@@ -3622,13 +3676,15 @@ function drawTransformed(){
  if(mirrorSrc){fctx.translate(CW,0);fctx.scale(-1,1);}
  fctx.drawImage(srcImg,mirrorSrc?CW-x-w:x,y,w,h);
  fctx.restore();
+ if(phase==='adjust')markZones();      // live feedback while you reposition
 }
 function beginAdjust(src,w,h,mirror){
  srcImg=src;srcW=w;srcH=h;mirrorSrc=!!mirror;
  view={scale:1,tx:0,ty:0};zoomIn.value=100;
  whiteRef=null;
  resultEl.innerHTML='';qualityEl.style.display='none';
- drawTransformed();setPhase('adjust');
+ setPhase('adjust');          // before drawing, so the zone feedback is allowed to run
+ drawTransformed();
 }
 zoomIn.addEventListener('input',e=>{view.scale=+e.target.value/100;drawTransformed();});
 document.getElementById('scan-reset').onclick=()=>{
@@ -3725,17 +3781,36 @@ bShoot.onclick=()=>{
  shot.getContext('2d').drawImage(video,0,0);
  beginAdjust(shot,shot.width,shot.height,true);
 };
-/* live alignment feedback — turns each patch green once it reads as skin */
-function liveCheck(){
- if(!video.videoWidth)return;
- drawCover(video,video.videoWidth,video.videoHeight,true);
+/* Green means "we can read this patch". It used to run only while the camera was
+   live, so anyone who uploaded a photo got no feedback at all and no way to know
+   whether the boxes had landed anywhere useful. It now runs whenever there is a
+   picture on screen. The hair box is the odd one out: it goes green when it is
+   NOT on skin, because that is what we want from it. */
+function markZones(){
  const img=fctx.getImageData(0,0,CW,CH);
+ let good=0;
  ZONES.forEach(z=>{
   const p=patchPixels(img,z,4);
   let hit=0;for(const px of p.px)if(isSkin(px[0],px[1],px[2]))hit++;
+  const ok=hit/Math.max(1,p.px.length)>0.55;
+  if(ok)good++;
   const box=guide.querySelector(`.zonebox[data-k="${z.k}"]`);
-  if(box)box.classList.toggle('hot',hit/Math.max(1,p.px.length)>0.55);
+  if(box)box.classList.toggle('hot',ok);
  });
+ const hp=patchPixels(img,HAIR,4);
+ let hs=0;for(const px of hp.px)if(isSkin(px[0],px[1],px[2]))hs++;
+ const hairBox=guide.querySelector('.zonebox[data-k="hair"]');
+ if(hairBox)hairBox.classList.toggle('hot',hs/Math.max(1,hp.px.length)<0.3);
+ const tip=document.getElementById('zonetip');
+ if(tip)tip.textContent=good===4
+  ? 'All four skin patches are readable. You are good to go.'
+  : good+' of 4 skin patches are readable. Green means we can read that patch. Move or zoom the picture until the forehead, both cheeks and the jaw are all green.';
+ return good;
+}
+function liveCheck(){
+ if(!video.videoWidth)return;
+ drawCover(video,video.videoWidth,video.videoHeight,true);
+ markZones();
 }
 addEventListener('pagehide',stopCam);
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='live')stopCam(),setPhase('idle');});
@@ -4125,9 +4200,12 @@ function paint(){
    <div class="lb"><b>${c.name}</b><span class="mono">${c.hex.toUpperCase()}</span></div></div>`).join('')}</div>
  <p class="hint">Not every white suits everybody, and neither does every black. Yours are <strong>${light?light.name:'not found'}</strong> and <strong>${dark?dark.name:'not found'}</strong>. Getting those two right will change how you look more than the bright accent colour ever will.</p>
 
+ ${LAST.restored?`
+ <div class="callout"><b>The drape test needs a photo.</b> These are the colours from the last time you measured yourself. We keep the numbers but we delete the picture, so we cannot hold your face against each colour again until you scan once more.</div>`
+ :`
  <h3 class="block">Drape test</h3>
  <p class="lede">This is the same test a colour analyst does in person. Your face is held against each colour and nothing else is changed. Look at the first two, then look at the last two, and see whether you can spot the difference.</p>
- <div class="drapewrap" id="drapewrap"></div>
+ <div class="drapewrap" id="drapewrap"></div>`}
 
  <h3 class="block">Colours to be careful with</h3>
  <div class="pswatches">${worst.map(c=>
@@ -4182,7 +4260,7 @@ function paint(){
  };
 
  const dw=document.getElementById('drapewrap');
- drapes.forEach(c=>{
+ if(dw)drapes.forEach(c=>{
   const box=document.createElement('div');box.className='drape';
   box.appendChild(drapeCanvas(c.hex));
   const up=c.score>=0.58,down=c.score<0.45;
@@ -4220,12 +4298,33 @@ function paint(){
   toast('Your scan and photo have been deleted');};
 }
 
-/* restore a previous reading (numbers only — the photo is never stored) */
+/* Bring a previous reading back on screen. The results used to disappear the
+   moment you left the page, so returning users saw a one-line summary saying
+   "you are a Deep Autumn" and no colours at all. The photo is genuinely gone,
+   so the drape test cannot come back, but everything derived from the numbers
+   can. */
+function restoreTone(){
+ const t=S.tone;
+ if(!t||!t.profile||!Array.isArray(t.skin))return false;
+ LAST={
+  m:{skin:t.skin,
+     good:[{k:'saved',lab:t.skin}],
+     hair:null,
+     ill:{src:'saved',ok:true,cast:0},
+     spread:0,focus:999,clipped:0},
+  contrastOverride:t.profile.contrast||null,
+  conf:t.conf||0,
+  restored:true
+ };
+ try{paint();return true;}catch(err){console.warn('[tone] could not restore',err);return false;}
+}
 if(S.tone&&S.tone.profile){
  const t=S.tone;
  document.getElementById('scanhint').innerHTML=
-  `Last time we measured you, you came out as <strong>${t.profile.undertone} undertone, ${t.profile.band}, ${t.season}</strong>,
-   and we were ${t.conf} out of 100 sure about it. Only those words were kept. The photo was deleted. Scan again whenever you want to update it.`;
+  `These are the colours from the last time we measured you. You came out as
+   <strong>${t.profile.undertone} undertone, ${t.profile.band}, ${t.season}</strong>,
+   and we were ${t.conf} out of 100 sure. Scan again whenever you want to update it.`;
+ restoreTone();
 }
 
 /* ═════ 10 · DEEP LINKS AND SHARED PALETTES ═════ */
