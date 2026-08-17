@@ -169,18 +169,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;height:4px}
 .qfb.show{display:block}
 
 /* ── COLOUR PICKER GRID ── */
-.picker{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:26px}
-.picker-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.picker-top input[type=search]{flex:1;min-width:190px}
 .fams{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.swatchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px;max-height:320px;overflow-y:auto;padding-right:4px}
-.sg{cursor:pointer;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--surface2);transition:.16s}
-.sg:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line2)}
-.sg .sw{height:46px}
-.sg .lb{padding:6px 8px 7px}
-.sg .lb b{display:block;font-size:.76rem;font-weight:500;color:var(--ink);line-height:1.3}
-.sg .lb span{font-size:.66rem;color:var(--muted)}
-.pickcount{font-size:.78rem;color:var(--muted)}
 
 /* ── ID CARD ── */
 .idcard{display:flex;gap:20px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:8px}
@@ -315,6 +304,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;height:4px}
 
 footer{border-top:1px solid var(--line);margin-top:50px;padding:22px 0 34px}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--muted)}
+footer .byline b{color:var(--ink2);font-weight:600}
 
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -486,6 +476,93 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 .metric .v{font-size:1.18rem;font-family:'Fraunces',serif;color:var(--ink);line-height:1.2}
 .metric .n{font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace}
 
+/* palettes you kept */
+.savedgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;
+ margin-bottom:8px}
+.savedcard{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;
+ background:var(--surface);transition:.16s}
+.savedcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.savedstrip{display:flex;height:38px}
+.savedstrip div{flex:1}
+.savedmeta{padding:9px 11px 10px;position:relative}
+.savedmeta b{display:block;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;
+ text-overflow:ellipsis;padding-right:22px}
+.savedmeta span{font-size:.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.savedrm{position:absolute;top:7px;right:7px;width:24px;height:24px;border:none;border-radius:50%;
+ background:var(--surface2);color:var(--muted);cursor:pointer;font-size:14px;line-height:1}
+.savedrm:hover{background:var(--bad);color:#fff}
+
+/* glossary terms, explained where they are used */
+.term{border-bottom:1px dotted var(--line2);cursor:help;color:inherit}
+.term:hover{border-bottom-color:var(--accent);color:var(--accent)}
+.termpop{position:fixed;z-index:210;max-width:290px;background:var(--surface);
+ border:1px solid var(--line2);border-radius:11px;box-shadow:0 14px 40px rgba(0,0,0,.22);
+ padding:13px 15px;opacity:0;pointer-events:none;transition:opacity .15s}
+.termpop.on{opacity:1;pointer-events:auto}
+.termpop b{display:block;font-size:.88rem;color:var(--accent);margin-bottom:4px}
+.termpop p{font-size:.83rem;line-height:1.6;color:var(--ink2);margin:0}
+
+/* first run */
+.welcome{position:fixed;inset:0;z-index:220;display:none;align-items:center;justify-content:center;
+ background:rgba(8,10,14,.5);backdrop-filter:blur(3px);padding:20px}
+.welcome.on{display:flex}
+.welcome-card{background:var(--surface);border:1px solid var(--line2);border-radius:16px;
+ max-width:440px;width:100%;padding:26px 26px 22px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.welcome-card h2{font-size:1.5rem;margin-bottom:8px}
+.welcome-card p{font-size:.92rem;color:var(--ink2);line-height:1.65;margin-bottom:16px}
+.welcome-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.welcome-opts button{font:600 .84rem 'Hanken Grotesk',sans-serif;padding:13px 12px;text-align:left;
+ border:1px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--ink);
+ cursor:pointer;transition:.16s;min-height:44px}
+.welcome-opts button:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:460px){.welcome-opts{grid-template-columns:1fr}}
+
+/* one-click contrast fixes */
+.fixrow{display:flex;align-items:center;gap:13px;background:var(--surface);
+ border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;margin-bottom:9px;
+ flex-wrap:wrap;max-width:720px}
+.fixdemo{width:46px;height:46px;border-radius:8px;display:flex;align-items:center;
+ justify-content:center;font:600 1.1rem 'Hanken Grotesk',sans-serif;flex-shrink:0;
+ border:1px solid var(--line)}
+.fixtext{flex:1;min-width:180px}
+.fixtext b{display:block;font-size:.9rem;font-weight:600}
+.fixtext span{font-size:.8rem;color:var(--muted);line-height:1.5}
+.fixsw{width:34px;height:34px;border-radius:8px;border:1px solid var(--line2);flex-shrink:0}
+.fixnone{font-size:.8rem;color:var(--muted);max-width:230px;line-height:1.5}
+.model-note{font-size:.82rem;color:var(--muted);display:block;margin-top:2px}
+
+/* ═══════════════════════════════════════════════
+   ACCESSIBILITY BASELINE
+   ═══════════════════════════════════════════════ */
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+ clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;left:12px;top:-60px;z-index:300;background:var(--accent);color:#fff;
+ padding:10px 16px;border-radius:8px;font:600 .85rem 'Hanken Grotesk',sans-serif;
+ text-decoration:none;transition:top .18s}
+.skip:focus{top:12px}
+
+/* Anything you tap needs a 44px target. Several controls were about 29px, and the
+   remove-swatch cross was 19px and only appeared on hover, so on a phone it did
+   not exist at all. */
+.btn,.chipbtn,.qbtn,.pcbtn,.icon-btn,.theme-btn{min-height:44px}
+.btn.sm{min-height:38px}
+nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
+.rm{width:30px;height:30px;font-size:15px;opacity:.85;top:5px;right:5px}
+.psw:hover .rm,.psw:focus-within .rm{opacity:1}
+.tray-sw{width:44px;height:44px}
+.cp-sw i{height:30px}
+.cp-sw span{font-size:.66rem}
+.psw .blk,.cp-sw,.hsw,.rec,.recipe,.tray-sw{cursor:pointer}
+.psw .blk:focus-visible,.rec:focus-visible,.recipe:focus-visible,
+.hsw:focus-visible,.tray-sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+   transition-duration:.001ms!important;scroll-behavior:auto!important}
+  html{scroll-behavior:auto}
+}
+
 /* worked 60/30/10 combinations */
 .recipe{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
  margin-bottom:12px;cursor:pointer;transition:.18s;max-width:660px}
@@ -528,6 +605,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 </head>
 <body>
 
+<a href="#main" class="skip">Skip to the main content</a>
+
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand"><h1>Chro<em>matic</em></h1><span>Colour theory, pairing & palettes</span></div>
@@ -538,7 +617,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
           <option value="clothing">Clothing &amp; style</option>
           <option value="art">Art &amp; painting</option>
           <option value="interiors">Interiors &amp; home</option>
-          <option value="design">Design &amp; screens</option>
+          <option value="design">Screens &amp; interfaces</option>
+          <option value="print">Print &amp; branding</option>
+          <option value="dataviz">Charts &amp; data</option>
         </select>
       </label>
       <span class="icon-btn" id="offline-chip" hidden><span class="offline-dot"></span>Offline</span>
@@ -570,6 +651,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <button data-s="personal">Personal Colour</button>
   <button data-s="glossary">Glossary</button>
 </div></nav>
+
+<main id="main" tabindex="-1">
 
 <!-- ══ LEARN ══ -->
 <section id="s-learn" class="section active"><div class="wrap">
@@ -607,17 +690,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
     </div>
     <input type="text" id="adv-hex" value="#F79E8A" size="9" maxlength="7" class="mono" style="width:112px">
     <div class="seg" id="adv-mode"><button class="on" data-m="paint">Paint / RYB</button><button data-m="screen">Screen / RGB</button></div>
-    <button class="btn sm" id="toggle-picker">Browse named colours ▾</button>
   </div>
-
-  <div class="picker" id="picker" style="display:none">
-    <div class="picker-top">
-      <input type="search" id="csearch" placeholder="Search by name, like salmon, teal, mustard or indigo">
-      <span class="pickcount" id="pickcount"></span>
-    </div>
-    <div class="fams" id="fams"></div>
-    <div class="swatchgrid" id="swatchgrid"></div>
-  </div>
+  <span class="model-note"></span>
 
   <div id="adv-id"></div>
   <div id="adv-out"></div>
@@ -657,6 +731,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
     <div class="seg" id="wheel-mode"><button class="on" data-m="paint">Paint / RYB</button><button data-m="screen">Screen / RGB</button></div>
     <span style="font-size:.83rem;color:var(--muted)" id="modenote"></span>
   </div>
+  <span class="model-note"></span>
 
   <div class="wheelwrap">
     <canvas id="wheel" width="320" height="320"></canvas>
@@ -718,6 +793,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
     <button data-p="prop">Proportions</button>
     <button data-p="preview">Preview</button>
     <button data-p="check">Contrast Check</button>
+    <button data-p="metric" id="metric-tab" hidden>Extra check</button>
+  </div>
+  <div class="row" id="cvdrow">
+    <span style="font-size:.82rem;color:var(--muted)">See it as:</span>
+    <div class="fams" id="cvdpick" style="margin:0"></div>
   </div>
 
   <div class="panel active" id="p-build">
@@ -728,14 +808,23 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
       </div>
       <input type="text" id="lab-hex" value="#4A6D96" size="9" maxlength="7" class="mono" style="width:112px" aria-label="Hex code">
       <button class="btn primary" id="lab-add-btn">Add colour</button>
+      <button class="btn" id="lab-undo" disabled>Undo</button>
       <button class="btn" id="lab-clear">Clear all</button>
+      <button class="btn" id="lab-save">Keep this palette</button>
       <button class="btn" id="lab-export">Export</button>
     </div>
+    <div id="savedbox"></div>
     <div id="pstrip"></div>
     <div class="pswatches" id="pswatches"></div>
     <p class="hint">Tap any colour to send it to the Pairing Advisor. To remove one, hover over it and click the small cross.</p>
     <div id="exportbox" style="display:none;margin-top:20px">
+      <div class="fams" id="exportpick" style="margin-bottom:12px"></div>
       <pre id="exporttext" class="mono" style="font-size:.8rem;line-height:1.8;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);padding:16px 18px;border-radius:var(--r);overflow-x:auto;white-space:pre;max-width:640px"></pre>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn sm primary" id="export-copy">Copy to clipboard</button>
+        <button class="btn sm" id="export-download">Save as a file</button>
+        <button class="btn sm" id="export-share">Copy a link to this palette</button>
+      </div>
     </div>
   </div>
 
@@ -780,6 +869,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
       <span><i style="background:rgba(154,107,18,.4)"></i> Between 3 and 4.5. Big text only.</span>
       <span><i style="background:rgba(176,58,46,.3)"></i> Under 3. People will struggle to read it.</span>
     </div>
+    <div id="fixlist"></div>
+  </div>
+
+  <div class="panel" id="p-metric">
+    <div id="metricbody"></div>
   </div>
 </div></section>
 
@@ -877,8 +971,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="glgrid" id="glgrid"></div>
 </div></section>
 
+</main>
+
 <footer><div class="wrap">
   <span>Chromatic, a colour companion</span>
+  <span class="byline">An app by <b>Pratik Parashar</b></span>
   <span>Pick a colour. Find its partners. Build something.</span>
 </div></footer>
 
@@ -890,6 +987,16 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="tray-body" id="traybody"></div>
 </div></div>
 
+<div class="welcome" id="welcome">
+  <div class="welcome-card">
+    <h2>What are you working on?</h2>
+    <p>Chromatic changes to suit the job. Pick the closest one and the advice, the colour wheel and the checks will all match what you are actually making. You can change it at any time from the top of the screen.</p>
+    <div class="welcome-opts" id="welcome-opts"></div>
+    <button class="btn sm" id="welcome-skip">I'll decide later</button>
+  </div>
+</div>
+
+<div class="termpop" id="termpop"></div>
 <div class="cp-back" id="cp-back"></div>
 <div class="cp" id="cp" role="dialog" aria-label="Pick a colour">
   <div class="cp-sv" id="cp-sv"><div class="cp-thumb" id="cp-thumb"></div></div>
@@ -914,6 +1021,26 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 <div class="toast" id="toast"></div>
 
 <script>
+/* ═════ SHARED STATE ═════
+   One object, loaded once, saved on a debounce. Render code reads from here
+   rather than reaching into localStorage, which it used to do twice per frame
+   while a slider was being dragged. */
+const APP={
+ ctx:'clothing',        // what you are working on
+ fig:'trousers',        // which body the outfit preview uses
+ tone:null,             // your last skin reading, numbers only
+ cvd:'none',            // colour-blindness simulation
+ theme:null,
+ palette:null,
+ saved:[],              // named palettes you kept
+ qOk:0,qTot:0,lessonsDone:[],pcAns:null,iosNudged:0,ctxSeen:0
+};
+const APP_KEY='chromatic.v1';
+try{Object.assign(APP,JSON.parse(localStorage.getItem(APP_KEY))||{});}catch(_){}
+let _saveT;
+function saveApp(){clearTimeout(_saveT);_saveT=setTimeout(()=>{
+ try{localStorage.setItem(APP_KEY,JSON.stringify(APP));}catch(_){}},200);}
+
 /* ═════ MATHS ═════ */
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 function hexToRgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');
@@ -1011,9 +1138,24 @@ const NAMED=[
 ["Pewter Metal","#7D8287","Metal"]
 ];
 const NL=NAMED.map(n=>({name:n[0],hex:n[1],fam:n[2],lab:rgbToLab(...hexToRgb(n[1]))}));
-function nearest(hex,filter){const lab=rgbToLab(...hexToRgb(hex));let best=null,bd=1e9;
- for(const c of NL){if(filter&&!filter(c))continue;const d=labDist(lab,c.lab);if(d<bd){bd=d;best=c;}}
- return best||NL[0];}
+/* Naming runs on CIEDE2000 rather than straight Lab distance, which used to pick
+   visibly wrong names in saturated blues and near neutrals. Results are memoised
+   because nearest() is called on the order of a hundred times per render. */
+const _nameCache=new Map();
+function nearest(hex,filter){
+ const key=hex+(filter?'|f':'');
+ if(!filter){const hit=_nameCache.get(key);if(hit)return hit;}
+ const lab=rgbToLab(...hexToRgb(hex));
+ let best=null,bd=1e9;
+ for(const c of NL){
+  if(filter&&!filter(c))continue;
+  const d=deltaE00(lab[0],lab[1],lab[2],c.lab[0],c.lab[1],c.lab[2]);
+  if(d<bd){bd=d;best=c;}
+ }
+ best=best||NL[0];
+ if(!filter){if(_nameCache.size>4000)_nameCache.clear();_nameCache.set(key,best);}
+ return best;
+}
 function familyOf(h){h=((h%360)+360)%360;
  if(h<12||h>=348)return['Red','Warm'];if(h<40)return['Orange-Red','Warm'];if(h<52)return['Orange','Warm'];
  if(h<68)return['Yellow','Warm'];if(h<95)return['Yellow-Green','Warm-neutral'];if(h<150)return['Green','Cool'];
@@ -1065,6 +1207,134 @@ function renderTray(){
  document.getElementById('tray-open').onclick=()=>goTo('lab');
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   COLOUR SCIENCE
+   ═══════════════════════════════════════════════════════════════════ */
+
+const lin1=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};
+const unlin=v=>{v=clamp(v,0,1);return 255*(v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055);};
+
+/* ── OKLCH ──
+   HSL lightness is not perceptually even, so equal numeric steps look unequal,
+   worst in yellows and blues. Ramps and tints step in OKLCH instead. */
+function rgbToOklab(r,g,b){
+ const R=lin1(r),G=lin1(g),B=lin1(b);
+ const l=Math.cbrt(.4122214708*R+.5363325363*G+.0514459929*B);
+ const m=Math.cbrt(.2119034982*R+.6806995451*G+.1073969566*B);
+ const s=Math.cbrt(.0883024619*R+.2817188376*G+.6299787005*B);
+ return[.2104542553*l+.7936177850*m-.0040720468*s,
+        1.9779984951*l-2.4285922050*m+.4505937099*s,
+        .0259040371*l+.7827717662*m-.8086757660*s];
+}
+function oklabToRgb(L,a,b){
+ const l=Math.pow(L+.3963377774*a+.2158037573*b,3);
+ const m=Math.pow(L-.1055613458*a-.0638541728*b,3);
+ const s=Math.pow(L-.0894841775*a-1.2914855480*b,3);
+ return[unlin(+4.0767416621*l-3.3077115913*m+.2309699292*s),
+        unlin(-1.2684380046*l+2.6097574011*m-.3413193965*s),
+        unlin(-0.0041960863*l-0.7034186147*m+1.7076147010*s)];
+}
+const hexToOklch=hex=>{const[L,a,b]=rgbToOklab(...hexToRgb(hex));
+ return{L,C:Math.hypot(a,b),h:(Math.atan2(b,a)*180/Math.PI+360)%360};};
+const oklchToHex=(L,C,h)=>{const r=h*Math.PI/180;
+ return rgbToHex(...oklabToRgb(clamp(L,0,1),C*Math.cos(r),C*Math.sin(r)));};
+/* lighten or darken by a perceptually even amount */
+const okShift=(hex,dL,dC)=>{const o=hexToOklch(hex);
+ return oklchToHex(clamp(o.L+dL,0,1),Math.max(0,o.C*(dC==null?1:dC)),o.h);};
+
+/* ── CIEDE2000 ──
+   Plain Euclidean distance in Lab mis-ranks saturated blues and near neutrals,
+   which is what decides the name printed next to every colour. */
+function deltaE00(L1,a1,b1,L2,a2,b2){
+ const rad=Math.PI/180,deg=180/Math.PI;
+ const C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2;
+ const G=.5*(1-Math.sqrt(Math.pow(Cb,7)/(Math.pow(Cb,7)+Math.pow(25,7))));
+ const ap1=(1+G)*a1,ap2=(1+G)*a2;
+ const Cp1=Math.hypot(ap1,b1),Cp2=Math.hypot(ap2,b2);
+ let hp1=Math.atan2(b1,ap1)*deg;if(hp1<0)hp1+=360;
+ let hp2=Math.atan2(b2,ap2)*deg;if(hp2<0)hp2+=360;
+ const dL=L2-L1,dC=Cp2-Cp1;
+ let dh=0;
+ if(Cp1*Cp2!==0){dh=hp2-hp1;if(dh>180)dh-=360;else if(dh<-180)dh+=360;}
+ const dH=2*Math.sqrt(Cp1*Cp2)*Math.sin(dh/2*rad);
+ const Lb=(L1+L2)/2,Cpb=(Cp1+Cp2)/2;
+ let hpb;
+ if(Cp1*Cp2===0)hpb=hp1+hp2;
+ else{hpb=(hp1+hp2)/2;
+  if(Math.abs(hp1-hp2)>180)hpb+= (hp1+hp2<360)?180:-180;}
+ const T=1-.17*Math.cos((hpb-30)*rad)+.24*Math.cos(2*hpb*rad)
+        +.32*Math.cos((3*hpb+6)*rad)-.20*Math.cos((4*hpb-63)*rad);
+ const dTh=30*Math.exp(-Math.pow((hpb-275)/25,2));
+ const Rc=2*Math.sqrt(Math.pow(Cpb,7)/(Math.pow(Cpb,7)+Math.pow(25,7)));
+ const Sl=1+(.015*Math.pow(Lb-50,2))/Math.sqrt(20+Math.pow(Lb-50,2));
+ const Sc=1+.045*Cpb, Sh=1+.015*Cpb*T, Rt=-Math.sin(2*dTh*rad)*Rc;
+ return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)
+        +Rt*(dC/Sc)*(dH/Sh));
+}
+const deltaEHex=(x,y)=>{const A=rgbToLab(...hexToRgb(x)),B=rgbToLab(...hexToRgb(y));
+ return deltaE00(A[0],A[1],A[2],B[0],B[1],B[2]);};
+
+/* ── APCA ──
+   WCAG 2.x ratios are known to be unreliable for thin light-on-dark text, which
+   is exactly what this app renders. Lc is a signed contrast, roughly 0 to 106. */
+function apcaY(hex){const[r,g,b]=hexToRgb(hex);
+ return .2126729*Math.pow(r/255,2.4)+.7151522*Math.pow(g/255,2.4)+.0721750*Math.pow(b/255,2.4);}
+function apca(textHex,bgHex){
+ const B=.022,P=1.414;
+ let Yt=apcaY(textHex),Yb=apcaY(bgHex);
+ Yt=Yt>B?Yt:Yt+Math.pow(B-Yt,P);
+ Yb=Yb>B?Yb:Yb+Math.pow(B-Yb,P);
+ if(Math.abs(Yb-Yt)<.0005)return 0;
+ let out;
+ if(Yb>Yt){out=(Math.pow(Yb,.56)-Math.pow(Yt,.57))*1.14;out=out<.1?0:out-.027;}
+ else{out=(Math.pow(Yb,.65)-Math.pow(Yt,.62))*1.14;out=out>-.1?0:out+.027;}
+ return out*100;
+}
+const apcaVerdict=lc=>{const a=Math.abs(lc);
+ return a>=75?['Fine for small text','good']
+      :a>=60?['Fine for normal body text','good']
+      :a>=45?['Large or bold text only','mid']
+      :a>=30?['Big headings only','mid']
+             :['Not readable','bad'];};
+
+/* ── colour blindness ──
+   Machado, Oliveira and Fernandes matrices at full severity. */
+const CVD={
+ none:null,
+ protan:[.152286,1.052583,-.204868, .114503,.786281,.099216, -.003882,-.048116,1.051998],
+ deutan:[.367322,.860646,-.227968, .280085,.672501,.047413, -.011820,.042940,.968881],
+ tritan:[1.255528,-.076749,-.178779, -.078411,.930809,.147602, .004733,.691367,.303900],
+ achroma:[.212656,.715158,.072186, .212656,.715158,.072186, .212656,.715158,.072186]
+};
+const CVD_LABEL={none:'Normal vision',protan:'Red blindness (protanopia)',
+ deutan:'Green blindness (deuteranopia)',tritan:'Blue blindness (tritanopia)',
+ achroma:'No colour at all'};
+function simulate(hex,kind){
+ const m=CVD[kind||'none'];if(!m)return hex;
+ const[r,g,b]=hexToRgb(hex).map(lin1);
+ return rgbToHex(unlin(m[0]*r+m[1]*g+m[2]*b),
+                 unlin(m[3]*r+m[4]*g+m[5]*b),
+                 unlin(m[6]*r+m[7]*g+m[8]*b));
+}
+
+/* ── other trade metrics ── */
+/* Light Reflectance Value. What paint and interiors specify in. 0 is black, 100 white. */
+const lrvOf=hex=>{const[r,g,b]=hexToRgb(hex).map(lin1);
+ return (.2126*r+.7152*g+.0722*b)*100;};
+/* a naive CMYK, plus how far the colour moves when you force it through that gamut */
+function toCMYK(hex){const[r,g,b]=hexToRgb(hex).map(v=>v/255);
+ const k=1-Math.max(r,g,b);
+ if(k>=1)return[0,0,0,100];
+ return[((1-r-k)/(1-k))*100,((1-g-k)/(1-k))*100,((1-b-k)/(1-k))*100,k*100];}
+function cmykShift(hex){
+ const[c,m,y,k]=toCMYK(hex).map(v=>v/100);
+ /* re-render through a rough coated-stock profile, then measure the move */
+ const back=rgbToHex(255*(1-Math.min(1,c*.94+k))*.98+3,
+                     255*(1-Math.min(1,m*.97+k))*.98+3,
+                     255*(1-Math.min(1,y*.92+k))*.96+6);
+ return{cmyk:[c,m,y,k].map(v=>Math.round(v*100)),shift:deltaEHex(hex,back),proof:back};
+}
+
 /* ═════ WHAT ARE YOU WORKING ON? ═════
    One setting that rewrites the examples across the app. "Use it as an accent"
    is useless advice until someone tells you accent on what — so every colour
@@ -1102,7 +1372,11 @@ const CTX={
           'Good for earrings, a ring or one small detail']},
   prop:'In an outfit that is usually a coat, then trousers, then a bag.',
   roles:['the main piece, like a coat, a dress or trousers','a second piece, like a top, a shirt or a cardigan','a small accent, like a scarf, a bag or your shoes'],
-  preview:'outfit'
+  preview:'outfit',
+  model:'paint', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','personal','glossary'],
+  export:'text',
+  metric:'none'
  },
  art:{
   label:'Art & painting',
@@ -1136,7 +1410,11 @@ const CTX={
           'Good for one small glint of light']},
   prop:'In a painting that is usually the background, then the main mass, then the focal point.',
   roles:['the background and the biggest areas','the main shapes sitting on top of it','the focal point, and any small highlights'],
-  preview:'canvas'
+  preview:'canvas',
+  model:'paint', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','glossary'],
+  export:'gpl',
+  metric:'value'
  },
  interiors:{
   label:'Interiors & home',
@@ -1170,7 +1448,11 @@ const CTX={
           'Good for one small fixture, or the edge of a mirror']},
   prop:'In a room that is usually the walls, then the furniture, then the cushions.',
   roles:['the walls and the floor','the big furniture, like a sofa or a bed','cushions, art, lamps and the other small things'],
-  preview:'room'
+  preview:'room',
+  model:'paint', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','glossary'],
+  export:'text',
+  metric:'lrv'
  },
  design:{
   label:'Design & screens',
@@ -1204,7 +1486,87 @@ const CTX={
           'Good for one small accent, and nothing more']},
   prop:'In a layout that is usually the background, then the panels, then the button.',
   roles:['the page background','cards, panels and blocks of text','buttons, links and anything you want pressed'],
-  preview:'poster'
+  preview:'poster',
+  model:'screen', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','glossary'],
+  export:'css',
+  metric:'contrast'
+ },
+ print:{
+  label:'Print & branding',
+  example:'a brand colour you have been handed, a logo you are building around, or a photo that has to sit on the same page',
+  thing:'print job',
+  groups:{
+   dark:'These are for type, rules and anything that has to stay readable on paper.',
+   safe:'These are hard to get wrong. Use them for secondary areas and backgrounds.',
+   bold:'Pick one of these for the thing you want somebody to notice across a room.',
+   neutral:'The stock colour and the quiet areas you print everything else onto.',
+   metal:'For foil blocking, spot varnish and embossing.'},
+  use:{
+   dark:['Good for body type and headlines',
+         'Good for a solid block of colour behind reversed out type',
+         'Good for a dark panel or the back of a card',
+         'Good for rules, borders and folios'],
+   safe:['Good for a second colour in the same family',
+         'Good for a tint panel behind a block of text',
+         'Good for a light background across a whole page',
+         'Good for a secondary section'],
+   bold:['Good for the cover, or the one thing that has to be seen first',
+         'Good for a call to action or a flash',
+         'Good for an icon, a rule or a highlight',
+         'Good as the second colour in a pattern'],
+   neutral:['Good for the paper stock, or a full bleed background',
+            'Good for large quiet areas',
+            'Good for a mid tone panel',
+            'Good for a heavy dark block'],
+   metal:['Good for gold foil on a cover or an invitation',
+          'Good for a subtler bronze or copper foil',
+          'Good for one small blocked detail']},
+  prop:'In a print job that is usually the stock, then the main colour, then the accent.',
+  roles:['the paper and the biggest areas of flat colour','the main brand colour','the accent, and any foil or special'],
+  preview:'poster',
+  model:'paint', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','glossary'],
+  export:'svg',
+  metric:'cmyk'
+ },
+ dataviz:{
+  label:'Charts & data',
+  example:'a brand colour your chart has to match, or an existing series colour you are adding to',
+  thing:'chart',
+  groups:{
+   dark:'These are for axes, labels and gridlines. They should be quieter than your data.',
+   safe:'These sit close together, so keep them for parts of the same series.',
+   bold:'These are far enough apart to read as different categories.',
+   neutral:'The background, the gridlines, and anything that is not data.',
+   metal:'Metals do not belong on a chart. They are here for completeness.'},
+  use:{
+   dark:['Good for axis labels and the numbers',
+         'Good for the darkest end of a sequential scale',
+         'Good for an emphasised series',
+         'Good for gridlines, kept faint'],
+   safe:['Good for a second step in the same sequential scale',
+         'Good for a lighter shade of the same series',
+         'Good for a fill under a line',
+         'Good for a comparison series behind the main one'],
+   bold:['Good as your first categorical colour',
+         'Good as your second categorical colour',
+         'Good as your third categorical colour',
+         'Good as your fourth, and stop at about six'],
+   neutral:['Good for the chart background',
+            'Good for gridlines and the plot area',
+            'Good for greyed out or missing data',
+            'Good for annotations and reference lines'],
+   metal:['Not recommended on a chart',
+          'Not recommended on a chart',
+          'Not recommended on a chart']},
+  prop:'On a chart that is usually the background, then the data, then the one series you want noticed.',
+  roles:['the background and the plot area','your data series','the one series or point you want read first'],
+  preview:'poster',
+  model:'screen', modelLocked:true,
+  tabs:['learn','advisor','library','wheel','lab','glossary'],
+  export:'tokens',
+  metric:'distinct'
  }
 };
 let appCtx='clothing';
@@ -1302,34 +1664,10 @@ document.getElementById('adv-mode').addEventListener('click',e=>{
  document.querySelectorAll('#adv-mode button').forEach(x=>x.classList.remove('on'));
  b.classList.add('on');advMode=b.dataset.m;runAdvisor();});
 
-/* ── named colour picker ── */
-const FAMS=['All','Red','Pink','Orange','Brown','Yellow','Green','Blue','Purple','Neutral','Metal'];
-let curFam='All',curQ='';
-document.getElementById('toggle-picker').onclick=function(){
- const p=document.getElementById('picker');const open=p.style.display!=='none';
- p.style.display=open?'none':'block';
- this.textContent=open?'Browse named colours ▾':'Hide named colours ▴';
-};
-function renderFams(){
- document.getElementById('fams').innerHTML=FAMS.map(f=>
-  `<button class="chipbtn ${f===curFam?'on':''}" data-f="${f}">${f}</button>`).join('');
-}
-function renderSwatchGrid(){
- const list=NAMED.filter(c=>(curFam==='All'||c[2]===curFam)&&c[0].toLowerCase().includes(curQ));
- document.getElementById('pickcount').textContent=`${list.length} of ${NAMED.length}`;
- document.getElementById('swatchgrid').innerHTML=list.map(c=>
-  `<div class="sg" data-hex="${c[1]}"><div class="sw" style="background:${c[1]}"></div>
-   <div class="lb"><b>${c[0]}</b><span class="mono">${c[1].toUpperCase()}</span></div></div>`).join('')
-  ||'<p class="hint">No colour matches what you typed.</p>';
-}
-document.getElementById('fams').addEventListener('click',e=>{
- const b=e.target.closest('button');if(!b)return;curFam=b.dataset.f;renderFams();renderSwatchGrid();});
-document.getElementById('csearch').addEventListener('input',e=>{
- curQ=e.target.value.toLowerCase().trim();renderSwatchGrid();});
-document.getElementById('swatchgrid').addEventListener('click',e=>{
- const s=e.target.closest('.sg');if(!s)return;setAdvisor(s.dataset.hex);
- window.scrollTo({top:document.getElementById('adv-id').offsetTop-140,behavior:'smooth'});});
-renderFams();renderSwatchGrid();runAdvisor();
+/* The Advisor used to carry its own "Browse named colours" panel. The colour
+   picker now searches the same 190 names from anywhere, so that panel was two
+   ways to do one thing. Removed. */
+runAdvisor();
 
 /* ═════ LIBRARY ═════ */
 const LIB=[
@@ -1494,8 +1832,18 @@ function harmonySet(){
  const[h,s,l]=hexToHsl(sampled);const H=HARM[type];
  let out;
  if(type==='monochromatic'){
-  out=[[h,s*.45,clamp(l*.42,8,40)],[h,s*.75,clamp(l*.72,14,60)],[h,s,l],
-       [h,s*.7,clamp(l+16,0,88)],[h,s*.38,clamp(l+34,0,95)]];
+  /* Stepped in OKLCH so the five steps look evenly spaced. In HSL they were not:
+     the middle of a yellow ramp collapsed while a blue one spread out. The range
+     is fitted to the room available above and below, so a very light or very dark
+     starting colour still gives five even steps rather than bunching at one end. */
+  const o=hexToOklch(sampled);
+  const lo=Math.max(.12,Math.min(o.L-.30,.62)),
+        hi=Math.min(.95,Math.max(o.L+.30,.38));
+  return [0,1,2,3,4].map(i=>{
+   const L=lo+(hi-lo)*(i/4);
+   const away=Math.abs(L-o.L)/Math.max(.001,hi-lo);
+   return oklchToHex(L,o.C*(1-away*0.5),o.h);
+  });
  }else out=H.off.map((deg,i)=>{
   const hh=rotate(h,deg,wheelMode);if(!refine||i===0)return[hh,s,l];
   const sf=[1,.62,.78,.55][i%4],lg=[0,l<50?16:-20,-9,11][i%4];
@@ -1522,14 +1870,14 @@ drawWheel();showSample('#F79E8A');
 /* ═════ LAB ═════ */
 function renderPalette(){
  const strip=document.getElementById('pstrip'),sw=document.getElementById('pswatches');
- strip.innerHTML=palette.map(c=>`<div style="background:${c}"></div>`).join('');
+ strip.innerHTML=palette.map(c=>`<div style="background:${show(c)}"></div>`).join('');
  sw.innerHTML=palette.map((c,i)=>{const n=nearest(c);
-  return `<div class="psw"><div class="blk" style="background:${c}" data-hex="${c}"></div>
+  return `<div class="psw"><div class="blk" style="background:${show(c)}" data-hex="${c}"></div>
    <div class="lb"><b>${n.name}</b><span class="mono">${c.toUpperCase()}</span></div>
-   <button class="rm" data-i="${i}">×</button></div>`;}).join('')
+   <button class="rm" data-i="${i}" aria-label="Remove ${n.name}">×</button></div>`;}).join('')
   ||'<p class="hint">Your palette is empty. Add some colours from the Advisor, the Library, the Wheel, or a photo.</p>';
  document.getElementById('exportbox').style.display='none';
- renderPreviews();renderMatrix();renderTray();
+ renderPreviews();renderMatrix();renderTray();renderMetric();
 }
 document.getElementById('pswatches').addEventListener('click',e=>{
  const r=e.target.closest('.rm');
@@ -1537,12 +1885,147 @@ document.getElementById('pswatches').addEventListener('click',e=>{
  const b=e.target.closest('.blk');
  if(b){setAdvisor(b.dataset.hex);goTo('advisor');}});
 document.getElementById('lab-add-btn').onclick=()=>addColour(document.getElementById('lab-add').value);
-document.getElementById('lab-clear').onclick=()=>{palette=[];renderPalette();buildProp();};
-document.getElementById('lab-export').onclick=()=>{
- const named=palette.map(c=>`${nearest(c).name.padEnd(18)}${c.toUpperCase()}`).join('\n');
- const css=palette.map((c,i)=>`  --colour-${i+1}: ${c};`).join('\n');
- document.getElementById('exporttext').textContent=`${named}\n\n:root {\n${css}\n}`;
- document.getElementById('exportbox').style.display='block';};
+/* ═════ UNDO AND KEPT PALETTES ═════
+   Everything funnelled into one working palette that you could wipe by accident
+   and never get back, and there was no way to keep more than one. */
+let undoStack=[];
+function pushUndo(){
+ undoStack.push(palette.slice());
+ if(undoStack.length>25)undoStack.shift();
+ const b=document.getElementById('lab-undo');
+ if(b)b.disabled=false;
+}
+document.getElementById('lab-undo').onclick=()=>{
+ if(!undoStack.length)return;
+ palette=undoStack.pop();
+ renderPalette();buildProp();
+ document.getElementById('lab-undo').disabled=!undoStack.length;
+ toast('Put that back');
+};
+document.getElementById('lab-clear').onclick=()=>{
+ if(!palette.length)return;
+ pushUndo();palette=[];renderPalette();buildProp();
+ toast('Cleared. Press Undo if that was a mistake');
+};
+document.getElementById('lab-save').onclick=()=>{
+ if(!palette.length){toast('There is nothing to keep yet');return;}
+ const name=palette.map(c=>nearest(c).name).slice(0,2).join(' and ');
+ APP.saved=APP.saved||[];
+ APP.saved.unshift({name,cols:palette.slice(),at:Date.now()});
+ APP.saved=APP.saved.slice(0,24);
+ saveApp();renderSaved();
+ toast('Kept "'+name+'". It will still be here next time');
+};
+function renderSaved(){
+ const box=document.getElementById('savedbox');if(!box)return;
+ const list=APP.saved||[];
+ if(!list.length){box.innerHTML='';return;}
+ box.innerHTML=`<h3 class="block" style="font-size:1.1rem">Palettes you kept</h3>
+  <div class="savedgrid">${list.map((s,i)=>`
+   <div class="savedcard" data-i="${i}">
+    <div class="savedstrip">${s.cols.map(c=>`<div style="background:${show(c)}"></div>`).join('')}</div>
+    <div class="savedmeta">
+     <b>${s.name}</b>
+     <span>${s.cols.length} colours</span>
+     <button class="savedrm" data-rm="${i}" aria-label="Forget ${s.name}">×</button>
+    </div>
+   </div>`).join('')}</div>`;
+ box.querySelectorAll('.savedcard').forEach(c=>c.onclick=e=>{
+  if(e.target.closest('.savedrm'))return;
+  pushUndo();palette=(APP.saved[+c.dataset.i].cols||[]).slice();
+  renderPalette();buildProp();toast('Loaded that one back in');
+ });
+ box.querySelectorAll('.savedrm').forEach(b=>b.onclick=e=>{
+  e.stopPropagation();
+  APP.saved.splice(+b.dataset.rm,1);saveApp();renderSaved();
+ });
+}
+/* ═════ EXPORT ═════
+   Every route through this app used to end at a <pre> block you had to select by
+   hand, offering one format. Now it offers the format that matches what you are
+   making, and puts it on your clipboard. */
+const EXPORTS={
+ text:{label:'Plain list',ext:'txt',build:p=>
+   p.map(c=>`${nearest(c).name.padEnd(20)}${c.toUpperCase()}`).join('\n')},
+ css:{label:'CSS variables',ext:'css',build:p=>
+   ':root {\n'+p.map((c,i)=>`  --colour-${i+1}: ${c.toUpperCase()};   /* ${nearest(c).name} */`).join('\n')+'\n}'},
+ tailwind:{label:'Tailwind config',ext:'js',build:p=>
+   'module.exports = {\n  theme: {\n    extend: {\n      colors: {\n'+
+   p.map(c=>`        '${nearest(c).name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}': '${c.toUpperCase()}',`).join('\n')+
+   '\n      }\n    }\n  }\n}'},
+ tokens:{label:'Design tokens (JSON)',ext:'json',build:p=>JSON.stringify({
+   $schema:'https://design-tokens.org/schema.json',
+   colour:Object.fromEntries(p.map((c,i)=>{
+    const n=nearest(c);
+    return [n.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+            {$value:c.toUpperCase(),$type:'color',$description:`${n.name}, position ${i+1}`}];
+   }))},null,2)},
+ svg:{label:'SVG swatch sheet',ext:'svg',build:p=>{
+   const w=120,h=150;
+   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w*p.length}" height="${h}" viewBox="0 0 ${w*p.length} ${h}">\n`+
+    p.map((c,i)=>{const n=nearest(c),t=readableOn(c);
+     return `  <g><rect x="${i*w}" y="0" width="${w}" height="${h}" fill="${c.toUpperCase()}"/>`+
+      `<text x="${i*w+12}" y="${h-34}" font-family="sans-serif" font-size="13" fill="${t}">${n.name}</text>`+
+      `<text x="${i*w+12}" y="${h-16}" font-family="monospace" font-size="12" fill="${t}" opacity=".8">${c.toUpperCase()}</text></g>`;
+    }).join('\n')+'\n</svg>';}},
+ gpl:{label:'GIMP / Inkscape palette',ext:'gpl',build:p=>
+   'GIMP Palette\nName: Chromatic\nColumns: 0\n#\n'+
+   p.map(c=>{const[r,g,b]=hexToRgb(c);
+    return `${String(r).padStart(3)} ${String(g).padStart(3)} ${String(b).padStart(3)}\t${nearest(c).name}`;}).join('\n')}
+};
+let exportFmt='css';
+function renderExport(){
+ const pick=document.getElementById('exportpick');
+ /* build the buttons once. Rebuilding them here would detach the button you just
+    pressed, which is the same mistake the proportion slider used to make. */
+ if(!pick.children.length){
+  pick.innerHTML=Object.entries(EXPORTS).map(([k,v])=>
+   `<button class="chipbtn" data-k="${k}">${v.label}</button>`).join('');
+ }
+ [...pick.children].forEach(b=>b.classList.toggle('on',b.dataset.k===exportFmt));
+ document.getElementById('exporttext').textContent=
+  palette.length?EXPORTS[exportFmt].build(palette)
+                :'Your palette is empty, so there is nothing to export yet.';
+ document.getElementById('exportbox').style.display='block';
+}
+document.getElementById('lab-export').onclick=renderExport;
+document.getElementById('exportpick').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;exportFmt=b.dataset.k;renderExport();});
+document.getElementById('export-copy').onclick=async function(){
+ const txt=document.getElementById('exporttext').textContent;
+ try{
+  await navigator.clipboard.writeText(txt);
+  toast('Copied to your clipboard');
+ }catch(_){
+  /* clipboard is blocked outside a secure context, so fall back to selecting it */
+  const r=document.createRange();r.selectNodeContents(document.getElementById('exporttext'));
+  const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+  toast('Copying is blocked here. The text is selected, so press Ctrl and C');
+ }
+};
+/* A palette encodes to the URL hash, so sharing one costs no server at all. */
+function paletteLink(){
+ const packed=palette.map(c=>c.replace('#','').toLowerCase()).join('-');
+ return location.origin+location.pathname+'#p='+packed;
+}
+document.getElementById('export-share').onclick=async function(){
+ if(!palette.length){toast('Add some colours first');return;}
+ const url=paletteLink();
+ if(navigator.share){
+  try{await navigator.share({title:'A palette from Chromatic',url});return;}catch(_){}
+ }
+ try{await navigator.clipboard.writeText(url);toast('Link copied. Anyone who opens it gets this palette');}
+ catch(_){toast('Could not copy the link here');}
+};
+document.getElementById('export-download').onclick=()=>{
+ const f=EXPORTS[exportFmt];
+ const blob=new Blob([document.getElementById('exporttext').textContent],{type:'text/plain'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='chromatic-palette.'+f.ext;
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+ toast('Saved as chromatic-palette.'+f.ext);
+};
 document.getElementById('labnav').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  document.querySelectorAll('#labnav button').forEach(x=>x.classList.remove('active'));
@@ -1596,20 +2079,36 @@ document.getElementById('use-extracted').onclick=()=>{palette=extracted.slice();
 let props=[];
 function buildProp(){const d=[60,30,10,6,4];
  props=palette.slice(0,5).map((c,i)=>({hex:c,pct:d[i]||5}));renderProp();}
+
+/* Building the rows and updating their values are separate jobs. They used to be
+   one function, so every tick of a slider drag replaced the very slider you were
+   holding — it survived only because the listener is on the parent. */
 function renderProp(){
- const total=props.reduce((a,b)=>a+b.pct,0)||1;
- document.getElementById('propbar').innerHTML=props.map(p=>
-  `<div style="background:${p.hex};flex:${p.pct}"></div>`).join('')||'';
  document.getElementById('proprows').innerHTML=props.map((p,i)=>
   `<div class="proprow"><div class="sw" style="background:${p.hex}"></div>
    <div class="lbl">${nearest(p.hex).name}</div>
-   <input type="range" min="1" max="100" value="${p.pct}" data-i="${i}">
-   <div class="pct mono">${Math.round(p.pct/total*100)}%</div></div>`).join('')
+   <input type="range" min="1" max="100" value="${p.pct}" data-i="${i}"
+    aria-label="How much ${nearest(p.hex).name} to use">
+   <div class="pct mono">${Math.round(p.pct)}%</div></div>`).join('')
   ||'<p class="hint">Add some colours to your palette first, then come back here.</p>';
+ syncProp();
+}
+function syncProp(){
+ const total=props.reduce((a,b)=>a+b.pct,0)||1;
+ const bar=document.getElementById('propbar');
+ if(bar.children.length!==props.length)
+  bar.innerHTML=props.map(()=>'<div></div>').join('');
+ [...bar.children].forEach((d,i)=>{
+  d.style.background=props[i].hex;d.style.flex=props[i].pct;});
+ document.querySelectorAll('#proprows .proprow').forEach((row,i)=>{
+  row.querySelector('.pct').textContent=Math.round(props[i].pct/total*100)+'%';});
  renderPreviews();
 }
 document.getElementById('proprows').addEventListener('input',e=>{
- if(e.target.type!=='range')return;props[+e.target.dataset.i].pct=+e.target.value;renderProp();});
+ if(e.target.type!=='range')return;
+ props[+e.target.dataset.i].pct=+e.target.value;
+ syncProp();                       // values only — the slider you are holding survives
+});
 document.getElementById('prop-reset').onclick=buildProp;
 
 /* previews */
@@ -1620,19 +2119,15 @@ const pc=(i,f)=>palette[i]||f;
    scan when you have done one, so the preview is a fair test instead of a
    picture of somebody else wearing your colours. */
 const FIGS=[['trousers','Trousers & jacket'],['dress','Dress & cardigan'],['skirt','Skirt & knit']];
-let figKind='trousers';
+let figKind=APP.fig||'trousers';
+/* read from the in-memory store, not from disk. These two used to parse the whole
+   of localStorage twice per frame while a proportion slider was moving. */
 function skinOfUser(){
- try{
-  const t=JSON.parse(localStorage.getItem('chromatic.v1')||'{}').tone;
-  if(t&&t.profile&&t.profile.skinHex)return t.profile.skinHex;
- }catch(_){}
- return '#C99A73';
+ const t=APP.tone;
+ return (t&&t.profile&&t.profile.skinHex)||'#C99A73';
 }
 function hairOfUser(skin){
- try{
-  const t=JSON.parse(localStorage.getItem('chromatic.v1')||'{}').tone;
-  if(t&&t.hair)return t.hair;
- }catch(_){}
+ if(APP.tone&&APP.tone.hair)return APP.tone.hair;
  const[h,s,l]=hexToHsl(skin);
  return hslToHex(h,clamp(s*.55,0,45),clamp(l*.22,6,20));   // a plausible dark hair
 }
@@ -1758,7 +2253,7 @@ function renderFigPick(){
 }
 document.getElementById('figpick').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
- figKind=b.dataset.k;renderFigPick();renderPreviews();
+ figKind=b.dataset.k;APP.fig=figKind;saveApp();renderFigPick();renderPreviews();
 });
 renderFigPick();
 
@@ -1772,20 +2267,204 @@ function orderPreviews(){
   box.style.borderColor=first?'var(--accent)':'';
  });
 }
+/* ═════ SEE IT AS SOMEONE ELSE SEES IT ═════
+   Around one man in twelve cannot tell some of these pairs apart. Until now the
+   app had no way to say so. */
+let cvdMode=APP.cvd||'none';
+function renderCvdPick(){
+ document.getElementById('cvdpick').innerHTML=Object.keys(CVD).map(k=>
+  `<button class="chipbtn ${k===cvdMode?'on':''}" data-k="${k}">${
+    k==='none'?'Normal vision':CVD_LABEL[k].replace(/ \(.*\)/,'')}</button>`).join('');
+ document.body.classList.toggle('cvd-on',cvdMode!=='none');
+}
+document.getElementById('cvdpick').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ cvdMode=b.dataset.k;APP.cvd=cvdMode;saveApp();
+ renderCvdPick();renderPalette();renderMetric();
+ if(cvdMode!=='none')toast('Showing your palette as '+CVD_LABEL[cvdMode].toLowerCase());
+});
+/* every swatch renders through this, so one toggle changes the whole app */
+const show=hex=>simulate(hex,cvdMode);
+renderCvdPick();
+
+/* ═════ THE CHECK THAT MATTERS FOR THIS KIND OF WORK ═════ */
+function renderMetric(){
+ const C=CTX[appCtx],tab=document.getElementById('metric-tab'),
+       body=document.getElementById('metricbody');
+ const kind=C.metric;
+ tab.hidden=(kind==='none'||kind==='contrast');
+ /* contrast belongs front and centre for screen work, and nowhere near a wardrobe */
+ const checkBtn=document.querySelector('#labnav button[data-p="check"]');
+ if(checkBtn){
+  checkBtn.hidden=(kind==='none'||kind==='value'||kind==='lrv');
+  checkBtn.textContent=kind==='contrast'?'Contrast Check ★':'Contrast Check';
+ }
+ document.getElementById('cvdrow').style.display=
+  (kind==='contrast'||kind==='distinct'||kind==='cmyk')?'':'none';
+ if(tab.hidden){if(body)body.innerHTML='';return;}
+
+ const P=palette.slice(0,8);
+ const head=(t,d)=>`<h3 class="block" style="margin-top:0">${t}</h3><p class="lede">${d}</p>`;
+
+ if(kind==='value'){
+  tab.textContent='Value Study';
+  body.innerHTML=head('Value study',
+   'Painters worry about how light or dark a colour is far more than they worry about the colour itself. If a picture works in grey, it will work in colour. If it does not, no amount of hue will save it. Here is your palette with the colour taken out.')+
+   `<div class="pswatches">${P.map(c=>{
+     const L=rgbToLab(...hexToRgb(c))[0],g=rgbToHex(...[0,1,2].map(()=>unlin(Math.pow(L/100,1))*255));
+     const grey=hslToHex(0,0,L);
+     return `<div class="psw"><div class="blk" style="background:${c}"></div>
+      <div class="blk" style="background:${grey};height:34px"></div>
+      <div class="lb"><b>${nearest(c).name}</b><span class="mono">value ${Math.round(L)}</span></div></div>`;
+    }).join('')}</div>`+
+   valueSpreadNote(P);
+ }
+ else if(kind==='lrv'){
+  tab.textContent='Light Reflectance';
+  body.innerHTML=head('Light Reflectance Value',
+   'This is the number paint companies and interior designers actually work in. It says how much light a colour throws back into the room. Zero is a black hole and one hundred is pure white. Anything under about twenty will eat the daylight in a north facing room.')+
+   `<div class="proprows">${P.map(c=>{
+     const v=lrvOf(c),band=v<20?['Very dark','bad']:v<40?['Dark','mid']:v<60?['Mid','mid']
+             :v<75?['Light','good']:['Very light','good'];
+     return `<div class="proprow"><div class="sw" style="background:${c}"></div>
+      <div class="lbl" style="min-width:120px">${nearest(c).name}</div>
+      <div style="flex:1;height:9px;border-radius:99px;background:var(--surface2);overflow:hidden">
+       <div style="width:${v}%;height:100%;background:${c}"></div></div>
+      <div class="pct mono" style="min-width:96px;text-align:right">LRV ${v.toFixed(0)} · ${band[0]}</div></div>`;
+    }).join('')}</div>
+    <div class="callout"><b>A rule of thumb.</b> A ceiling usually wants to be at least ten points lighter than the walls, otherwise the room feels like it is closing in on you. If two colours are within about five points of each other, they will read as the same colour from across the room.</div>`;
+ }
+ else if(kind==='cmyk'){
+  tab.textContent='Print Check';
+  body.innerHTML=head('Will this print?',
+   'Screens can show colours that ink simply cannot make. Bright oranges, electric blues and anything that glows are the usual casualties. Below is what each colour is likely to do on coated paper, and how far it will move.')+
+   `<div class="scroller"><table class="matrix" style="min-width:520px">
+     <tr><th></th><th>On screen</th><th>Likely in print</th><th>C M Y K</th><th>Shift</th></tr>
+     ${P.map(c=>{const r=cmykShift(c),bad=r.shift>9,mid=r.shift>4.5;
+       return `<tr><th style="text-align:left;padding-right:10px">${nearest(c).name}</th>
+        <td><span class="mx-sw" style="background:${c}"></span></td>
+        <td><span class="mx-sw" style="background:${r.proof}"></span></td>
+        <td class="mono" style="font-size:.72rem">${r.cmyk.join(' / ')}</td>
+        <td class="${bad?'mx-bad':mid?'mx-mid':'mx-good'}">${r.shift.toFixed(1)}</td></tr>`;}).join('')}
+    </table></div>
+    <div class="callout"><b>How to read the shift.</b> Under about four and a half, nobody will notice. Between four and nine, it will look slightly duller than you expected. Above nine, pick a different colour or pay for a special ink, because the printed job will not match what you approved on screen.</div>`;
+ }
+ else if(kind==='distinct'){
+  tab.textContent='Can they be told apart?';
+  const pairs=[];
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+   const base=deltaEHex(P[i],P[j]);
+   const worst=Math.min(...['protan','deutan','tritan'].map(k=>
+     deltaEHex(simulate(P[i],k),simulate(P[j],k))));
+   pairs.push({a:P[i],b:P[j],base,worst});
+  }
+  pairs.sort((x,y)=>x.worst-y.worst);
+  const risky=pairs.filter(p=>p.worst<11);
+  body.innerHTML=head('Can these be told apart?',
+   'On a chart, every colour has to be clearly different from every other colour, including for the people who cannot see red or green properly. This compares every pair, then checks them again through three kinds of colour blindness and reports the worst case.')+
+   (risky.length
+    ?`<div class="callout" style="border-left-color:var(--bad)"><b>${risky.length} pair${risky.length>1?'s':''} will cause trouble.</b> These are too close to each other once colour blindness is taken into account. Change one of each pair, or tell them apart with a different shape or a label instead of colour.</div>`
+    :`<div class="callout" style="border-left-color:var(--ok)"><b>Every pair is clearly different.</b> This palette will hold up for readers with normal vision and for readers who are colour blind.</div>`)+
+   `<div class="scroller"><table class="matrix" style="min-width:480px">
+     <tr><th>Pair</th><th>Normal</th><th>Worst case</th><th></th></tr>
+     ${pairs.slice(0,12).map(p=>{
+      const cl=p.worst<7?'mx-bad':p.worst<11?'mx-mid':'mx-good';
+      return `<tr><th style="text-align:left">
+        <span class="mx-sw" style="background:${p.a}"></span>
+        <span class="mx-sw" style="background:${p.b}"></span></th>
+       <td class="mono">${p.base.toFixed(1)}</td>
+       <td class="${cl}">${p.worst.toFixed(1)}</td>
+       <td style="font-size:.74rem;text-align:left;color:var(--muted)">${
+        p.worst<7?'far too close':p.worst<11?'a bit close':'fine'}</td></tr>`;}).join('')}
+    </table></div>
+    <p class="hint">Numbers are how far apart two colours look. Under seven and most people will mix them up. Over about eleven and you are safe.</p>`;
+ }
+}
+function valueSpreadNote(P){
+ const Ls=P.map(c=>rgbToLab(...hexToRgb(c))[0]);
+ const spread=Math.max(...Ls)-Math.min(...Ls);
+ return `<div class="callout"><b>Your lightest and darkest are ${Math.round(spread)} points apart.</b> ${
+  spread<30?'That is a narrow range, so the picture will read as flat and quiet. Add something much darker or much lighter if you want it to have some punch.'
+  :spread<55?'That is a comfortable range. There is enough difference to build form, without anything shouting.'
+  :'That is a wide range, which gives you real drama. Keep the very darkest and the very lightest small, or the picture will feel torn in half.'}</div>`;
+}
+
 /* contrast matrix */
+/* Walk a colour lighter and darker in OKLCH until it clears the target ratio, and
+   return whichever move is smaller. This is the "and how do I fix it" half that
+   every contrast checker leaves out. */
+function nearestPassing(fg,bg,target){
+ target=target||4.5;
+ const o=hexToOklch(fg);
+ let best=null;
+ for(let dir of[-1,1]){
+  for(let step=1;step<=60;step++){
+   const cand=oklchToHex(clamp(o.L+dir*step*0.012,0,1),o.C,o.h);
+   if(contrastRatio(cand,bg)>=target){
+    const move=step*0.012;
+    if(!best||move<best.move)best={hex:cand,move,dir};
+    break;
+   }
+  }
+ }
+ return best;
+}
 function renderMatrix(){
  const t=document.getElementById('matrix');const p=palette.slice(0,8);
- if(p.length<2){t.innerHTML='<tr><td style="background:none;color:var(--muted);text-align:left">Add at least two colours and we can compare them.</td></tr>';return;}
- let html='<tr><th></th>'+p.map(c=>`<th><span class="mx-sw" style="background:${c}"></span></th>`).join('')+'</tr>';
+ const fix=document.getElementById('fixlist');
+ if(p.length<2){
+  t.innerHTML='<tr><td style="background:none;color:var(--muted);text-align:left">Add at least two colours and we can compare them.</td></tr>';
+  if(fix)fix.innerHTML='';return;}
+ const useApca=CTX[appCtx].metric==='contrast';
+ let html='<tr><th></th>'+p.map(c=>`<th><span class="mx-sw" style="background:${show(c)}"></span></th>`).join('')+'</tr>';
+ const problems=[];
  p.forEach(r=>{
-  html+=`<tr><th><span class="mx-sw" style="background:${r}"></span></th>`;
+  html+=`<tr><th><span class="mx-sw" style="background:${show(r)}"></span></th>`;
   p.forEach(c=>{
    if(r===c){html+='<td style="background:var(--surface2);color:var(--muted)">—</td>';return;}
    const v=contrastRatio(r,c);
    const cl=v>=4.5?'mx-good':v>=3?'mx-mid':'mx-bad';
-   html+=`<td class="${cl}" title="${nearest(r).name} on ${nearest(c).name}">${v.toFixed(1)}</td>`;});
+   const lc=apca(r,c);
+   const label=useApca?Math.abs(lc).toFixed(0):v.toFixed(1);
+   html+=`<td class="${cl}" title="${nearest(r).name} on ${nearest(c).name} — ${v.toFixed(2)} to 1, Lc ${lc.toFixed(0)}">${label}</td>`;
+   if(v<4.5)problems.push({fg:r,bg:c,v,lc});});
   html+='</tr>';});
  t.innerHTML=html;
+
+ if(!fix)return;
+ if(!problems.length){
+  fix.innerHTML=`<div class="callout" style="border-left-color:var(--ok);margin-top:18px">
+   <b>Every pair here is readable.</b> You can put any of these colours as text on any of the others.</div>`;
+  return;
+ }
+ /* keep the worst handful, one row per pair, each with a colour that would work */
+ problems.sort((a,b)=>a.v-b.v);
+ const rows=problems.slice(0,6).map(p2=>{
+  const suggestion=nearestPassing(p2.fg,p2.bg,4.5);
+  const av=apcaVerdict(p2.lc);
+  return `<div class="fixrow">
+   <div class="fixdemo" style="background:${show(p2.bg)};color:${show(p2.fg)}">Aa</div>
+   <div class="fixtext">
+    <b>${nearest(p2.fg).name} on ${nearest(p2.bg).name}</b>
+    <span>${p2.v.toFixed(1)} to 1. ${av[0]}. You need 4.5 for normal text.</span>
+   </div>
+   ${suggestion
+    ?`<button class="btn sm primary fixbtn" data-old="${p2.fg}" data-new="${suggestion.hex}">
+       Use ${nearest(suggestion.hex).name} instead
+      </button>
+      <div class="fixsw" style="background:${show(suggestion.hex)}" title="${suggestion.hex.toUpperCase()}"></div>`
+    :`<span class="fixnone">No version of this colour will work on that background. Change the background instead.</span>`}
+  </div>`;}).join('');
+ fix.innerHTML=`<h3 class="block">How to fix these</h3>
+  <p class="lede">These pairs are too close to read comfortably. For each one we have worked out the nearest version of your colour that does pass, so you keep the colour you wanted and only move it as far as you have to.</p>
+  ${rows}`;
+ fix.querySelectorAll('.fixbtn').forEach(b=>b.onclick=()=>{
+  const i=palette.indexOf(b.dataset.old);
+  if(i<0)return;
+  palette[i]=b.dataset.new;
+  renderPalette();buildProp();
+  toast('Swapped in '+nearest(b.dataset.new).name);
+ });
 }
 renderPalette();buildProp();
 
@@ -2055,29 +2734,51 @@ renderTray();
 (function(){
 'use strict';
 
-/* ═════ 1 · PERSISTENCE ═════ */
-const KEY='chromatic.v1';
-let S={};
-try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(_){S={}}
-let saveT;
-function save(){clearTimeout(saveT);saveT=setTimeout(()=>{
- try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}},200);}
+/* ═════ 1 · PERSISTENCE ═════
+   S is the shared APP object declared at the top of the script. The alias keeps
+   the code below readable; there is only ever one store. */
+const S=APP,save=saveApp;
 
-if(Array.isArray(S.palette)&&S.palette.length)palette=S.palette.slice();
-const _renderPalette=renderPalette;
-renderPalette=function(){_renderPalette.apply(this,arguments);S.palette=palette.slice();save();};
-renderPalette();buildProp();
-
-/* theme — restore, follow the OS on first run, keep the browser chrome in step */
+/* Declared here because renderPalette repaints the browser chrome, and that runs
+   before the theme block further down would otherwise create this. */
 document.querySelectorAll('meta[name="theme-color"][media]').forEach(m=>m.remove());
 const metaTheme=document.createElement('meta');metaTheme.name='theme-color';
 document.head.appendChild(metaTheme);
+
+if(Array.isArray(S.palette)&&S.palette.length)palette=S.palette.slice();
+const _renderPalette=renderPalette;
+renderPalette=function(){
+ _renderPalette.apply(this,arguments);
+ S.palette=palette.slice();save();
+ paintChrome();
+ if(typeof renderSaved==='function')renderSaved();
+};
+renderPalette();buildProp();renderSaved();
+
+/* theme — restore, follow the OS on first run, keep the browser chrome in step */
 function applyTheme(mode){
  document.documentElement.setAttribute('data-theme',mode);
  document.getElementById('theme-lbl').textContent=mode==='dark'?'Light':'Dark';
  document.getElementById('theme-ico').textContent=mode==='dark'?'◑':'◐';
- metaTheme.content=mode==='dark'?'#141518':'#FAF9F7';
+ paintChrome();
  drawWheel();
+}
+/* The browser chrome picks up the palette you are working on, gently. On Android
+   and in the iOS status bar the app then feels like it belongs to your colours. */
+function paintChrome(){
+ const dark=document.documentElement.getAttribute('data-theme')==='dark';
+ const base=dark?'#141518':'#FAF9F7';
+ const lead=palette&&palette.length?palette[0]:null;
+ if(!lead){metaTheme.content=base;return;}
+ /* Blend a little of the palette into the chrome rather than rebuilding the
+    colour from it. Lightness barely moves, so the bar still reads as the app's
+    own, just leaning towards whatever you are working on. */
+ const A=rgbToOklab(...hexToRgb(base)),B=rgbToOklab(...hexToRgb(lead));
+ const t=0.14;
+ metaTheme.content=rgbToHex(...oklabToRgb(
+  A[0]+(B[0]-A[0])*t*0.3,
+  A[1]+(B[1]-A[1])*t,
+  A[2]+(B[2]-A[2])*t));
 }
 applyTheme(S.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 document.getElementById('theme').onclick=()=>{
@@ -2154,6 +2855,36 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
   }).catch(err=>console.warn('[pwa] service worker registration failed:',err));
  });
 }
+
+/* ═════ 1b · KEYBOARD ACCESS FOR THE COLOUR TARGETS ═════
+   Most of the clickable colours are <div>s built by innerHTML in 37 places. Rather
+   than editing every one, watch the document and promote them as they appear, then
+   translate Enter and Space into a click. */
+const CLICKABLE='.psw .blk,.rec,.recipe,.hsw,.cp-sw,.tray-sw';
+function promote(root){
+ (root||document).querySelectorAll(CLICKABLE).forEach(el=>{
+  if(el.dataset.kb)return;
+  el.dataset.kb='1';
+  el.setAttribute('tabindex','0');
+  if(!el.getAttribute('role'))el.setAttribute('role','button');
+  if(!el.getAttribute('aria-label')){
+   const hex=el.dataset.hex||el.querySelector('[data-hex]')?.dataset.hex;
+   const nm=el.querySelector('b')?.textContent||(hex?nearest(hex).name:null);
+   if(nm)el.setAttribute('aria-label',nm+(hex?' '+hex.toUpperCase():''));
+  }
+ });
+}
+promote();
+new MutationObserver(muts=>{
+ for(const m of muts)for(const n of m.addedNodes)
+  if(n.nodeType===1)promote(n.parentNode||n);
+}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Enter'&&e.key!==' ')return;
+ const el=e.target.closest&&e.target.closest(CLICKABLE);
+ if(!el)return;
+ e.preventDefault();el.click();
+});
 
 /* ═════ 2a · COLOUR PICKER ═════
    The native <input type="color"> opens the operating system dialog, which is
@@ -2276,22 +3007,132 @@ runAdvisor=function(){advSwatch.style.background=advInput.value;_runAdvisor();};
 const ctxSel=document.getElementById('ctx-select');
 function applyCtx(key,announce){
  if(!CTX[key])key='clothing';
+ const C=CTX[key];
  appCtx=key;
  ctxSel.value=key;
  S.ctx=key;save();
- document.getElementById('adv-example').textContent=CTX[key].example;
- document.getElementById('prop-example').textContent=CTX[key].prop;
+
+ /* 1 · the colour model follows the medium.
+    Pigment is subtractive and screens are additive, so the wheel that is correct
+    for a painter is wrong for an interface. The app teaches this in Lesson 3 and
+    used to ignore it here. */
+ advMode=C.model;wheelMode=C.model;
+ document.querySelectorAll('#adv-mode button,#wheel-mode button').forEach(b=>
+  b.classList.toggle('on',b.dataset.m===C.model));
+ document.querySelectorAll('#adv-mode,#wheel-mode').forEach(seg=>{
+  seg.style.display=C.modelLocked?'none':'';});
+ document.querySelectorAll('.model-note').forEach(n=>{
+  n.textContent=C.model==='paint'
+   ? 'Set to the paint wheel, because ' + C.thing + 's are made of pigment and dye.'
+   : 'Set to the screen wheel, because a ' + C.thing + ' is made of light.';
+  n.style.display=C.modelLocked?'':'none';});
+
+ /* 2 · only show the tabs this kind of work needs */
+ document.querySelectorAll('#nav button').forEach(b=>{
+  const on=C.tabs.includes(b.dataset.s);
+  b.hidden=!on;
+  if(!on&&b.classList.contains('active'))goTo('advisor');
+ });
+
+ /* 3 · default the export to something useful for this medium */
+ if(typeof exportFmt!=='undefined'&&EXPORTS[C.export]){
+  exportFmt=C.export;
+  if(document.getElementById('exportbox').style.display==='block')renderExport();
+ }
+
+ document.getElementById('adv-example').textContent=C.example;
+ document.getElementById('prop-example').textContent=C.prop;
  document.querySelectorAll('.ctx-note').forEach(n=>n.classList.toggle('on',n.dataset.ctx===key));
- runAdvisor();          // re-renders every suggestion with the new examples
- renderPreviews();      // re-orders and highlights the matching preview
- if(announce)toast('Now showing advice for '+CTX[key].label.toLowerCase());
+ runAdvisor();
+ drawWheel();showSample(sampled);
+ renderPreviews();
+ renderMetric();
+ if(announce)toast('Now set up for ' + C.label.toLowerCase());
 }
 ctxSel.addEventListener('change',e=>applyCtx(e.target.value,true));
 applyCtx(S.ctx||'clothing',false);
+
+/* First run used to be a toast that vanished in under two seconds, introducing the
+   most important control in the app. Ask the question properly instead. */
+const welcome=document.getElementById('welcome');
 if(!S.ctxSeen){
- S.ctxSeen=1;save();
- setTimeout(()=>toast('Tip: set what you are working on, up at the top'),1400);
+ document.getElementById('welcome-opts').innerHTML=Object.entries(CTX).map(([k,v])=>
+  `<button data-k="${k}">${v.label}</button>`).join('');
+ welcome.classList.add('on');
+ document.getElementById('welcome-opts').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  S.ctxSeen=1;save();welcome.classList.remove('on');
+  applyCtx(b.dataset.k,true);
+ };
+ document.getElementById('welcome-skip').onclick=()=>{
+  S.ctxSeen=1;save();welcome.classList.remove('on');
+ };
+ welcome.addEventListener('click',e=>{if(e.target===welcome){
+  S.ctxSeen=1;save();welcome.classList.remove('on');}});
 }
+
+/* ═════ GLOSSARY TERMS, EXPLAINED IN PLACE ═════
+   Twenty-two good definitions sat in a tab nobody opened, while the words they
+   define appeared bare all over the app. Now they explain themselves on the spot. */
+const TERMMAP={};
+TERMS.forEach(([t,d])=>TERMMAP[t.toLowerCase()]=[t,d]);
+const TERM_WORDS=['undertone','saturation','chroma','hue','value','tint','shade','tone',
+ 'complementary','analogous','neutral','contrast','accent colour','simultaneous contrast',
+ 'colour temperature','colorway'];
+const termpop=document.getElementById('termpop');
+function markTerms(root){
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
+  acceptNode(n){
+   const p=n.parentElement;
+   if(!p||p.closest('script,style,.term,.termpop,button,input,select,.mono,#glgrid,.cp'))
+    return NodeFilter.FILTER_REJECT;
+   return n.nodeValue.trim().length>3?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+  }});
+ const targets=[];let n;
+ while(n=walker.nextNode())targets.push(n);
+ const re=new RegExp('\\b('+TERM_WORDS.join('|')+')\\b','i');
+ targets.forEach(node=>{
+  const m=node.nodeValue.match(re);
+  if(!m)return;
+  const key=m[1].toLowerCase();
+  const entry=TERMMAP[key]||TERMMAP[key.replace(' colour','')];
+  if(!entry)return;
+  const idx=m.index;
+  const after=node.splitText(idx);
+  after.splitText(m[1].length);
+  const span=document.createElement('span');
+  span.className='term';span.tabIndex=0;
+  span.dataset.term=entry[0];
+  span.textContent=after.nodeValue;
+  after.parentNode.replaceChild(span,after);
+ });
+}
+function showTerm(el){
+ const e=TERMMAP[el.dataset.term.toLowerCase()];if(!e)return;
+ termpop.innerHTML=`<b>${e[0]}</b><p>${e[1]}</p>`;
+ termpop.classList.add('on');
+ const r=el.getBoundingClientRect();
+ const w=termpop.offsetWidth,h=termpop.offsetHeight;
+ termpop.style.left=clamp(r.left,10,innerWidth-w-10)+'px';
+ termpop.style.top=(r.bottom+8+h>innerHeight?r.top-h-8:r.bottom+8)+'px';
+}
+const hideTerm=()=>termpop.classList.remove('on');
+document.addEventListener('pointerover',e=>{
+ const t=e.target.closest&&e.target.closest('.term');
+ if(t)showTerm(t);else if(!e.target.closest('.termpop'))hideTerm();
+});
+document.addEventListener('focusin',e=>{
+ const t=e.target.closest&&e.target.closest('.term');if(t)showTerm(t);});
+document.addEventListener('focusout',hideTerm);
+addEventListener('scroll',hideTerm,{passive:true});
+/* Each pass marks at most one term per text node, and splitting the node creates
+   fresh ones, so a few passes catch paragraphs that mention several terms. */
+function markAll(){
+ const sel='.lbody,.lede,.desc,.cap p,.callout,.hint,.libnote,.rc-body p,.metric .k';
+ for(let pass=0;pass<3;pass++)document.querySelectorAll(sel).forEach(markTerms);
+}
+setTimeout(markAll,400);
+document.getElementById('nav').addEventListener('click',()=>setTimeout(markAll,120));
 
 /* keep the sticky nav directly under the topbar whatever height it takes */
 const topbarEl=document.querySelector('.topbar');
@@ -2995,11 +3836,23 @@ if(S.tone&&S.tone.profile){
    and we were ${t.conf} out of 100 sure about it. Only those words were kept. The photo was deleted. Scan again whenever you want to update it.`;
 }
 
-/* ═════ 10 · DEEP LINKS ═════ */
+/* ═════ 10 · DEEP LINKS AND SHARED PALETTES ═════ */
 const qp=new URLSearchParams(location.search);
 const dest=qp.get('go');
 if(dest&&document.querySelector(`#nav button[data-s="${dest}"]`))goTo(dest);
 if(qp.get('scan')==='1'){setMode('scan');}
+
+/* someone opened a shared palette link */
+const shared=(location.hash.match(/^#p=([0-9a-f-]+)$/i)||[])[1];
+if(shared){
+ const cols=shared.split('-').filter(x=>/^[0-9a-f]{6}$/i.test(x)).map(x=>'#'+x.toLowerCase());
+ if(cols.length){
+  palette=cols.slice(0,12);renderPalette();buildProp();
+  goTo('lab');
+  history.replaceState(null,'',location.pathname+location.search);
+  setTimeout(()=>toast('Loaded a shared palette of '+cols.length+' colours'),500);
+ }
+}
 
 })();
 </script>
