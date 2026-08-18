@@ -667,6 +667,24 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
   .banner{flex-direction:column;align-items:stretch}
   .banner .acts{justify-content:flex-end}
 }
+
+/* Try it on your own photo */
+.ph-note{font-size:.83rem;color:var(--muted);line-height:1.6;margin:8px 0}
+.ph-stage{margin:10px 0}
+.ph-stage canvas{max-width:100%;height:auto;display:block;border-radius:12px;
+ border:1px solid var(--line);cursor:crosshair;touch-action:none;
+ -webkit-user-select:none;user-select:none}
+.ph-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.ph-tol{display:flex;align-items:center;gap:10px;font-size:.82rem;
+ color:var(--muted);margin:8px 0}
+.ph-tol input[type=range]{flex:1;max-width:230px}
+.ph-out{display:flex;gap:14px;flex-wrap:wrap;font-size:.83rem;margin:10px 0 2px}
+.ph-out span{display:inline-flex;align-items:center;gap:7px}
+.ph-out i{width:14px;height:14px;border-radius:4px;display:inline-block;
+ border:1px solid var(--line);flex:none}
+.ph-fit{font-variant-numeric:tabular-nums;color:var(--muted)}
+.ph-warn{font-size:.83rem;color:var(--warn,#9A6B12);margin:6px 0}
+#prev-outfit canvas{max-width:100%;height:auto;display:block;border-radius:10px}
 </style>
 </head>
 <body>
@@ -915,8 +933,9 @@ nav button,.labnav button,.seg button,.modeseg button{min-height:44px}
       <div class="fams" id="figpick" style="margin:0"></div>
     </div>
     <p class="lede">Tap any colour below a picture to move it to the next one in your palette. Hold Shift to go back. Lock the ones you like with the square on the right, then press Shuffle to try the rest against them.</p>
+    <div class="photoui" id="photoui"></div>
     <div class="prevwrap" id="prevwrap">
-      <div class="prevbox" data-prev="outfit"><h5>As an outfit</h5>
+      <div class="prevbox" data-prev="outfit"><h5 id="prev-outfit-h">As an outfit</h5>
         <div class="prevart" id="prev-outfit"></div><div class="slots" data-k="outfit"></div></div>
       <div class="prevbox" data-prev="canvas"><h5>As a painting</h5>
         <div class="prevart" id="prev-canvas"></div><div class="slots" data-k="canvas"></div></div>
@@ -2607,6 +2626,641 @@ document.getElementById('prevwrap').addEventListener('click',e=>{
  const rs=e.target.closest('[data-reset]');if(rs){resetSlots(rs.dataset.reset);return;}
 });
 
+
+/* How well a colour sits against your own colouring, written as a percentage.
+   Three things decide it. Whether the gap in lightness between the colour and
+   your skin is the gap that suits you. Whether its warmth agrees with your
+   undertone. And whether it is as clear, or as soft, as you are. A percentage
+   is a blunt way to say all that, but it is quick to read and it is honest
+   about being an estimate rather than a verdict. */
+function fitPct(hex){
+ const t=APP.tone;if(!t||!t.profile)return null;
+ const P=t.profile,lab=labOf(hex);
+ const bell=(x,w)=>Math.exp(-(x/w)*(x/w));
+ const dL=Math.abs(lab[0]-P.L);
+ const sL=bell(dL-(P.dLideal==null?28:P.dLideal),23);
+ const lean=clamp(Math.atan2(lab[2],lab[1])/(Math.PI/2)*1.1,-1,1);
+ const sW=bell(lean-((P.ax&&P.ax.w)||0),0.95);
+ const haveC=clamp((Math.hypot(lab[1],lab[2])-30)/34,-1,1);
+ const sC=bell(haveC-((P.ax&&P.ax.c)||0),1.15);
+ return Math.round(clamp(100*(.44*sL+.34*sW+.22*sC),4,99));
+}
+
+/* ── Try it on your own photo ──────────────────────────────────────────────
+   A drawing of a person only goes so far. The question people actually ask is
+   "how would this look on me", and the only honest way to answer it is to put
+   the colour on your own photograph, in your own light, beside your own skin.
+
+   So this repaints clothes you are already wearing. Every fold, crease and
+   shadow stays exactly where it was; only the colour underneath them moves.
+   It does not change the cut of the garment, and that is on purpose. When the
+   shape holds still and one thing varies, you are comparing colours. When the
+   shape changes too, you are comparing outfits, and you learn less.
+
+   Your photo never leaves your phone. It is kept in this browser's own
+   storage, and there is a button to delete it. */
+const PHOTO={ready:false,w:0,h:0,base:null,L:null,A:null,B:null,E:null,
+ masks:{},soft:{},stats:{},box:{},out:null,edit:null,mode:'edit',part:'top',
+ tol:0.085,note:''};
+const PH_PARTS=[['top','Top'],['bottom','Bottom'],['layer','Layer'],['shoes','Shoes']];
+const PH_SLOT={top:0,bottom:1,layer:2,shoes:3};
+const PH_TINT={top:'#2F7DFF',bottom:'#FF7A1A',layer:'#12B886',shoes:'#C42AC4'};
+const PH_MAX=780;
+
+/* localStorage is far too small for a photograph, so this one lives in the
+   browser's larger store. Same machine, same rules: nothing is uploaded. */
+function phDB(){return new Promise((res,rej)=>{
+ const r=indexedDB.open('chromatic',1);
+ r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('photo'))
+  r.result.createObjectStore('photo');};
+ r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function phWrite(v){return phDB().then(db=>new Promise((res,rej)=>{
+ const t=db.transaction('photo','readwrite');
+ t.objectStore('photo').put(v,'me');
+ t.oncomplete=()=>res();t.onerror=()=>rej(t.error);}));}
+function phRead(){return phDB().then(db=>new Promise((res,rej)=>{
+ const t=db.transaction('photo','readonly'),q=t.objectStore('photo').get('me');
+ q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);}));}
+function phWipe(){return phDB().then(db=>new Promise((res,rej)=>{
+ const t=db.transaction('photo','readwrite');
+ t.objectStore('photo').delete('me');
+ t.oncomplete=()=>res();t.onerror=()=>rej(t.error);}));}
+
+/* Every pixel gets converted once, when the photo arrives. Doing it inside the
+   repaint loop instead would mean redoing half a million conversions each time
+   you nudged a colour. */
+/* Half a million pixels go through this, so it is written out longhand rather
+   than calling rgbToOklab. That version returns a fresh array every time, and
+   half a million short-lived arrays turned adding a photo into a visible pause.
+   The sRGB curve becomes a 256-entry table for the same reason. */
+const PH_LIN=(()=>{const t=new Float32Array(256);
+ for(let v=0;v<256;v++){const f=v/255;
+  t[v]=f<=.04045?f/12.92:Math.pow((f+.055)/1.055,2.4);}
+ return t;})();
+function phBuildField(){
+ const d=PHOTO.base.data,n=PHOTO.w*PHOTO.h;
+ const L=new Float32Array(n),A=new Float32Array(n),B=new Float32Array(n);
+ const cbrt=Math.cbrt;
+ for(let i=0;i<n;i++){
+  const o=i*4,R=PH_LIN[d[o]],G=PH_LIN[d[o+1]],Bl=PH_LIN[d[o+2]];
+  const l=cbrt(.4122214708*R+.5363325363*G+.0514459929*Bl);
+  const m=cbrt(.2119034982*R+.6806995451*G+.1073969566*Bl);
+  const s=cbrt(.0883024619*R+.2817188376*G+.6299787005*Bl);
+  L[i]=.2104542553*l+.7936177850*m-.0040720468*s;
+  A[i]=1.9779984951*l-2.4285922050*m+.4505937099*s;
+  B[i]=.0259040371*l+.7827717662*m-.8086757660*s;
+ }
+ PHOTO.L=L;PHOTO.A=A;PHOTO.B=B;
+ phBuildEdges();
+}
+
+/* Where the picture changes sharply.
+
+   This is the part that makes a white shirt against a pale wall work at all.
+   Colour alone cannot separate them: they are both near enough to grey that
+   there is no hue to compare, and the shirt's own folds swing its brightness
+   further than the gap between the shirt and the wall. Every setting that
+   catches the folds also catches the wall.
+
+   What does tell them apart is the boundary. Light falling across cloth changes
+   gradually, while the line where the shirt stops and the wall starts changes
+   all at once. So the fill is allowed to wander as far as it likes through
+   gentle changes, and is stopped at sharp ones.
+
+   The threshold is not a fixed number and it is not taken from the whole
+   picture either. Taking it from the whole picture sounds reasonable and is
+   quietly wrong: the strongest edge in a photo is usually somewhere else
+   entirely, like the line between hair and a bright window, and letting that
+   set the bar leaves the threshold far too high to notice the soft boundary
+   between a pale shirt and a pale wall.
+
+   So the bar is set near where you tapped, from the cloth's own texture. Weave,
+   folds and grain all sit low. Anything a good deal livelier than the garment's
+   own texture is a boundary. See phSeedEdge. */
+function phBuildEdges(){
+ const w=PHOTO.w,h=PHOTO.h,L=PHOTO.L,A=PHOTO.A,B=PHOTO.B;
+ const E=new Float32Array(w*h);
+ const an=new Float32Array(w*h),bn=new Float32Array(w*h);
+ for(let i=0;i<w*h;i++){const z=Math.max(L[i],0.06);an[i]=A[i]/z;bn[i]=B[i]/z;}
+ for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+  const i=y*w+x;
+  const gx=L[i+1]-L[i-1], gy=L[i+w]-L[i-w];
+  const cx=Math.abs(an[i+1]-an[i-1])+Math.abs(bn[i+1]-bn[i-1]);
+  const cy=Math.abs(an[i+w]-an[i-w])+Math.abs(bn[i+w]-bn[i-w]);
+  E[i]=Math.hypot(gx,gy)+1.5*Math.hypot(cx,cy);
+ }
+ PHOTO.E=E;
+}
+/* How lively the cloth is right where you tapped, read as a high-ish point in
+   the local spread rather than an average, so a single speck of dust does not
+   raise the bar for the whole garment. */
+function phSeedEdge(px,py){
+ const w=PHOTO.w,h=PHOTO.h,E=PHOTO.E,r=Math.max(6,Math.round(Math.min(w,h)*0.035));
+ const v=[];
+ for(let y=Math.max(1,py-r);y<Math.min(h-1,py+r);y++)
+  for(let x=Math.max(1,px-r);x<Math.min(w-1,px+r);x++)v.push(E[y*w+x]);
+ if(!v.length)return 0.05;
+ v.sort((a,b)=>a-b);
+ return v[Math.floor(0.85*v.length)];
+}
+
+/* Grow the mask outwards a little, then soften it.
+
+   Both steps earn their place. The fill deliberately stops short of a sharp
+   edge, so without the growing step a thin rim of the old colour survives all
+   the way round the garment. And the pixels right on that rim are part cloth
+   and part background, so a hard edge there gives a cut-out, pasted-on look.
+   Softening lets the new colour fade out across exactly those pixels. */
+function phFeather(mask,r){
+ const w=PHOTO.w,h=PHOTO.h;
+ const a=document.createElement('canvas');a.width=w;a.height=h;
+ const ac=a.getContext('2d'),im=ac.createImageData(w,h);
+ for(let i=0;i<w*h;i++)im.data[i*4+3]=mask[i];
+ ac.putImageData(im,0,0);
+ const b=document.createElement('canvas');b.width=w;b.height=h;
+ const bc=b.getContext('2d',{willReadFrequently:true});
+ /* drawing the same mask around a small ring is a cheap way to widen it. Four
+    positions plus the original is enough once the blur below rounds it off */
+ bc.drawImage(a,2,0);bc.drawImage(a,-2,0);
+ bc.drawImage(a,0,2);bc.drawImage(a,0,-2);
+ bc.drawImage(a,0,0);
+ const c=document.createElement('canvas');c.width=w;c.height=h;
+ const cc=c.getContext('2d',{willReadFrequently:true});
+ cc.filter='blur('+r+'px)';cc.drawImage(b,0,0);
+ const d=cc.getImageData(0,0,w,h).data,out=new Uint8Array(w*h);
+ for(let i=0;i<w*h;i++)out[i]=d[i*4+3];
+ return out;
+}
+
+/* Spread out from where you tapped, taking in every neighbouring pixel that is
+   near enough in colour.
+
+   The comparison is not a plain colour distance, because that fails on exactly
+   the photos people take. A fold is the same cloth standing in less light, so
+   it is much darker than the pixel you tapped, and a plain distance leaves the
+   folds behind as stripes of the old colour. Turning the tolerance up until the
+   folds come in then lets the whole background in as well.
+
+   So the fill compares chromaticity instead: a and b divided by lightness. That
+   is what a dye does to cloth, and it barely moves when the light dims, which
+   means one tap crosses every fold in a garment. Lightness still counts, but
+   only a little, as a backstop against running through a hard edge.
+
+   The tolerance also tightens with distance from your finger. Near the tap we
+   take your word for it. Far away we ask for better evidence, which is what
+   stops a tap on a grey top from running down into grey trousers.
+
+   And it will not step across a sharp edge, which is what keeps a pale garment
+   from bleeding into a pale wall. See phBuildEdges above. */
+function phFill(part,px,py){
+ const w=PHOTO.w,h=PHOTO.h,L=PHOTO.L,A=PHOTO.A,B=PHOTO.B,E=PHOTO.E;
+ const mask=PHOTO.masks[part]||(PHOTO.masks[part]=new Uint8Array(w*h));
+ const nz=i=>Math.max(L[i],0.06);
+ let sl=0,sa=0,sb=0,cnt=0;
+ for(let y=Math.max(0,py-2);y<=Math.min(h-1,py+2);y++)
+  for(let x=Math.max(0,px-2);x<=Math.min(w-1,px+2);x++){
+   const i=y*w+x;sl+=L[i];sa+=A[i]/nz(i);sb+=B[i]/nz(i);cnt++;}
+ sl/=cnt;sa/=cnt;sb/=cnt;
+ const seen=new Uint8Array(w*h),stack=new Int32Array(w*h);
+ const t2=PHOTO.tol*PHOTO.tol, R2=Math.pow(0.28*Math.hypot(w,h),2);
+ /* the one slider moves both settings together, so "grabs more" also means
+    "more willing to cross a faint edge" */
+ const edgeT=clamp(phSeedEdge(px,py)*3.2,0.012,0.14)*(0.7+PHOTO.tol*3.5);
+ let sp=0,hit=0,start=py*w+px;
+ stack[sp++]=start;seen[start]=1;
+ const grow=new Uint8Array(w*h);
+ while(sp){
+  const i=stack[--sp];
+  if(E[i]>edgeT)continue;
+  const x=i%w,y=(i-x)/w,ex=x-px,ey=y-py;
+  const room=t2/(1+(ex*ex+ey*ey)/R2);
+  const dl=(L[i]-sl)*0.22,da=(A[i]/nz(i)-sa)*1.5,db=(B[i]/nz(i)-sb)*1.5;
+  if(dl*dl+da*da+db*db>room)continue;
+  grow[i]=255;hit++;
+  if(x>0&&!seen[i-1]){seen[i-1]=1;stack[sp++]=i-1;}
+  if(x<w-1&&!seen[i+1]){seen[i+1]=1;stack[sp++]=i+1;}
+  if(y>0&&!seen[i-w]){seen[i-w]=1;stack[sp++]=i-w;}
+  if(y<h-1&&!seen[i+w]){seen[i+w]=1;stack[sp++]=i+w;}
+ }
+ /* If one tap swallows much of the picture, the garment and whatever is behind
+    it are too close in colour to tell apart at this setting. Say so rather than
+    painting the whole photograph. */
+ if(hit>w*h*0.45){
+  PHOTO.note='That spread across too much of the photo, because this garment '+
+   'and whatever is behind it are close to the same colour. Try the slider '+
+   'further to the left. If tapping will not behave, drag your finger across '+
+   'the garment instead and paint it in by hand.';
+  return false;}
+ for(let i=0;i<w*h;i++)if(grow[i])mask[i]=255;
+ PHOTO.note='';
+ return true;
+}
+
+/* Work out where the garment's own light sits: its middle, and how far it runs
+   into shadow and highlight. The repaint keeps that shape and moves it onto the
+   new colour.
+
+   All three numbers are positions in the sorted list rather than averages. If a
+   mask has picked up a bit of something else, an average drags towards the
+   intruder and the whole garment comes out at the wrong brightness. The middle
+   value barely moves until the intruder is most of the mask. The ends are read
+   just inside the extremes for the same reason, so one blown-out highlight does
+   not decide how much the folds get squashed. */
+function phStats(part){
+ const m=PHOTO.masks[part];if(!m)return null;
+ const vals=[];const L=PHOTO.L;
+ for(let i=0;i<m.length;i++)if(m[i])vals.push(L[i]);
+ if(vals.length<40)return null;
+ vals.sort((a,b)=>a-b);
+ const q=p=>vals[Math.min(vals.length-1,Math.floor(p*vals.length))];
+ return{mean:q(0.5),lo:q(0.08),hi:q(0.92),n:vals.length};
+}
+function phRebuild(part){
+ PHOTO.stats[part]=phStats(part);
+ PHOTO.soft[part]=PHOTO.masks[part]?phFeather(PHOTO.masks[part],1.6):null;
+ PHOTO.box[part]=PHOTO.soft[part]?phBox(PHOTO.soft[part]):null;
+}
+/* The rectangle a garment actually occupies. A top covers maybe a sixth of a
+   photo, so without this the repaint walks half a million pixels to touch
+   eighty thousand of them. */
+function phBox(m){
+ const w=PHOTO.w,h=PHOTO.h;
+ let x0=w,y0=h,x1=-1,y1=-1;
+ for(let y=0;y<h;y++){const r=y*w;
+  for(let x=0;x<w;x++)if(m[r+x]){
+   if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+ return x1<0?null:{x0,y0,x1,y1};
+}
+
+/* The sRGB encoding curve as a table. It is the last step for every pixel of
+   every garment on every repaint, and the power function is the slowest thing
+   in that loop. The curve climbs steeply near black, so the table needs to be
+   finer than it first appears: at 1024 steps the worst error is about one and a
+   half levels out of 255, which is enough to band a smooth shadow. At 16384 it
+   is under a tenth of a level, and the table is 64KB, which is nothing. */
+const PH_ENC=(()=>{const N=16384,t=new Float32Array(N+1);
+ for(let i=0;i<=N;i++){const v=i/N;
+  t[i]=255*(v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055);}
+ return v=>v<=0?0:v>=1?255:t[(v*N+0.5)|0];})();
+
+/* The most chroma a hue can hold at a given lightness, found by halving the
+   interval. Without this, a strong colour laid over a bright highlight runs off
+   the end of the screen's range and the highlight turns into a flat patch. */
+function phChromaCap(h,L){
+ let lo=0,hi=0.42;
+ for(let k=0;k<12;k++){
+  const mid=(lo+hi)/2;
+  const c=oklabToRgb(L,mid*Math.cos(h),mid*Math.sin(h));
+  const ok=c[0]>-0.5&&c[0]<255.5&&c[1]>-0.5&&c[1]<255.5&&c[2]>-0.5&&c[2]<255.5;
+  if(ok)lo=mid;else hi=mid;
+ }
+ return lo;
+}
+
+/* `pick` lets a caller name the colour for each part instead of reading the
+   current palette. Only the tests use it, and they use it so that they drive
+   the same code the app runs rather than a copy of it that can drift. */
+function phRecolour(pick){
+ const w=PHOTO.w,h=PHOTO.h;
+ const src=PHOTO.base.data;
+ /* One buffer, reused. Allocating a fresh two-megabyte image on every colour
+    change left the collector to tidy up afterwards, and it did so in the middle
+    of repaints, which is why some of them took twice as long as the rest. */
+ if(!PHOTO.buf||PHOTO.buf.width!==w||PHOTO.buf.height!==h)
+  PHOTO.buf=new ImageData(w,h);
+ const im=PHOTO.buf;
+ im.data.set(src);
+ const d=im.data;
+ for(let pi=0;pi<PH_PARTS.length;pi++){
+  const part=PH_PARTS[pi][0];
+  const soft=PHOTO.soft[part],st=PHOTO.stats[part];
+  if(!soft||!st)continue;
+  const target=(pick&&pick[part])||show(slotColour('outfit',PH_SLOT[part]));
+  const t=rgbToOklab.apply(null,hexToRgb(target));
+  const Lt=t[0],Ct=Math.hypot(t[1],t[2]),ht=Math.atan2(t[2],t[1]);
+  /* Keep the folds. The garment's own spread of light is re-centred on the new
+     colour and squeezed only as far as it has to be to fit around it. */
+  let span=st.hi-st.lo;
+  const room=2*Math.min(Lt,1-Lt);
+  if(span>room)span=room*0.92;
+  const scale=st.hi>st.lo?span/(st.hi-st.lo):0;
+  /* One cap per lightness step rather than one per pixel. */
+  const CAP=new Float32Array(65);
+  for(let k=0;k<=64;k++)CAP[k]=phChromaCap(ht,k/64);
+  /* This loop runs on every pixel of the garment each time a colour changes,
+     which is often, so the colour conversion is written out here rather than
+     called. The version in the library above allocates an array per pixel and
+     recomputes the same sine and cosine half a million times. */
+  const cosH=Math.cos(ht),sinH=Math.sin(ht);
+  const PL=PHOTO.L,mid=st.mean,lo=0.02,hi=0.985;
+  const Ltd=Math.max(Lt,0.08);
+  const bx=PHOTO.box[part]||{x0:0,y0:0,x1:w-1,y1:h-1};
+  for(let y=bx.y0;y<=bx.y1;y++)
+  for(let x=bx.x0,i=y*w+bx.x0;x<=bx.x1;x++,i++){
+   const a=soft[i];if(!a)continue;
+   let Ln=Lt+(PL[i]-mid)*scale;
+   if(Ln<lo)Ln=lo;else if(Ln>hi)Ln=hi;
+   /* Cloth in shadow holds less colour than cloth in the light, so the chroma
+      follows the light instead of staying flat across the garment. */
+   let k=0.5+(Ln/Ltd)*0.5;
+   if(k<0.42)k=0.42;else if(k>1.06)k=1.06;
+   let C=Ct*k;
+   const cap=CAP[(Ln*64+0.5)|0];
+   if(C>cap)C=cap;
+   const aa=C*cosH,bb=C*sinH;
+   let l=Ln+.3963377774*aa+.2158037573*bb;
+   let m=Ln-.1055613458*aa-.0638541728*bb;
+   let s=Ln-.0894841775*aa-1.2914855480*bb;
+   l=l*l*l;m=m*m*m;s=s*s*s;
+   const o=i*4,f=a/255,g=1-f;
+   d[o]  =src[o]  *g+PH_ENC(+4.0767416621*l-3.3077115913*m+.2309699292*s)*f;
+   d[o+1]=src[o+1]*g+PH_ENC(-1.2684380046*l+2.6097574011*m-.3413193965*s)*f;
+   d[o+2]=src[o+2]*g+PH_ENC(-0.0041960863*l-0.7034186147*m+1.7076147010*s)*f;
+  }
+ }
+ PHOTO.out.getContext('2d').putImageData(im,0,0);
+}
+
+/* While you are marking parts up, show what is marked rather than what it would
+   look like. Each part gets its own tint so you can see the three apart. */
+function phPaintEdit(){
+ const w=PHOTO.w,h=PHOTO.h,c=PHOTO.edit.getContext('2d');
+ const im=new ImageData(w,h);im.data.set(PHOTO.base.data);
+ const d=im.data;
+ for(let pi=0;pi<PH_PARTS.length;pi++){
+  const part=PH_PARTS[pi][0],m=PHOTO.masks[part];if(!m)continue;
+  const tint=hexToRgb(PH_TINT[part]);
+  const f=part===PHOTO.part?0.5:0.26,g=1-f;
+  for(let i=0;i<w*h;i++){
+   if(!m[i])continue;const o=i*4;
+   d[o]=d[o]*g+tint[0]*f;d[o+1]=d[o+1]*g+tint[1]*f;d[o+2]=d[o+2]*g+tint[2]*f;}
+ }
+ c.putImageData(im,0,0);
+}
+
+let _phJob=0,_phKey='';
+function phRender(force){
+ if(!PHOTO.ready)return;
+ if(PHOTO.mode==='edit'){phPaintEdit();return;}
+ const key=PH_PARTS.map(p=>PHOTO.soft[p[0]]
+  ?show(slotColour('outfit',PH_SLOT[p[0]])):'-').join('|');
+ if(key===_phKey&&!force)return;
+ _phKey=key;
+ cancelAnimationFrame(_phJob);
+ _phJob=requestAnimationFrame(phRecolour);
+}
+function phMarked(){return PH_PARTS.some(p=>PHOTO.soft[p[0]]&&PHOTO.stats[p[0]]);}
+
+function phAdopt(canvas){
+ PHOTO.w=canvas.width;PHOTO.h=canvas.height;
+ PHOTO.base=canvas.getContext('2d',{willReadFrequently:true})
+  .getImageData(0,0,PHOTO.w,PHOTO.h);
+ phBuildField();
+ for(const k in PHOTO.masks){
+  const m=PHOTO.masks[k];
+  if(!m||m.length!==PHOTO.w*PHOTO.h)delete PHOTO.masks[k];}
+ PHOTO.out=document.createElement('canvas');
+ PHOTO.out.width=PHOTO.w;PHOTO.out.height=PHOTO.h;
+ PHOTO.edit=document.createElement('canvas');
+ PHOTO.edit.width=PHOTO.w;PHOTO.edit.height=PHOTO.h;
+ PHOTO.edit.setAttribute('role','img');
+ PHOTO.edit.setAttribute('aria-label',
+  'Your photo. Tap a garment to mark it for recolouring.');
+ PH_PARTS.forEach(p=>{if(PHOTO.masks[p[0]])phRebuild(p[0]);});
+ PHOTO.ready=true;
+}
+
+function phFromFile(file){
+ return new Promise((res,rej)=>{
+  const rd=new FileReader();
+  rd.onerror=()=>rej(new Error('could not read that file'));
+  rd.onload=()=>{
+   const im=new Image();
+   im.onerror=()=>rej(new Error('that file is not an image we can open'));
+   im.onload=()=>{
+    const sc=Math.min(1,PH_MAX/Math.max(im.width,im.height));
+    const cv=document.createElement('canvas');
+    cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+    res(cv);};
+   im.src=rd.result;};
+  rd.readAsDataURL(file);});
+}
+
+/* Saving happens after every tap and every brush stroke, but the photograph
+   itself never changes once it is loaded. Only the marked-up areas do. So the
+   picture is compressed once and the same compressed copy is written each time,
+   instead of re-encoding a full-size JPEG on every touch.
+
+   The write is also held back a moment. Marking up a garment is half a dozen
+   quick taps, and there is no reason to write to storage between each one. */
+let _phSaveT=0;
+function phSave(){
+ if(!PHOTO.ready)return;
+ clearTimeout(_phSaveT);
+ _phSaveT=setTimeout(()=>{
+  if(!PHOTO.ready||!PHOTO.blob)return;
+  const masks={};
+  PH_PARTS.forEach(p=>{if(PHOTO.masks[p[0]])masks[p[0]]=PHOTO.masks[p[0]];});
+  phWrite({img:PHOTO.blob,masks,w:PHOTO.w,h:PHOTO.h}).catch(()=>{});
+ },400);
+}
+/* compress the photo once, when it arrives */
+function phEncode(){
+ const keep=document.createElement('canvas');
+ keep.width=PHOTO.w;keep.height=PHOTO.h;
+ keep.getContext('2d').putImageData(PHOTO.base,0,0);
+ return new Promise(res=>keep.toBlob(b=>{PHOTO.blob=b||null;res(b);},
+  'image/jpeg',0.86));
+}
+function phRestore(){
+ return phRead().then(rec=>{
+  if(!rec||!rec.img)return false;
+  return new Promise(res=>{
+   const im=new Image();
+   im.onerror=()=>res(false);
+   im.onload=()=>{
+    URL.revokeObjectURL(im.src);
+    const cv=document.createElement('canvas');
+    cv.width=rec.w;cv.height=rec.h;
+    cv.getContext('2d').drawImage(im,0,0);
+    PHOTO.masks=rec.masks||{};
+    phAdopt(cv);
+    PHOTO.blob=rec.img;
+    PHOTO.mode=phMarked()?'view':'edit';
+    res(true);};
+   im.src=URL.createObjectURL(rec.img);});
+ }).catch(()=>false);
+}
+
+function phClear(){
+ PHOTO.ready=false;PHOTO.base=null;PHOTO.L=PHOTO.A=PHOTO.B=null;
+ PHOTO.masks={};PHOTO.soft={};PHOTO.stats={};PHOTO.box={};
+ PHOTO.out=PHOTO.edit=null;PHOTO.blob=null;PHOTO.buf=null;
+ PHOTO.mode='edit';PHOTO.note='';_phKey='';clearTimeout(_phSaveT);
+ phWipe().catch(()=>{});
+}
+
+function renderPhotoUI(){
+ const host=document.getElementById('photoui');if(!host)return;
+ if(!PHOTO.ready){
+  host.innerHTML=
+   '<p class="ph-note"><b>Want to see it on yourself?</b> Add a photo of you '+
+   'standing, taken from head to foot, and the app will repaint your clothes '+
+   'in your colours. The folds and shadows stay put, so what you see is your '+
+   'own shape in a different colour.<br>It works best when the clothes in the '+
+   'photo are plain and fairly light, because a pale garment can be turned any '+
+   'colour, while a black one can only ever be made darker. Daylight and a '+
+   'plain wall behind you help too.<br>The photo stays on this phone. Nothing '+
+   'is uploaded, and you can delete it at any time.</p>'+
+   '<div class="ph-row"><button class="btn sm primary" id="ph-add">'+
+   'Add a photo of you</button>'+
+   '<input type="file" accept="image/*" id="ph-file" hidden></div>';
+  return;
+ }
+ const marked=phMarked();
+ if(PHOTO.mode==='view'){
+  host.innerHTML=
+   '<p class="ph-note">This is your photo with your palette painted onto it. '+
+   'Change the colours under the picture, or below, and it repaints.</p>'+
+   '<div class="ph-out">'+PH_PARTS.filter(p=>PHOTO.stats[p[0]]).map(p=>{
+    const hex=slotColour('outfit',PH_SLOT[p[0]]),f=fitPct(hex);
+    return '<span><i style="background:'+show(hex)+'"></i>'+p[1]+': <b>'+
+     nearest(hex).name+'</b>'+(f==null?'':
+     ' <span class="ph-fit">'+f+'% match</span>')+'</span>';}).join('')+'</div>'+
+   '<div class="ph-row">'+
+   '<button class="btn sm" id="ph-edit">Mark up the clothes again</button>'+
+   '<button class="btn sm" id="ph-remove">Delete my photo</button></div>';
+  return;
+ }
+ host.innerHTML=
+  '<p class="ph-note">Pick a part, then tap that garment in the photo. Tap '+
+  'again on anything it missed, like a sleeve in shadow. If one tap grabs too '+
+  'much, pull the slider to the left and tap again.<br>You can also just drag '+
+  'your finger across the photo to paint an area in by hand, which is the '+
+  'quickest way to fix a stubborn corner.</p>'+
+  '<div class="ph-row">'+PH_PARTS.map(p=>
+   '<button class="chipbtn'+(p[0]===PHOTO.part?' on':'')+'" data-phpart="'+p[0]+
+   '">'+p[1]+(PHOTO.masks[p[0]]?' \u2713':'')+'</button>').join('')+'</div>'+
+  '<div class="ph-tol"><label for="ph-tol">How much one tap grabs</label>'+
+  '<input type="range" id="ph-tol" min="20" max="220" value="'+
+  Math.round(PHOTO.tol*1000)+'"><span>'+
+  (PHOTO.tol<0.06?'A little':PHOTO.tol>0.14?'A lot':'Some')+'</span></div>'+
+  '<div class="ph-row"><button class="chipbtn'+(PHOTO.erase?' on':'')+
+  '" id="ph-erase" aria-pressed="'+(!!PHOTO.erase)+'">'+
+  (PHOTO.erase?'Rubbing out':'Rub bits out')+'</button></div>'+
+  '<div class="ph-stage" id="ph-stage"></div>'+
+  (PHOTO.note?'<p class="ph-warn">'+PHOTO.note+'</p>':'')+
+  '<div class="ph-row">'+
+  '<button class="btn sm primary" id="ph-done"'+(marked?'':' disabled')+'>'+
+  'Done, show me the colours</button>'+
+  '<button class="btn sm" id="ph-undo">Clear this part</button>'+
+  '<button class="btn sm" id="ph-remove">Delete my photo</button></div>';
+ document.getElementById('ph-stage').appendChild(PHOTO.edit);
+ phPaintEdit();
+}
+
+document.getElementById('photoui').addEventListener('click',e=>{
+ const add=e.target.closest('#ph-add');
+ if(add){document.getElementById('ph-file').click();return;}
+ const part=e.target.closest('[data-phpart]');
+ if(part){PHOTO.part=part.dataset.phpart;PHOTO.note='';PHOTO.erase=false;
+  renderPhotoUI();return;}
+ const er=e.target.closest('#ph-erase');
+ if(er){PHOTO.erase=!PHOTO.erase;renderPhotoUI();return;}
+ const undo=e.target.closest('#ph-undo');
+ if(undo){delete PHOTO.masks[PHOTO.part];delete PHOTO.soft[PHOTO.part];
+  delete PHOTO.stats[PHOTO.part];delete PHOTO.box[PHOTO.part];
+  PHOTO.note='';phSave();renderPhotoUI();return;}
+ const done=e.target.closest('#ph-done');
+ if(done){PHOTO.mode='view';renderPhotoUI();phRender(true);renderPreviews();return;}
+ const ed=e.target.closest('#ph-edit');
+ if(ed){PHOTO.mode='edit';renderPhotoUI();renderPreviews();return;}
+ const rm=e.target.closest('#ph-remove');
+ if(rm){phClear();renderPhotoUI();renderPreviews();return;}
+});
+document.getElementById('photoui').addEventListener('input',e=>{
+ if(e.target.id==='ph-tol'){PHOTO.tol=+e.target.value/1000;
+  const lab=e.target.parentNode.querySelector('span');
+  if(lab)lab.textContent=PHOTO.tol<0.06?'A little':PHOTO.tol>0.14?'A lot':'Some';}
+});
+document.getElementById('photoui').addEventListener('change',e=>{
+ if(e.target.id!=='ph-file')return;
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ phFromFile(f).then(cv=>{
+  PHOTO.masks={};PHOTO.soft={};PHOTO.stats={};PHOTO.box={};
+  phAdopt(cv);PHOTO.mode='edit';PHOTO.part='top';PHOTO.note='';
+  phEncode().then(phSave);renderPhotoUI();renderPreviews();
+ }).catch(err=>{
+  PHOTO.note='Sorry, '+err.message+'. Try a JPEG or a PNG.';renderPhotoUI();});
+ e.target.value='';
+});
+/* Tap to fill, drag to paint.
+
+   The filling is right nearly every time, but not every time, and there is one
+   case where no setting can save it: a pale garment against a pale wall, lit so
+   that the garment's own folds swing further than the gap between the garment
+   and the wall. Nothing in the colours separates those two, so the app should
+   not pretend otherwise and leave you stuck.
+
+   Dragging paints the mask by hand, which always works. It is the same gesture
+   people already expect on a photograph, so it does not need explaining before
+   they need it, and it means no photo is ever a dead end. */
+const PH_BRUSH=()=>Math.max(7,Math.round(Math.min(PHOTO.w,PHOTO.h)*0.045));
+let phDrag=null;
+
+/* paint a round dab, and join it to the last one so a quick drag does not come
+   out as a dotted line */
+function phDab(part,x0,y0,x1,y1,erase){
+ const w=PHOTO.w,h=PHOTO.h,r=PH_BRUSH(),r2=r*r;
+ const mask=PHOTO.masks[part]||(PHOTO.masks[part]=new Uint8Array(w*h));
+ const steps=Math.max(1,Math.ceil(Math.hypot(x1-x0,y1-y0)/(r*0.4)));
+ for(let k=0;k<=steps;k++){
+  const cx=Math.round(x0+(x1-x0)*k/steps),cy=Math.round(y0+(y1-y0)*k/steps);
+  for(let y=Math.max(0,cy-r);y<=Math.min(h-1,cy+r);y++){
+   const dy=y-cy,row=y*w;
+   for(let x=Math.max(0,cx-r);x<=Math.min(w-1,cx+r);x++){
+    const dx=x-cx;
+    if(dx*dx+dy*dy<=r2)mask[row+x]=erase?0:255;}}
+ }
+}
+function phPointAt(e){
+ const r=PHOTO.edit.getBoundingClientRect();
+ return{x:Math.floor((e.clientX-r.left)/r.width*PHOTO.w),
+        y:Math.floor((e.clientY-r.top)/r.height*PHOTO.h)};
+}
+document.getElementById('photoui').addEventListener('pointerdown',e=>{
+ if(!PHOTO.ready||PHOTO.mode!=='edit'||e.target!==PHOTO.edit)return;
+ const p=phPointAt(e);
+ if(p.x<0||p.y<0||p.x>=PHOTO.w||p.y>=PHOTO.h)return;
+ phDrag={x:p.x,y:p.y,moved:false};
+ PHOTO.edit.setPointerCapture(e.pointerId);
+ e.preventDefault();
+});
+document.getElementById('photoui').addEventListener('pointermove',e=>{
+ if(!phDrag)return;
+ const p=phPointAt(e);
+ if(!phDrag.moved&&Math.hypot(p.x-phDrag.x,p.y-phDrag.y)<PH_BRUSH()*0.5)return;
+ phDrag.moved=true;
+ phDab(PHOTO.part,phDrag.x,phDrag.y,p.x,p.y,PHOTO.erase);
+ phDrag.x=p.x;phDrag.y=p.y;
+ phPaintEdit();
+ e.preventDefault();
+});
+function phEndDrag(e){
+ if(!phDrag)return;
+ const wasDrag=phDrag.moved,x=phDrag.x,y=phDrag.y;
+ phDrag=null;
+ try{PHOTO.edit.releasePointerCapture(e.pointerId);}catch(_){}
+ if(!wasDrag){
+  if(PHOTO.erase)phDab(PHOTO.part,x,y,x,y,true);
+  else if(!phFill(PHOTO.part,x,y)){phSave();renderPhotoUI();return;}
+ }
+ phRebuild(PHOTO.part);phSave();renderPhotoUI();
+}
+document.getElementById('photoui').addEventListener('pointerup',phEndDrag);
+document.getElementById('photoui').addEventListener('pointercancel',phEndDrag);
+
 function renderPreviews(){
  const S1=k=>[0,1,2,3,4].map(i=>show(slotColour(k,i)));
  let[a,b,c,d,e]=S1('outfit');
@@ -2620,7 +3274,16 @@ function renderPreviews(){
    [a,b,c].some(g=>deltaEHex(g,e)<12))
   e=STAGES[(stageIdx+guard)%STAGES.length];
  e=show(e);
- document.getElementById('prev-outfit').innerHTML=figureSVG(figKind,a,b,c,d,e);
+ /* Once you have marked up a photo of yourself, that is what belongs here.
+    The drawing is the stand-in for when there is no photo. */
+ const outfitHost=document.getElementById('prev-outfit');
+ if(PHOTO.ready&&PHOTO.mode==='view'&&phMarked()){
+  if(outfitHost.firstChild!==PHOTO.out){
+   outfitHost.innerHTML='';outfitHost.appendChild(PHOTO.out);}
+  phRender();
+ }else{
+  outfitHost.innerHTML=figureSVG(figKind,a,b,c,d,e);
+ }
  [a,b,c,d,e]=S1('canvas');
  document.getElementById('prev-canvas').innerHTML=`
  <svg xmlns="http://www.w3.org/2000/svg" width="195" height="150" viewBox="0 0 195 150">
@@ -2684,7 +3347,13 @@ document.getElementById('bodypick').addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  bodyKind=b.dataset.k;APP.body=bodyKind;saveApp();renderBodyPick();renderPreviews();
 });
-renderFigPick();renderBodyPick();
+renderFigPick();renderBodyPick();renderPhotoUI();
+/* A photo you added last time should still be here, already marked up. Reading
+   it back is a trip to disk, so it happens after the first paint rather than
+   holding the app up. */
+if(window.indexedDB)phRestore().then(ok=>{
+ if(!ok)return;renderPhotoUI();phRender(true);renderPreviews();
+}).catch(()=>{});
 
 /* put the preview that matches what you're working on first */
 function orderPreviews(){
